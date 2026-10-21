@@ -1,0 +1,103 @@
+Skip to content
+Documentation
+Community
+Log in
+
+Web API
+
+Overview
+Getting started
+Building with AI
+Concepts
+Access Token
+API calls
+Apps
+Authorization
+Redirect URIs
+Playlists
+Quota modes
+Rate limits
+Scopes
+Spotify URIs and IDs
+Track Relinking
+Tutorials
+How-Tos
+Changelog
+REFERENCE
+Albums
+Artists
+Audiobooks
+Categories
+Chapters
+Episodes
+Genres
+Library
+Markets
+Player
+Playlists
+Search
+Shows
+Tracks
+Users
+Apps
+
+The app provides, among others, the Client ID and Client Secret needed to implement any of the authorization flows.
+
+You can create up to 25 apps per developer account. To create an app, go to your Dashboard and click on the Create an App button to open the following dialog box:
+
+Enter an App Name and App Description of your choice (they will be displayed to the user on the grant screen), put a tick in the Developer Terms of Service checkbox and finally click on CREATE. Your application is now registered, and you'll be redirected to the app overview page.
+
+The app overview page provides access to different elements:
+
+App metrics, such as daily and monthly active users or number of users per country. Note that the metrics are initially empty.
+App Status. By default, your app will be in Development Mode with limits on the number of users who can install it, and the number of API requests it can make. Note that you can request an extension of this quota if needed by clicking on the Request Extension link.
+App settings.
+Client ID, the unique identifier of your app.
+Client Secret, the key you will use to authorize your Web API or SDK calls.
+Always store the client secret key securely; never reveal it publicly! If you suspect that the secret key has been compromised, regenerate it immediately by clicking the ROTATE button on the app overview page.
+
+It is time to configure our app. Click on Edit Settings to view and update your app settings. The following dialog will show up:
+
+Add a web domain or URL to the Website field. This will help users to obtain more information about your application.
+
+In Redirect URIs enter one or more addresses that you want to allowlist with Spotify. This URI enables the Spotify authentication service to automatically invoke your app every time the user logs in (e.g. http://127.0.0.1:8080)
+
+Note that on iOS apps, the redirect URI must follow these rules:
+
+All the characters are lowercase.
+The prefix must be unique to your application (It cannot be a general prefix like http).
+The prefix must only be used by your application for authenticating Spotify. If you already have a URL scheme handled by your application for other uses, do not reuse it.
+Include a path after the first pair of forward slashes.
+
+For example: If your app name is My Awesome App, a good candidate for the redirect URI could be my-awesome-app-login://callback.
+
+If you are developing an Android or iOS app, fill out the Android Package or Bundle IDs respectively.
+
+Once you have finished updating the app settings, click on SAVE.
+
+Finally, you can delete your app by clicking on the DELETE red button.
+
+Footer
+DOCUMENTATION
+Web API
+Web Playback SDK
+Ads API
+iOS
+Android
+Embeds
+Commercial Hardware
+GUIDELINES
+Design
+Accessibility
+COMMUNITY
+News
+Forum
+LEGAL
+Developer Terms
+Developer Policy
+Compliance Tips
+Third Party Licenses
+
+LegalCookies© 2026 Spotify AB
+
+We and our partners use cookies to personalize your experience, to show you ads based on your interests, and for measurement and analytics purposes. By using our website and services, you agree to our use of cookies as described in our Cookie Policy.

@@ -1,0 +1,17 @@
+# secrets
+.env
+.env.*
+!.env.example
+secrets/
+.state.json
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# node
+node_modules/
+.next/
+.vercel/
+# misc
+.DS_Store

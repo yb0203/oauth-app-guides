@@ -1,0 +1,352 @@
+Skip to main content
+Getting Started
+2026 App Awards
+Documentation
+Tools
+Support
+Sign up
+Log in
+Documentation
+Getting started
+Development accounts
+SDKs and tools
+Libraries
+Tools
+Best Practices
+Overview
+Managing connections
+Branding and Naming
+Categorising Transactions
+Data Integrity
+User Experience
+API Call Efficiencies
+Guides
+OAuth2
+Overview
+The code flow
+The PKCE flow
+Custom Connections
+Client Credentials
+Token types
+Scopes
+Tenants
+Limits
+Troubleshooting
+Webhooks
+Remote MCP
+Collaborators
+Idempotent Requests
+How-to guides
+Xero App Store
+App partner guides
+App success tips
+Market your app
+The standard authorization code flow
+
+The standard authorization code flow is suitable for web server applications that can securely store a client secret. If you’re building a native app (desktop or mobile) then you should refer to the PKCE flow.
+
+To get started, create an OAuth2 app and make sure you select the “Auth Code” grant type. Your app is assigned a unique Client ID and you can then generate a Client Secret. The Client Secret is private and should not be shared.
+
+Xero tenants
+
+Xero is a multi-tenanted platform with different types of tenants. Core Xero APIs (e.g. Accounting, Payroll, Files) operate within the context of an Organisation tenant but a tenant can also be a Practice Manager account or a XeroHQ practice. A user may have access to multiple tenants and will choose which ones to connect to your app. The type of tenant they can select will be determined by the scopes your app requests in the authorization step.
+
+At the successful completion of an OAuth flow you will be granted an access token to act on behalf of the user. You will then use that access token to find out which tenants the user has connected to your app. From there, you can make API calls by providing both a valid access token and authorized tenant id with each request.
+
+1. Send a user to authorize your app
+
+Your app should direct users to the following url:
+
+https://login.xero.com/identity/connect/authorize?response_type=code&client_id=YOURCLIENTID&redirect_uri=YOURREDIRECTURI&scope=openid profile email accounting.invoices&state=123
+copy code
+
+The following values should be passed in as parameters:
+
+response_type=code
+client_id issued when you create your app
+scope permissions to request (see below)
+redirect_uri the URL on your server to redirect back to – This must be an https address, however for testing you can use http://localhost/ Please note that http://127.0.0.1 cannot be used
+state a unique string to be passed back on completion (optional) (see below)
+Scopes
+
+The scope parameter is a space-separated list of OAuth scopes, indicating what data you’d like your app to be able to access. You should request the minimum scopes required for whatever the user is doing at the time. The complete list of scopes can be found here.
+
+State
+
+The state parameter should be used to avoid forgery attacks. Pass in a value that’s unique to the user you’re sending through authorisation. It will be passed back after the user completes authorisation.
+
+2. Users are redirected back to you with a code
+
+If the user authorizes your app, Xero will redirect back to your specified redirect_uri with:
+
+code a temporary code that may only be exchanged once and expires 5 minutes after issuance.
+state (if you provided one). If the states don’t match, the request may have been created by a third party and you should abort the process.
+
+If any errors occur or the user denies the request, we redirect back to your redirect_uri with an error parameter.
+
+3. Exchange the code
+
+You can now exchange the verification code for an access token. You will also receive an identity token if you’ve requested OpenID Connect scopes and a refresh token if you’ve requested the offline_access scope.
+
+To do this you will need to make a POST request to our token endpoint:
+
+https://identity.xero.com/connect/token
+copy code
+
+The request will require an authorization header containing your app’s client_id and client_secret
+
+Authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+
+The request body will need to contain the grant type (authorization_code), code and redirect_uri
+
+grant_type=authorization_code
+code=The authorization code you received in the callback
+redirect_uri=The same redirect URI that was used when requesting the code
+POST https://identity.xero.com/connect/token
+authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&code=xxxxxx
+&redirect_uri=https://myapp.com/redirect
+
+
+copy code
+4. Receive your tokens
+
+The token endpoint will verify all the parameters in the request, ensuring the code hasn’t expired and that the client ID and secret match. If everything checks out, it will generate your tokens and return them in the response.
+
+It will contain the following parameters:
+
+access_token The token used to call the API.
+id_tokenThe token containing user identity details (only returned if OpenID Connect scopes are requested).
+expires_inThe amount of seconds until the access token expires.
+token_type: Bearer
+refresh_tokenThe token used to refresh the access token once it has expired (only returned if the offline_access scope is requested).
+Token expiry
+
+All tokens received have an associated expiry time. Access tokens and refresh tokens can be exchanged prior to expiry.
+
+Token expiry times:
+
+id_token: 5 minutes
+access_token: 30 minutes
+refresh_token: 60 days
+The access token
+
+The access token is a JSON Web Token (JWT) which can be decoded to a JSON object containing information about the user and the authentication performed. One particularly useful value is the authentication_event_id which can be used in the next step to find out which tenant/s the user connected in the current auth flow.
+
+{
+    "nbf": 1589363023,
+    "exp": 1589364823,
+    "iss": "https://identity.xero.com",
+    "aud": "https://identity.xero.com/resources",
+    "client_id": "91E5715B1199038080D6D0296EBC1648",
+    "sub": "a3a4dbafh3495a808ed7a7b964388f53",
+    "auth_time": 1589361892,
+    "xero_userid": "1945393b-6eb7-4143-b083-7ab26cd7690b",
+    "global_session_id": "ac2202575e824af3a181c50fcaa65c3c",
+    "jti": "4e7747cec4ce54d6512b4b0775166c5f",
+    "authentication_event_id": "d0ddcf81-f942-4f4d-b3c7-f98045204db4",
+    "scope": [
+      "email",
+      "profile",
+      "openid",
+      "accounting.invoices",
+      "accounting.settings",
+      "offline_access"
+    ]
+  }
+
+copy code
+5. Check the tenants you’re authorized to access
+
+Find out which tenants the user has authorized by calling the connections endpoint. If the user has authorized your app previously, they may have existing tenant connections. All of the connected tenants can now be accessed with the most recent access token.
+
+If you want to retrieve the connection/s that were newly authorized in the current auth flow you can filter by the authEventId query parameter (e.g. ...?authEventId=d0ddcf81-f942-4f4d-b3c7-f98045204db4). You do this using the authentication_event_id found on the decoded access token.
+
+Each connection will have a created date and an updated date. If they differ, that means the user has reconnected this tenant to your app (having previously connected and disconnected it).
+
+GET https://api.xero.com/connections
+Authorization: "Bearer " + access_token
+Content-Type: application/json
+
+Response:
+[
+    {
+        "id": "e1eede29-f875-4a5d-8470-17f6a29a88b1",
+        "authEventId": "d99ecdfe-391d-43d2-b834-17636ba90e8d",
+        "tenantId": "70784a63-d24b-46a9-a4db-0e70a274b056",
+        "tenantType": "ORGANISATION",
+        "tenantName": "Maple Florist",
+        "createdDateUtc": "2019-07-09T23:40:30.1833130",
+        "updatedDateUtc": "2020-05-15T01:35:13.8491980"
+    },
+    {
+        "id": "32587c85-a9b3-4306-ac30-b416e8f2c841",
+        "authEventId": "d0ddcf81-f942-4f4d-b3c7-f98045204db4",
+        "tenantId": "e0da6937-de07-4a14-adee-37abfac298ce",
+        "tenantType": "ORGANISATION",
+        "tenantName": "Adam Demo Company (NZ)",
+        "createdDateUtc": "2020-03-23T02:24:22.2328510",
+        "updatedDateUtc": "2020-05-13T09:43:40.7689720"
+    },
+    {
+        "id": "74305bf3-12e0-45e2-8dc8-e3ec73e3b1f9",
+        "authEventId": "d0ddcf81-f942-4f4d-b3c7-f98045204db4",
+        "tenantId": "c3d5e782-2153-4cda-bdb4-cec791ceb90d",
+        "tenantType": "PRACTICEMANAGER",
+        "tenantName": null,
+        "createdDateUtc": "2020-01-30T01:33:36.2717380",
+        "updatedDateUtc": "2020-02-02T19:21:08.5739590"
+    }
+]
+
+copy code
+
+Remember! Starter Tier allows up to 5 connections. Once you’ve got a few customers we recommend upgrading to the Core Tier. Then to get certified and become an app partner, you can upgrade to the Plus Tier.
+
+6. Call the API
+
+Make calls against the Xero APIs by simply adding the following headers to your request:
+
+Authorization: "Bearer " + access_token
+xero-tenant-id: tenantId
+GET ../api.xro/2.0/Invoices
+Authorization: "Bearer " + access_token
+Accept: application/json
+Xero-tenant-id: 45e4708e-d862-4111-ab3a-dd8cd03913e1
+
+
+copy code
+Refreshing access and refresh tokens
+
+Access tokens expire after 30 minutes. Your app can refresh an access token without user interaction by using a refresh token. You get a refresh token by requesting the offline_access scope during the initial user authorization. Refresh tokens expire after 60 days.
+
+To refresh your access token you need to POST to the token endpoint:
+
+https://identity.xero.com/connect/token
+copy code
+
+The request will require an authorization header containing your app’s client_id and client_secret
+
+Authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+
+The request body will need to contain the grant type and refresh token
+
+grant_type=refresh_token
+refresh_token=Your refresh token
+POST https://identity.xero.com/connect/token
+authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&refresh_token=xxxxxx
+
+
+copy code
+
+The response will contain a new access token and refresh token. You must save both tokens in order to maintain api access.
+
+If, for whatever reason, your app doesn’t receive the response, or fails to save the new token, you can retry using your existing refresh token for a grace period of 30 minutes. After 30 minutes your previous refresh token will expire and the user will need to re-authorise your api application in order to generate a new refresh token.
+
+Removing connections
+
+If you would like to remove an individual tenant connection from your app (e.g. a user wants to disconnect one of their orgs) you can make a DELETE request on the Connections endpoint:
+
+DELETE https://api.xero.com/connections/{connectionId}
+Authorization: "Bearer " + access_token
+copy code
+
+Note: If you no longer have the user's token, you can use the grant type Client Credentials to manage your connections.
+
+We’ve recently added a new feature in the developer portal to help with disconnecting tenants. With our new ‘Connections management’ page in the Xero developer portal, you can now see and disconnect Xero tenant connections in a couple of clicks.
+
+How do you delete a connection via the Developer Portal?
+
+Sign in to the Xero Developer Portal
+Select the app which you want to review connections for
+Go to the ‘Connections management’ page in the left-hand navigation for your app. You’ll see a list of Xero tenants currently connected to your app.
+Find the tenant you want to disconnect. An example of the type of tenant you want to disconnect could be:
+A trial customer who never really used the integration
+A customer who’s cancelled
+A test or demo organisation you no longer need
+Disconnect the tenant
+Select the three dots on the right hand side of the connection you want to delete
+Click “Disconnect”
+Confirm the deletion of the connection
+What happens after you disconnect
+Your app will no longer be authorised to access data for that tenant.
+The tenant will no longer appear as connected for that app in user’s Xero organisation. In Xero click on the organisation name, select settings then click connected apps.
+If the customer wants to use your integration again, they’ll need to reconnect via your “Connect to Xero” flow in your app.
+
+You should still keep your own logs and internal records in sync so that your app’s view of connected tenants matches what’s shown in Xero.
+
+Revoking tokens
+
+You can revoke a user’s refresh token and remove all their connections to your app by making a request to the revocation endpoint.
+
+To revoke a refresh token you need to POST to the revocation endpoint:
+
+https://identity.xero.com/connect/revocation
+copy code
+
+The request will require an authorization header containing your app’s client_id and client_secret
+
+Authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+
+The request body will contain the refresh token being revoked
+
+token=Your refresh token
+POST https://identity.xero.com/connect/revocation
+authorization: "Basic " + base64encode(client_id + ":" + client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+token=xxxxxx
+
+
+copy code
+
+A successful revocation request will return a 200 response with an empty body.
+
+On this page
+Xero tenants
+1. Send a user to authorize your app
+2. Users are redirected back to you with a code
+3. Exchange the code
+4. Receive your tokens
+5. Check the tenants you’re authorized to access
+6. Call the API
+Refreshing access and refresh tokens
+Removing connections
+Revoking tokens
+AI toolkit
+MCP Server
+Agents Toolkit
+Prompt Library
+Documentation
+OAuth 2
+API reference
+Webhooks
+Community
+GitHub
+Product Feedback
+Connect to the Community
+Weekly Office Hours
+Dev Day Discord Server
+Find a developer
+Events
+News
+DevBlog
+API status
+Changelog
+Support
+Contact us
+FAQ
+© 2026 Xero Limited. All rights reserved. "Xero", "Beautiful business" and "Your business supercharged" are trademarks of Xero Limited.
+About Xero
+Developer Platform Terms and Conditions
+The Xero Developer Platform Commercial Terms
+Xero ecosystem principles
+Dev Council Terms and Conditions
+We use cookies on our website and apps. Want to know more? Check out our cookie notice

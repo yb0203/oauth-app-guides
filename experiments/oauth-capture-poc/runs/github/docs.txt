@@ -1,0 +1,106 @@
+Skip to main content
+Skip to content
+GitHub Docs
+Select your plan:
+Free, Pro, & Team
+Search or ask Copilot
+/
+English
+Sign up
+HomeAppsOAuth appsBuilding OAuth appsCreating an OAuth app
+Apps
+Overview
+Using GitHub Apps
+Creating GitHub Apps
+Sharing GitHub Apps
+Maintaining GitHub Apps
+GitHub Marketplace
+OAuth apps
+Using OAuth apps
+Building OAuth apps
+GitHub Apps & OAuth apps
+Rate limits
+Creating an OAuth app
+Authenticate with an OAuth app
+Authorizing OAuth apps
+Scopes for OAuth apps
+Create custom badges
+Best practices
+Maintaining OAuth apps
+OAuth 2.0 and OIDC Discovery documents
+Creating an OAuth app
+
+You can create and register an OAuth app under your personal account or under any organization you have administrative access to. While creating your OAuth app, remember to protect your privacy by only using information you consider public.
+
+Copy markdown
+
+Note
+
+Consider building a GitHub App instead of an OAuth app.
+
+Both OAuth apps and GitHub Apps use OAuth 2.0.
+
+OAuth apps can only act on behalf of a user while GitHub Apps can either act on behalf of a user or independently of a user.
+
+GitHub Apps use fine-grained permissions, give the user more control over which repositories the app can access, and use short-lived tokens.
+
+For more information, see Differences between GitHub Apps and OAuth apps and About creating GitHub Apps.
+
+Note
+
+A user or organization can own up to 100 OAuth apps.
+
+In the upper-right corner of any page on GitHub, click your profile picture, then click  Settings.
+
+In the left sidebar, click  Developer settings.
+
+In the left sidebar, click OAuth apps.
+
+Click New OAuth App.
+
+Note
+
+If you haven't created an app before, this button will say, Register a new application.
+
+In "Application name", type the name of your app.
+
+Warning
+
+Only use information in your OAuth app that you consider public. Avoid using sensitive data, such as internal URLs, when creating an OAuth app.
+
+In "Homepage URL", type the full URL to your app's website.
+
+Optionally, in "Application description", type a description of your app that users will see.
+
+In "Authorization callback URL", type the callback URL of your app.
+
+You can enter up to 10 callback URLs. To add additional callback URLs, click Add callback URL.
+
+If your OAuth app will use the device flow to identify and authorize users, click Enable Device Flow. For more information about the device flow, see Authorizing OAuth apps.
+
+Expire user access tokens is enabled by default. If your app's authentication code hasn't been updated to support short-lived tokens, uncheck the box until support is added. For more information about expiring tokens, see Authorizing OAuth apps.
+
+Click Register application.
+
+Further reading
+Modifying an OAuth app
+Back to top
+Help and support
+Was this Doc helpful?
+YesNo
+Help us make GitHub Docs great!
+
+All Docs are open source. See something that's wrong or unclear? Submit a pull request.
+
+Make a contribution
+STILL NEED HELP?
+Ask the GitHub community
+Contact support
+Expert services
+Blog
+
+GITHUB INC. © 2026
+Terms
+Privacy
+Status
+Pricing

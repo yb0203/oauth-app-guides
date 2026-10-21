@@ -1,0 +1,105 @@
+Skip to content
+Documentation
+Community
+Log in
+
+Web API
+
+Overview
+Getting started
+Building with AI
+Concepts
+Access Token
+API calls
+Apps
+Authorization
+Redirect URIs
+Playlists
+Quota modes
+Rate limits
+Scopes
+Spotify URIs and IDs
+Track Relinking
+Tutorials
+How-Tos
+Changelog
+REFERENCE
+Albums
+Artists
+Audiobooks
+Categories
+Chapters
+Episodes
+Genres
+Library
+Markets
+Player
+Playlists
+Search
+Shows
+Tracks
+Users
+Redirect URIs
+
+Beginning on the 9th of April 2025 we will enforce the subsequent validations to all newly created apps.
+
+
+
+
+We expect all clients to migrate to the new redirect URI validation by November 2025.
+
+
+
+
+To know more please refer to the Spotify Developer Blog.
+
+When you create an app, you need to specify a redirect URI. This is the URI to which Spotify redirects the user after they have granted or denied permission to your app. The redirect URI is required for the authorization code flow and implicit grant flow. The definition of the redirect URI must exactly match the redirect URI you provide when you create your app. The only exception is for loopback IP literals, which can dynamically be assigned ports.
+
+Requirements
+
+Since we at Spotify, take security very seriously you must follow these requirements when defining your redirect URI:
+
+Use HTTPS for your redirect URI, unless you are using a loopback address, when HTTP is permitted.
+If you are using a loopback address, use the explicit IPv4 or IPv6, like http://127.0.0.1:PORT or http://[::1]:PORT as your redirect URI.
+localhost is not allowed as redirect URI.
+Loopback addresses and port numbers
+
+When using a loopback IP literal, you might not know the port number used in advance if it can be assigned dynamically. If you don't know the port number in advance, register your redirect URI with a loopback IP literal, but without any port number. You can add the dynamically assigned port number to the redirect URI in the authorization request. Please note that this is only supported for loopback IP literals, and not for other redirect URIs. This is on-par with the IETF recommendations.
+
+Examples
+
+Here are some examples of redirect URIs:
+
+1
+    https://example.com/callback
+
+2
+    http://127.0.0.1:8000/callback
+
+3
+    http://[::1]:8000/callback
+
+Footer
+DOCUMENTATION
+Web API
+Web Playback SDK
+Ads API
+iOS
+Android
+Embeds
+Commercial Hardware
+GUIDELINES
+Design
+Accessibility
+COMMUNITY
+News
+Forum
+LEGAL
+Developer Terms
+Developer Policy
+Compliance Tips
+Third Party Licenses
+
+LegalCookies© 2026 Spotify AB
+
+We and our partners use cookies to personalize your experience, to show you ads based on your interests, and for measurement and analytics purposes. By using our website and services, you agree to our use of cookies as described in our Cookie Policy.

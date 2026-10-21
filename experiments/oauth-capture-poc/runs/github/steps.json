@@ -1,0 +1,49 @@
+{
+  "app": "GitHub (OAuth app)",
+  "run_mode": "public",
+  "captured_on": "2026-10-21",
+  "steps": [
+    {"n": 1, "title": "Sign in to GitHub", "actor": "human", "human_reason": "credential",
+     "evidence": "TESTED", "url": "https://github.com/settings/applications/new",
+     "screenshot": "step-01-console-login-wall.png",
+     "quote": "Sign in to GitHub",
+     "notes": "The new-app URL redirects straight to github.com/login with return_to set. No developer program, waitlist or approval in front of the form. Options: password, Google, Apple, passkey."},
+    {"n": 2, "title": "Open Settings > Developer settings > OAuth apps > New OAuth App", "actor": "human", "human_reason": "real_account",
+     "evidence": "DOCS", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+     "screenshot": "step-02-docs-open-developer-settings.png",
+     "quote": "A user or organization can own up to 100 OAuth apps",
+     "notes": "Quote verified on the live page. Shortcut: after signing in, https://github.com/settings/applications/new opens the form directly. If no app exists yet the button reads 'Register a new application'."},
+    {"n": 3, "title": "Fill in Application name, Homepage URL and (optional) description", "actor": "either", "human_reason": null,
+     "evidence": "DOCS", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+     "screenshot": "step-02-docs-open-developer-settings.png",
+     "quote": null,
+     "notes": "Agent can prepare the values; a human types them into the signed-in form. Docs warn to use only information you consider public."},
+    {"n": 4, "title": "Set Authorization callback URL to Composio's callback", "actor": "either", "human_reason": null,
+     "evidence": "DOCS", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+     "screenshot": "step-03-docs-form-fields.png",
+     "quote": "You can enter up to 10 callback URLs",
+     "notes": "Quote verified on the live page. Value to paste: https://backend.composio.dev/api/v3/toolkits/auth/callback (per Composio docs; copy the exact value shown in your Composio auth config, since some toolkits still show the legacy v1 URL)."},
+    {"n": 5, "title": "Decide on 'Expire user access tokens' (on by default)", "actor": "either", "human_reason": null,
+     "evidence": "DOCS", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+     "screenshot": "step-03-docs-form-fields.png",
+     "quote": "Expire user access tokens is enabled by default",
+     "notes": "Quote verified on the live page. Leave it on if your token handling supports refresh (Composio refreshes tokens for you)."},
+    {"n": 6, "title": "Click Register application", "actor": "human", "human_reason": "submit",
+     "evidence": "DOCS", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+     "screenshot": "step-03-docs-form-fields.png", "quote": null,
+     "notes": "No review or approval follows. The app works immediately."},
+    {"n": 7, "title": "Generate a client secret and paste client ID + secret into a Composio auth config", "actor": "human", "human_reason": "credential",
+     "evidence": "UNCERTAIN", "url": null, "screenshot": null, "quote": null,
+     "notes": "Not shown on the captured docs page and not visible without signing in. From our earlier research only; check on first sign-in."}
+  ],
+  "blocked_at": {
+    "url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew",
+    "what_it_asks_for": "A GitHub account (username or email + password, or Google/Apple/passkey sign-in).",
+    "screenshot": "step-01-console-login-wall.png"
+  },
+  "observations": [
+    "Console wall reached in one redirect, with no bot check or cookie banner.",
+    "The docs page is static and easy to capture; three of three quotes were verified on the live page.",
+    "Screenshots show the docs, not the real form. The real form needs a signed-in human."
+  ]
+}

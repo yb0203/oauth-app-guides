@@ -1,0 +1,175 @@
+Skip to main content
+Apps
+Storefronts
+Agents
+References
+Changelog
+Ask assistant
+/
+Help
+•
+Log in
+Collapse sidebar
+Apps
+Overview
+BUILDING AND DEPLOYING APPS
+Scaffold an app
+Build an app
+Deployment
+Distribution
+DEV TOOLS
+Shopify AI Toolkit
+Shopify CLI
+Dev Dashboard
+Overview
+Apps
+Create apps
+Monitor app performance
+Manage App Automation Tokens
+Stores
+Create saved catalogs
+Configure user permissions
+Get technical updates
+Migrate from the Partner Dashboard
+BUILDING BLOCKS
+APIs
+Authentication
+Custom data
+Events and webhooks
+Extensions
+Functions
+DESIGN AND QUALITY
+Design guidelines
+Security
+App performance
+Built for Shopify
+APP SURFACES
+Admin
+App Home
+Checkout
+Customer accounts
+Online store
+Point of Sale
+USE CASES
+AI and agents
+Analytics
+B2B
+Flow
+Global markets
+Marketing and web pixels
+Orders and fulfillment
+Payments
+Products and pricing
+Sales channels
+SELLING AND GROWING YOUR APP
+Shopify App Store
+Billing
+Marketing and growth
+Create apps using the Dev Dashboard
+Install AI Toolkit
+Ask about this page
+Copy MD
+
+The Dev Dashboard provides a simplified interface for creating apps and integrating them with the Shopify admin. This makes it the best choice for quick integrations, such as connecting an existing system to Shopify.
+
+Info
+
+Creating an app for the app store? Build using Shopify CLI instead.
+
+Anchor to What you'll learn
+What you'll learn
+
+In this tutorial, you'll learn how to do the following tasks:
+
+Create and configure a new app using the Dev Dashboard
+Install your app on a dev store
+Authenticate your app to make API requests
+Anchor to Requirements
+Requirements
+You're a user with app development permissions.
+Anchor to Step 1: Create a new app
+Step 1: Create a new app
+
+You can create a new Shopify app right from your Dev 
+Dashboard
+.
+
+From the Dev Dashboard, be sure you're on Apps in the left-panel navigation and select Create app in the top, right corner of the screen.
+Select Start from Dev Dashboard.
+Name your app, then select Create.
+Anchor to Step 2: Create a version
+Step 2: Create a version
+
+Once you've created the app, you can create a version. A version is a snapshot of your app's current configuration, URLs, and settings. Your app must have at least one version before it can be installed on a store.
+
+From the Versions page of your app in the Dev Dashboard, fill in the fields your app needs:
+
+App URL: Where Shopify loads your app. If your app isn't embedded in the Shopify admin, you can use the default https://shopify.dev/apps/default-app-home.
+Webhooks API version: Typically the newest version.
+Scopes: The data and features your app can access. Access to protected customer data or other sensitive information requires approval. Refer to access scopes.
+
+Then select Release.
+
+Versions enable you to track changes to your app configuration over time and roll back to previous configurations if needed.
+
+When you update scopes in a new version of your app, updates aren't applied automatically to the stores your app is installed on. Merchants still need to manually approve the new scopes in the Shopify admin.
+
+Anchor to Step 3: Install your app
+Step 3: Install your app
+
+Complete the following steps to install your app on a store:
+
+Open your app and select Install app, at the top of the Installs card. The same action is in the three-dot menu (⋯) on the app's row in the Apps list.
+The install link opens the OAuth flow in a new tab. Select or create the store for your app.
+Select Install.
+
+Your app is now installed. To start making API calls, you'll need to authenticate your app as described in the next step.
+
+Anchor to Step 4: Authenticate your app
+Step 4: Authenticate your app
+
+To make API requests, your app needs an access token. If your app is only used by stores in your own organization, you can use the client credentials grant:
+
+From your app in the Dev Dashboard, select App settings.
+Copy your Client ID and Client secret.
+Use these credentials to programmatically request an access token from Shopify's OAuth endpoint. Tokens expire after 24 hours, so your code can request a new one when needed.
+
+For code examples, response details, and troubleshooting, see Authenticate an app for stores in your organization.
+
+Info
+
+If you're building with Shopify CLI, authentication is handled automatically.
+
+Anchor to Next steps
+Next steps
+Start building with the GraphQL Admin API to read and write store data.
+Configure Events and webhooks to receive real-time notifications about changes in the stores your app is installed on.
+Use the Dev Dashboard to monitor your app's performance once merchants are using it.
+Was this page helpful?
+Yes
+No
+What you'll learn
+Requirements
+Step 1: Create a new app
+Step 2: Create a version
+Step 3: Install your app
+Step 4: Authenticate your app
+Next steps
+Updates
+Developer changelog
+Shopify Editions
+Business growth
+Shopify Partners Program
+Shopify App Store
+Legal
+Terms of service
+API terms of use
+Privacy policy
+Partners Program Agreement
+Shopify
+About Shopify
+Shopify Plus
+Careers
+Investors
+Press and media
+Assistant

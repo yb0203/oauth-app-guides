@@ -1,0 +1,181 @@
+Skip to main content
+Getting Started
+2026 App Awards
+Documentation
+Tools
+Support
+Sign up
+Log in
+Documentation
+Getting started
+Development accounts
+SDKs and tools
+Libraries
+Tools
+Best Practices
+Overview
+Managing connections
+Branding and Naming
+Categorising Transactions
+Data Integrity
+User Experience
+API Call Efficiencies
+Guides
+OAuth2
+Overview
+The code flow
+The PKCE flow
+Custom Connections
+Client Credentials
+Token types
+Scopes
+Tenants
+Limits
+Troubleshooting
+Webhooks
+Remote MCP
+Collaborators
+Idempotent Requests
+How-to guides
+Xero App Store
+App partner guides
+App success tips
+Market your app
+OAuth 2.0 API limits
+Uncertified app limits
+
+New apps default to the starter tier with 5 connections. Moving up to Core will give you up to 50 connections. To be listed on the App Store, you will need to be in the Plus tier or above. We recommend applying to be listed on the Xero App Store once you’ve onboarded at least 10 beta customers. If you would like to discuss how the limit and certification applies to your use case please contact us.
+
+Additionally, each organisation or practice is limited to connecting a maximum of five uncertified apps. There is no limit on connecting certified apps.
+
+API rate limits
+
+There are limits to the number of API calls that your application can make against a particular tenant (organisation, account or practice):
+
+Concurrent Limit: 5 calls in progress at one time
+Minute Limit: 60 calls per minute
+Daily Limit: 1,000 calls per day for starter, 5,000 calls per day for higher tiers
+
+There is also a limit to the number of API calls your app can make per minute across all tenants.
+
+App Minute Limit: 10,000 calls per minute
+
+Each API response you receive will include the X-DayLimit-Remaining, X-MinLimit-Remaining and X-AppMinLimit-Remaining headers telling you the number of remaining against each limit.
+
+Exceeding a rate limit
+
+Exceeding a rate limit will result in an HTTP 429 (too many requests) response. It will include an X-Rate-Limit-Problem header telling you which limit you have reached.
+
+If you have exceed the minute or daily limit you will also receive a Retry-After http header that tells you how many seconds to wait before making another request. Requests are counted against a fixed window which will reset at different times for each tenant. It is important to use the Retry-After header to know when you can start making calls again.
+
+Rate limit FAQ
+What if I need more than 1,000 calls a day?
+
+Apps in the starter tier have access to 1000 calls a day. If you need more than 1000 calls a day, you will need to move to the Core tier or above.
+
+What if I need more than 5,000 calls a day?
+
+If you are in Core or above and believe you would exceed the Xero API rate limits, you most likely can in fact work within the limits by analysing the structure of how you intend to use the Xero API:
+
+You can do more than one thing in a single request: For example, you can create more than one Invoice in a single PUT or POST Invoices API call. While there is no upper limit in the number of nodes that can be sent at one time, a ceiling of about 50 nodes per request is practical – this will ensure a request does not exceed the maximum size of 3.5MB.
+
+What is the best way to handle reaching a limit?
+
+When you reach a rate limit the Retry-After header will tell you how long to wait before making another call. You should pause requests to that tenant until that time.
+
+What if I need to retrieve large amounts of data from Xero?
+
+One function which can cause an application to exceed the usage limits is extracting data from Xero eg:
+
+Retrieving all invoices does not return line item details for individual invoices. You can use pagination to retrieve line item details for 100 invoices at a time. Endpoints that currently support pagination include invoices, credit notes, contacts, bank transactions and manual journals.
+When working with other endpoints, a request for each individual object may be required to get full details.
+An organisation can have many thousand Journals, which can be retrieved only in batches of 100. Keep in mind the Journals endpoint is a premium feature for apps in the Advanced tier and above.
+
+In these situations, it may take some time to extract the required data – it is recommended that an application is structured to schedule or queue this function so there is no user expectation of an immediate response.
+
+Does my application only have 5,000 requests for all my users?
+
+No, the limits are per tenant. For example if two separate Xero organisations are connected to your application, each connection would have 5000 API calls available in a given 24 hour period for apps in the Core tier and above and 1000 API calls available for apps in the Starter tier.
+
+Request size Limit
+
+The maximum request size limit for all APIs is 10MB. However, to ensure you receive a timely response from the API (large inserts can take quite a while), we recommend you look to batch elements in bundles of up to 50.
+
+System limits
+
+Xero is suitable for different types of business, including those with high transaction volumes.
+
+Invoicing
+
+Xero is designed for volumes of up to 5,000 Sales invoices (Accounts Receivables) and 5,000 Purchases bills (Accounts Payables) per month, dependent also on the frequency of invoicing during the month, variability of amounts and the frequency of sales tax reporting requirements.
+
+Bank transactions – spend and receive money
+
+Xero is designed for volumes of up to 5,000 bank transactions per month, also dependent on the frequency of transactions during the month and variability of transaction values.
+
+Inventory items
+
+Xero recommends a maximum number of 4,000 tracked inventory items per organisation. Performance issues may occur when the total number of tracked items in an organisation exceeds this limit. We recommend you only create or update 100 items per API request.
+
+Contacts
+
+Contact lists of greater than 10,000 could cause performance issues.
+
+Fixed assets
+
+Xero is designed to support up to 500 fixed assets. Having more assets than this can cause problems trying to work with the assets and with running depreciation. Xero will work with higher levels than this but the performance of some features and reports may become degraded.
+
+Xero pricing plan limits
+Starter plan
+
+Xero organisations using the “Early” pricing plan can enter up to 20 approved Accounts Receivable invoices and 5 approved Accounts Payable invoices per month. The invoice date (not the creation date) is used to determine which month an invoice was entered.
+
+If you exceed this invoice limit when using the Xero API you will receive an HTTP 400 response code with the following error message:
+
+<validationerror>
+  <message>You have reached the limit of invoices you can approve.</message>
+</validationerror>
+copy code
+Partner edition plans
+
+Xero partner edition plans such as cashbook and ledger organisations, can be connected to the Xero API.
+
+Authorisation of connections to cashbook or ledger organisations must be done by a member of the practice staff – managed client or cashbook client roles cannot authorize an API connection. Note that as these plans do not include invoicing functionality, any invoices created via the API could not be edited or modified, so this function is recommended to be avoided.
+
+On this page
+Uncertified app limits
+API rate limits
+Rate limit FAQ
+Request size Limit
+System limits
+Xero pricing plan limits
+AI toolkit
+MCP Server
+Agents Toolkit
+Prompt Library
+Documentation
+OAuth 2
+API reference
+Webhooks
+Community
+GitHub
+Product Feedback
+Connect to the Community
+Weekly Office Hours
+Dev Day Discord Server
+Find a developer
+Events
+News
+DevBlog
+API status
+Changelog
+Support
+Contact us
+FAQ
+© 2026 Xero Limited. All rights reserved. "Xero", "Beautiful business" and "Your business supercharged" are trademarks of Xero Limited.
+About Xero
+Developer Platform Terms and Conditions
+The Xero Developer Platform Commercial Terms
+Xero ecosystem principles
+Dev Council Terms and Conditions
+We use cookies on our website and apps. Want to know more? Check out our cookie notice

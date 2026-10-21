@@ -1,0 +1,54 @@
+[
+  {
+    "slug": "github",
+    "name": "GitHub (OAuth app)",
+    "console_url": "https://github.com/settings/applications/new",
+    "docs_urls": [
+      "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+    ],
+    "allowed_hosts": ["github.com", "docs.github.com", "*.githubassets.com", "*.githubusercontent.com"]
+  },
+  {
+    "slug": "google",
+    "name": "Google (Gmail API OAuth client)",
+    "console_url": "https://console.cloud.google.com/auth/overview",
+    "docs_urls": [
+      "https://developers.google.com/workspace/guides/configure-oauth-consent",
+      "https://support.google.com/cloud/answer/15549945"
+    ],
+    "allowed_hosts": [
+      "console.cloud.google.com", "console.developers.google.com", "accounts.google.com",
+      "developers.google.com", "support.google.com", "*.gstatic.com", "*.googleapis.com", "*.googleusercontent.com"
+    ]
+  },
+  {
+    "slug": "spotify",
+    "name": "Spotify (Web API app)",
+    "console_url": "https://developer.spotify.com/dashboard",
+    "docs_urls": [
+      "https://developer.spotify.com/documentation/web-api/concepts/apps",
+      "https://developer.spotify.com/documentation/web-api/concepts/quota-modes"
+    ],
+    "allowed_hosts": ["developer.spotify.com", "accounts.spotify.com", "*.scdn.co", "*.spotifycdn.com"]
+  },
+  {
+    "slug": "xero",
+    "name": "Xero (OAuth 2.0 app)",
+    "console_url": "https://developer.xero.com/app/manage",
+    "docs_urls": [
+      "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "https://developer.xero.com/documentation/guides/oauth2/limits/"
+    ],
+    "allowed_hosts": ["developer.xero.com", "login.xero.com", "*.xero.com"]
+  },
+  {
+    "slug": "shopify",
+    "name": "Shopify (Dev Dashboard app)",
+    "console_url": "https://dev.shopify.com/dashboard",
+    "docs_urls": [
+      "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant",
+      "https://shopify.dev/docs/apps/launch/app-requirements-checklist"
+    ],
+    "allowed_hosts": ["shopify.dev", "dev.shopify.com", "accounts.shopify.com", "*.shopify.com", "*.shopifycdn.com"]
+  }
+]

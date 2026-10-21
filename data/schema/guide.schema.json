@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/guide.schema.json",
+  "title": "OAuth app setup guide",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "slug", "app_name", "guide_type", "last_verified", "composio", "verdict",
+               "situations", "byo_advice", "before_you_start", "limits", "steps", "review", "customer_gates",
+               "gotchas", "blockers", "prepared", "open_questions", "wall_probe", "conflicts", "sources",
+               "verification_summary"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "app_name": {"type": "string"},
+    "guide_type": {"enum": ["curated", "generated"]},
+    "last_verified": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "composio": {
+      "type": "object", "additionalProperties": false,
+      "required": ["toolkit_slug", "status", "callback_url", "callback_note"],
+      "properties": {
+        "toolkit_slug": {"type": ["string", "null"]},
+        "status": {"enum": ["managed", "byo", "not_in_catalog"]},
+        "callback_url": {"type": "string"},
+        "callback_note": {"type": "string"}
+      }
+    },
+    "verdict": {"$ref": "#/$defs/verdict"},
+    "situations": {
+      "type": "object", "additionalProperties": false, "required": ["questions", "variants"],
+      "properties": {
+        "questions": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["id", "text", "options"],
+          "properties": {
+            "id": {"type": "string"}, "text": {"type": "string"},
+            "options": {"type": "array", "minItems": 2, "items": {
+              "type": "object", "additionalProperties": false, "required": ["id", "label"],
+              "properties": {"id": {"type": "string"}, "label": {"type": "string"}}}}
+          }}},
+        "variants": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["when", "tier", "summary", "calendar_label", "notes"],
+          "properties": {
+            "when": {"type": "object", "additionalProperties": {"type": "string"}},
+            "tier": {"$ref": "#/$defs/tier"},
+            "summary": {"type": "string"},
+            "calendar_label": {"type": "string"},
+            "notes": {"type": "array", "items": {"type": "string"}}
+          }}}
+      }
+    },
+    "byo_advice": {"type": ["string", "null"]},
+    "before_you_start": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+    "limits": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["what", "value", "unit", "scope", "evidence"],
+      "properties": {
+        "what": {"type": "string"},
+        "value": {"type": ["number", "null"]},
+        "unit": {"type": "string"},
+        "scope": {"type": "string"},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      }}},
+    "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}},
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "trigger", "submit", "reviewer", "wait_official", "wait_community", "cost", "evidence"],
+      "properties": {
+        "required": {"enum": ["yes", "no", "conditional"]},
+        "trigger": {"type": ["string", "null"]},
+        "submit": {"type": "array", "items": {"type": "string"}},
+        "reviewer": {"type": ["string", "null"]},
+        "wait_official": {"type": ["string", "null"]},
+        "wait_community": {"type": ["string", "null"]},
+        "cost": {"type": ["string", "null"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "customer_gates": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+    "gotchas": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+    "blockers": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["symptom", "cause", "fix", "evidence"],
+      "properties": {
+        "symptom": {"type": "string"}, "cause": {"type": "string"}, "fix": {"type": "string"},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      }}},
+    "prepared": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scopes", "privacy_policy_outline", "consent_screen", "review_text"],
+      "properties": {
+        "scopes": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["scope", "why", "review_class"],
+          "properties": {
+            "scope": {"type": "string"}, "why": {"type": "string"},
+            "review_class": {"enum": ["none", "sensitive", "restricted", "unknown"]}
+          }}},
+        "privacy_policy_outline": {"type": "array", "items": {"type": "string"}},
+        "consent_screen": {"type": "object", "additionalProperties": {"type": "string"}},
+        "review_text": {"type": ["string", "null"]}
+      }
+    },
+    "open_questions": {"type": "array", "items": {"type": "string"}},
+    "wall_probe": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["console_url", "final_url", "redirect_chain", "outcome", "wall_host", "asks_for", "bot_check", "method", "observed_at"],
+      "properties": {
+        "console_url": {"type": "string"},
+        "final_url": {"type": "string"},
+        "redirect_chain": {"type": "array", "items": {"type": "string"}},
+        "outcome": {"enum": ["login_wall", "console_reachable", "blocked", "error"]},
+        "wall_host": {"type": ["string", "null"]},
+        "asks_for": {"type": "string"},
+        "bot_check": {"type": "boolean"},
+        "method": {"enum": ["http", "browser"]},
+        "observed_at": {"type": "string"}
+      }
+    },
+    "conflicts": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["field", "description", "evidence"],
+      "properties": {
+        "field": {"type": "string"}, "description": {"type": "string"},
+        "evidence": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/evidence"}}
+      }}},
+    "sources": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["id", "url", "title", "accessed", "kind"],
+      "properties": {
+        "id": {"type": "string"}, "url": {"type": "string"}, "title": {"type": "string"},
+        "accessed": {"type": "string"},
+        "kind": {"enum": ["official_docs", "composio_docs", "community", "observation"]}
+      }}},
+    "verification_summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["total", "tested", "docs_verified", "docs_hidden", "community", "uncertain"],
+      "properties": {
+        "total": {"type": "integer"}, "tested": {"type": "integer"}, "docs_verified": {"type": "integer"},
+        "docs_hidden": {"type": "integer"}, "community": {"type": "integer"}, "uncertain": {"type": "integer"}
+      }
+    }
+  },
+  "$defs": {
+    "tier": {"enum": ["instant", "verify_to_scale", "review_required", "partner_only", "unknown"]},
+    "verdict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["tier", "summary", "effort_hours", "calendar", "calendar_basis", "confidence"],
+      "properties": {
+        "tier": {"$ref": "#/$defs/tier"},
+        "summary": {"type": "string"},
+        "effort_hours": {"type": "object", "additionalProperties": false, "required": ["min", "max"],
+                         "properties": {"min": {"type": "number"}, "max": {"type": "number"}}},
+        "calendar": {"type": "object", "additionalProperties": false, "required": ["min_days", "max_days", "label"],
+                     "properties": {"min_days": {"type": "number"}, "max_days": {"type": ["number", "null"]}, "label": {"type": "string"}}},
+        "calendar_basis": {"enum": ["official", "community", "estimate"]},
+        "confidence": {"enum": ["high", "medium", "low"]}
+      }
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["label", "source_id", "quote", "found_in", "note"],
+      "properties": {
+        "label": {"enum": ["TESTED", "DOCS", "COMMUNITY", "UNCERTAIN"]},
+        "source_id": {"type": ["string", "null"]},
+        "quote": {"type": ["string", "null"]},
+        "found_in": {"enum": ["visible", "hidden_section", null]},
+        "note": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"label": {"const": "DOCS"}}},
+         "then": {"properties": {"source_id": {"type": "string"}, "quote": {"type": "string", "minLength": 12},
+                                 "found_in": {"enum": ["visible", "hidden_section"]}}}},
+        {"if": {"properties": {"label": {"const": "TESTED"}}},
+         "then": {"properties": {"note": {"type": "string"}}}}
+      ]
+    },
+    "fact": {
+      "type": "object", "additionalProperties": false, "required": ["text", "evidence"],
+      "properties": {"text": {"type": "string"}, "evidence": {"$ref": "#/$defs/evidence"}}
+    },
+    "step": {
+      "type": "object", "additionalProperties": false,
+      "required": ["n", "title", "detail", "actor", "human_reason", "irreversible", "values", "evidence"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 1},
+        "title": {"type": "string"},
+        "detail": {"type": "string"},
+        "actor": {"enum": ["agent", "human", "either"]},
+        "human_reason": {"enum": ["credential", "legal_acceptance", "payment", "identity", "real_account", "submit", "wait", null]},
+        "irreversible": {"type": "boolean"},
+        "values": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["label", "value"],
+                                              "properties": {"label": {"type": "string"}, "value": {"type": "string"}}}},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      },
+      "if": {"properties": {"actor": {"const": "human"}}},
+      "then": {"properties": {"human_reason": {"type": "string"}}}
+    }
+  }
+}

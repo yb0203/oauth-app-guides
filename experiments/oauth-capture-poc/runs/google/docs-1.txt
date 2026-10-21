@@ -1,0 +1,166 @@
+Skip to main content
+Workspace
+Home
+All products
+Resources
+/
+Sign in
+Overview
+Explorer
+Guides
+Support
+Get started
+Overview
+Create a Google Cloud project
+Enable Google Workspace APIs
+Install developer tools
+Set up authentication
+Overview
+Configure OAuth consent
+Create access credentials
+Set up MCP servers
+Configure Google Workspace MCP servers
+Let AI agents search across Google Workspace
+Configure security for MCP servers
+Build with AI
+Overview
+Use Large Language Models (LLMs)
+Manage access & usage
+Manage credentials for APIs
+View & turn off APIs
+Monitor metrics for APIs
+View & edit quota limits
+Build an encryption key service
+Overview
+Configure your service
+Encrypt & decrypt data
+API reference
+Manage client-side encrypted files
+Using the Drive API
+Bulk import files
+Subscribe to Google Workspace events
+Overview
+Event types
+Choose scopes
+Create a subscription
+Get details about a subscription
+List subscriptions
+Update or renew a subscription
+Resolve errors and reactivate a subscription
+Delete a subscription
+Try it - Observe Google Meet events with Python
+API reference
+Limits & quotas
+Release notes
+Home
+Google Workspace
+Guides
+Was this helpful?
+Send feedback
+Configure the OAuth consent screen and choose scopes
+On this page
+Configure OAuth consent
+Scope categories
+Next step
+Page Summary
+
+When you use OAuth 2.0 for authorization, Google displays a consent screen to the user including a summary of your project, its policies, and the requested authorization scopes of access. Configuring your app's OAuth consent screen defines what is displayed to users and app reviewers, and registers your app so you can publish it later.
+
+Note: Some Google Workspace APIs, such as the Drive API, have documentation covering API-specific authentication and authorization information. Ensure you read that documentation before continuing with this page.
+
+To define the level of access granted to your app, you need to identify and declare authorization scopes. An authorization scope is an OAuth 2.0 URI string that contains the Google Workspace app name, what kind of data it accesses, and the level of access. Scopes are your app's requests to work with Google Workspace data, including users' Google Account data.
+
+When your app is installed, a user is asked to validate the scopes used by the app. Generally, you should choose the most narrowly focused scope possible and avoid requesting scopes that your app doesn't require. Users more readily grant access to limited, clearly described scopes.
+
+All apps using OAuth 2.0 require a consent screen configuration, but you only need to list scopes for apps used by people outside your Google Workspace organization.
+
+Tip: If you don't know required consent screen information, you can use placeholder information prior to release.
+
+For security reasons, you can't remove the OAuth 2.0 consent screen after you've configured it.
+
+Configure OAuth consent
+In the Google API Console, go to Menu menu > Google Auth platform > Branding.
+
+Go to Branding
+
+If you have already configured the Google Auth platform, you can configure the following OAuth Consent Screen settings in Branding, Audience, and Data Access. If you see a message that says Google Auth platform not configured yet, click Get Started:
+Under App Information, in App name, enter an App name.
+In User support email, choose a support email address where users can contact you if they have questions about their consent.
+Click Next.
+Under Audience, select the user type for your app.
+Click Next.
+Under Contact Information, enter an Email address where you can be notified about any changes to your project.
+Click Next.
+Under Finish, review the Google API Services User Data Policy and if you agree, select I agree to the Google API Services: User Data Policy.
+Click Continue.
+Click Create.
+If you selected External for user type, add test users:
+Click Audience.
+Under Test users, click Add users.
+Enter your email address and any other authorized test users, then click Save.
+
+If you're creating an app for use outside of your Google Workspace organization, click Data Access > Add or Remove Scopes. We recommend the following best practices when selecting scopes:
+
+Select the scopes that provide the minimum level of access required by your app. For a list of available scopes, see OAuth 2.0 Scopes for Google APIs.
+Review the scopes listed in each of the three sections: non-sensitive scopes, sensitive scopes, and restricted scopes. For any scopes listed in the "Your sensitive scopes" or "Your restricted scopes" sections, try to identify alternative non-sensitive scopes to avoid unnecessary additional reviews.
+Some scopes require additional reviews by Google. For apps used only internally by your Google Workspace organization, scopes aren't listed on the consent screen and use of restricted or sensitive scopes doesn't require further review by Google. For more information, see Scope categories.
+After selecting the scopes required by your app, click Save.
+
+For more information about configuring OAuth consent, see Get started with the Google Auth platform.
+
+Scope categories
+
+Some scopes require additional reviews and requirements because of the level or type of access they grant. Consider the following types of scopes:
+
+ 	 	 	Basic app verification required	Additional app verification required	Security assessment required
+ 	Non-sensitive scopes (recommended)	Grant access only to limited data that's immediately relevant to a specific action.	check	—	—
+	Sensitive scopes	Grant access to personal user data, resources, or actions.	check	check	—
+	Restricted scopes	Grant access to highly-sensitive or extensive user data or actions.	check	check	check
+Next step
+
+Create access credentials for your app.
+
+Was this helpful?
+Send feedback
+
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+Last updated 2026-09-03 UTC.
+
+Blog
+Read the Google Workspace Developers blog
+X (Twitter)
+Follow @workspacedevs on X (Twitter)
+Code Samples
+Explore our sample apps or copy them to build your own
+Codelabs
+Try a guided, hands-on coding experience
+Videos
+Subscribe to our YouTube channel
+Google Workspace for Developers
+Platform overview
+Developer products
+Release notes
+Developer support
+Terms of Service
+Tools
+Admin console
+Apps Script Dashboard
+Google Cloud console
+APIs Explorer
+Connect
+Blog
+Newsletter
+X (Twitter)
+YouTube
+Android
+Chrome
+Firebase
+Google Cloud Platform
+Google AI
+All products
+Terms
+Privacy
+Info
+Chat
+API

@@ -1,0 +1,128 @@
+Skip to main content
+Apps
+Storefronts
+Agents
+References
+Changelog
+Ask assistant
+/
+Help
+•
+Log in
+Collapse sidebar
+Apps
+Overview
+BUILDING AND DEPLOYING APPS
+Scaffold an app
+Build an app
+Deployment
+Distribution
+DEV TOOLS
+Shopify AI Toolkit
+Shopify CLI
+Dev Dashboard
+BUILDING BLOCKS
+APIs
+Authentication
+Custom data
+Events and webhooks
+Extensions
+Functions
+DESIGN AND QUALITY
+Design guidelines
+Security
+App performance
+Built for Shopify
+APP SURFACES
+Admin
+App Home
+Checkout
+Customer accounts
+Online store
+Point of Sale
+USE CASES
+AI and agents
+Analytics
+B2B
+Flow
+Global markets
+Marketing and web pixels
+Orders and fulfillment
+Payments
+Products and pricing
+Sales channels
+SELLING AND GROWING YOUR APP
+Shopify App Store
+Overview
+App Store requirements
+App Store best practices
+About the app review process
+Submit your app for review
+Pass app review
+App listing categories
+Policy violations
+About app quality checks
+Billing
+Marketing and growth
+About the app review process
+Install AI Toolkit
+Ask about this page
+Copy MD
+
+When you submit an app, it goes through an app review process to make sure that it meets Shopify's requirements for safe, quality apps. Shopify's app requirements are the same for both fully visible and limited visibility public apps. If you’re planning to list your app on the Shopify App Store, then Shopify also reviews the content that you provided for your listing page.
+
+To reduce the time it takes to review your app and help the process go smoothly, use tips outlined in the following sections as you build your app and draft your submission. To learn about the most common reasons why apps aren't accepted, refer to Common review problems.
+
+Anchor to Review process
+Review process
+
+Your app must meet all requirements on the App Store review page before your app is reviewed. During the review process your app changes status: Draft, Submitted, Reviewed, and Published. You can learn about the status of your app on your App Store review page.
+
+Anchor to Preliminary steps
+Preliminary steps
+
+When you create a public app, it starts with the Draft status. You must fix any issues that are identified on the Shopify App Store review page before you can submit your app for review. After you make the changes, you can click the Submit your app button to send your app for review.
+
+Anchor to App review
+App review
+
+After you submit your public app for review, it moves to the Submitted status and you receive an email confirming that your submission was received. You can withdraw from the review process at any time by clicking Withdraw in the status banner.
+
+If your app doesn't meet core requirements that prevent a reviewer from reviewing your app, then your app moves to the Paused status and then you’ll receive an email that outlines required changes. After you make the required changes to your app, you can resubmit by click Submit fixes in the status banner.
+
+After your app meets the core requirements, Shopify assigns a reviewer to your submission, and they begin to review your app. If your app requires additional fixes that need to be discussed with your reviewer, then it moves to the Reviewed status. You'll receive an email that outlines the next steps and you need to reply to continue the process.
+
+After your app has been approved by the app review team, you'll receive an email confirming that your app has moved to the Published status and now displays on the Shopify App Store.
+
+Note
+
+By default, all approved app listings are visible in the Shopify App Store. Learn more about listing visibility.
+
+Anchor to Next step
+Next step
+
+Prepare your app for review: Before you submit your app for review, you need to test it on a development store to check for any bugs or errors.
+
+Was this page helpful?
+Yes
+No
+Review process
+Next step
+Updates
+Developer changelog
+Shopify Editions
+Business growth
+Shopify Partners Program
+Shopify App Store
+Legal
+Terms of service
+API terms of use
+Privacy policy
+Partners Program Agreement
+Shopify
+About Shopify
+Shopify Plus
+Careers
+Investors
+Press and media
+Assistant

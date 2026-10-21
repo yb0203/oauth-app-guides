@@ -1,0 +1,414 @@
+Skip to main content
+Apps
+Storefronts
+Agents
+References
+Changelog
+Ask assistant
+/
+Help
+•
+Log in
+Collapse sidebar
+Apps
+Overview
+BUILDING AND DEPLOYING APPS
+Scaffold an app
+Build an app
+Deployment
+Distribution
+DEV TOOLS
+Shopify AI Toolkit
+Shopify CLI
+Dev Dashboard
+BUILDING BLOCKS
+APIs
+Authentication
+Overview
+Get an access token
+Authentication for apps built with Shopify CLI
+Get access tokens without a template
+Connect a standalone or API-only app
+Authenticate an app for your own organization
+Access tokens
+ID tokens
+Manage credentials
+Manage access scopes
+Delegate API access
+Migrate to expiring offline access tokens
+Legacy
+Custom data
+Events and webhooks
+Extensions
+Functions
+DESIGN AND QUALITY
+Design guidelines
+Security
+App performance
+Built for Shopify
+APP SURFACES
+Admin
+App Home
+Checkout
+Customer accounts
+Online store
+Point of Sale
+USE CASES
+AI and agents
+Analytics
+B2B
+Flow
+Global markets
+Marketing and web pixels
+Orders and fulfillment
+Payments
+Products and pricing
+Sales channels
+SELLING AND GROWING YOUR APP
+Shopify App Store
+Billing
+Marketing and growth
+Authenticate a standalone or API-only app
+Install AI Toolkit
+Ask about this page
+Copy MD
+
+Standalone and API-only apps run outside the Shopify admin, unlike embedded apps. A standalone app serves its own UI, and an API-only app has no UI and runs as a server-side integration. Because they can't use ID tokens, they authenticate using the OAuth authorization code grant flow: redirect the merchant to Shopify, get their approval, and exchange a code for an access token.
+
+Info
+
+If your app only acts on stores in your own Shopify organization, use the client credentials grant instead. It skips the merchant authorization flow. To learn how authentication works for other common approaches, see About app authentication.
+
+Anchor to What you'll learn
+What you'll learn
+
+In this tutorial, you'll learn how to do the following tasks:
+
+Redirect a merchant to Shopify's authorization page
+Validate the callback Shopify sends back to your app
+Exchange the authorization code for an offline access token
+Make authenticated GraphQL Admin API requests
+Requirements
+App credentials
+
+You have your app's client ID and client secret from the Dev Dashboard.
+
+Redirect URI
+
+You've added your app's redirect URI to your app's settings in the Dev Dashboard, or to the [auth] section of your shopify.app.toml.
+
+Access scopes
+
+You know which access scopes your app requires.
+
+Project
+Language:
+Node.js
+Python
+Node.js
+View on GitHub
+Anchor to Redirect to Shopify's authorization page
+Redirect to Shopify's authorization page
+
+Send the merchant to Shopify to approve the access your app is asking for. Shopify presents a permissions prompt, and the merchant approves or denies it.
+
+Anchor to Build the authorization URL
+Build the authorization URL
+
+Construct the authorization URL and redirect the merchant to it. Include a randomly generated state value (nonce) and store it so you can verify it in the next step. This prevents CSRF 
+attacks
+.
+
+Parameter	Description
+client_id	Your app's client ID.
+scope	A comma-separated list of access scopes your app needs. Some scopes grant access to protected customer data, which places additional requirements on your app.
+redirect_uri	The URL Shopify redirects to after authorization. Must exactly match a redirect URI you've configured in the Dev Dashboard or your app's configuration TOML file.
+state	A randomly generated nonce unique to this request.
+Skip to code
+Anchor to Validate the callback
+Validate the callback
+
+After the merchant approves your app, Shopify redirects to your redirect_uri with an authorization code and several query parameters. Validate all of them before exchanging the code.
+
+Copy
+1
+https://your-app.example.com/callback?code={authorization_code}&hmac={hmac}&shop={shop}&state={nonce}&timestamp={timestamp}
+Anchor to Verify the ,[object Object], parameter
+Verify the state parameter
+
+Compare the state parameter to the nonce you stored in step 1. If they don't match, reject the request.
+
+Skip to code
+Anchor to Verify the HMAC
+Verify the HMAC
+
+Remove the hmac parameter from the query string, sort the remaining parameters alphabetically, and compute an HMAC-SHA256 hash using your client secret. The result must match the hmac value. Use a constant-time comparison, such as crypto.timingSafeEqual in Node.js or hmac.compare_digest in Python, so the check doesn't leak timing information.
+
+If you're using one of Shopify's API libraries, these checks are built in:
+
+Node.js (@shopify/shopify-api
+)
+Ruby (shopify-api-ruby
+)
+Skip to code
+Anchor to Validate the ,[object Object], domain
+Validate the shop domain
+
+Confirm the shop parameter matches ^[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com$. Anchor the pattern at both ends. Without the trailing $, a value such as exampleshop.myshopify.com.attacker.example passes the check, and your app sends the authorization code to a host you don't control.
+
+Skip to code
+Anchor to Exchange the code for an offline access token
+Exchange the code for an offline access token
+
+Offline access tokens persist across sessions and aren't tied to a specific staff member. Exchange the authorization code for one by sending a POST request to Shopify's token endpoint.
+
+Anchor to Send the token request
+Send the token request
+
+New public apps must use expiring offline access tokens for GraphQL Admin API requests. Include expiring=1 in your request. Shopify returns a refresh token alongside your access token. If you're updating an existing public app that still requests non-expiring tokens, see Migrate to expiring offline access tokens.
+
+A successful exchange returns the token and its metadata:
+
+Copy
+1
+2
+3
+4
+5
+6
+7
+{
+  "access_token": "f85632530bf277ec9ac6f649fc327f17",
+  "scope": "read_products,write_orders",
+  "expires_in": 3600,
+  "refresh_token": "shprt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "refresh_token_expires_in": 7776000
+}
+Response fields
+Skip to code
+Anchor to Confirm the granted scopes
+Confirm the granted scopes
+
+Check that scope in the response includes all the scopes your app requires. Merchants can modify requested scopes during authorization, so always verify before storing the token. A write_* scope includes its matching read_* scope, so when you check the granted scope list, look for the write scope you requested rather than a separate read scope.
+
+To request additional scopes later, redirect the merchant to the authorization URL again with the updated scope list. Shopify prompts them to approve the added permissions. Apps built with Shopify CLI update scopes through managed installation instead. See Authentication for apps built with Shopify CLI.
+
+Skip to code
+Anchor to Store the tokens
+Store the tokens
+
+Store the access_token and refresh_token securely on your backend, along with expires_in and refresh_token_expires_in so you know when each token expires.
+
+Skip to code
+Anchor to (Optional) Request an online access token
+(Optional) Request an online access token
+
+Online access tokens are scoped to the staff member who authorized them, and they expire with that user's session. Request one when your app needs to respect an individual user's permission level or attribute actions to a specific user. Skip this step if an offline token is all your app needs.
+
+A single authorization request returns one token type, so this step changes the flow you just built rather than adding to it. Your app can hold both, but each one needs its own record: key the offline token by shop, and each online token by shop and staff member. An online access token has no refresh token, so writing one into the offline token's record ends your app's background refresh. The samples on this page keep a single record per shop, so add a second store before you run this flow.
+
+Anchor to Add the per-user parameter to the authorization URL
+Add the per-user parameter to the authorization URL
+
+Append &grant_options[]=per-user to the authorization URL you built in Redirect to Shopify's authorization page, then run the flow again. The code exchange returns an online access token instead of an offline one, and the response adds associated_user and associated_user_scope.
+
+Copy
+1
+https://{shop}/admin/oauth/authorize?client_id={client_id}&scope={scopes}&redirect_uri={redirect_uri}&state={nonce}&grant_options[]=per-user
+
+For what those fields contain, how long the token lasts, what a user logging out revokes, and why a valid token can still return 403, see Online access tokens.
+
+Skip to code
+Anchor to Make authenticated API requests
+Make authenticated API requests
+
+Include the access token in the X-Shopify-Access-Token header on all GraphQL Admin API requests.
+
+Anchor to Add the access token header
+Add the access token header
+
+Include the access token in every request. When it nears expiry, use the stored refresh_token to get a new one rather than sending the merchant back through authorization. See Refresh the access token.
+
+Skip to code
+Anchor to Refresh the access token
+Refresh the access token
+
+Expiring offline access tokens come with a refresh_token. Before the access token expires, exchange the refresh token for a new access token so your app keeps working without sending the merchant back through authorization.
+
+Anchor to Exchange the refresh token
+Exchange the refresh token
+
+Send the stored refresh_token to the token endpoint before expires_in seconds elapse. The response contains a new access token and a new refresh token, each with updated expiry times. Store both, and refresh from the new pair next time so Shopify retires the old one.
+
+Request
+Copy
+$
+$
+$
+$
+$
+$
+$
+$
+curl -X POST \
+  https://{shop}.myshopify.com/admin/oauth/access_token \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Accept: application/json' \
+  -d 'client_id={client_id}' \
+  -d 'client_secret={client_secret}' \
+  -d 'grant_type=refresh_token' \
+  -d 'refresh_token={refresh_token}'
+Response
+Copy
+1
+2
+3
+4
+5
+6
+7
+{
+  "access_token": "shpat_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+  "expires_in": 3600,
+  "refresh_token": "shprt_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+  "refresh_token_expires_in": 7776000,
+  "scope": "write_products,read_orders"
+}
+Skip to code
+Anchor to Handle refresh failures
+Handle refresh failures
+
+Refreshes are resilient to ambiguous failures. If a refresh request times out, hits a network error, or returns a transient 5xx, retry with the refresh_token you still hold. The token you presented stays usable until your app uses the one Shopify issued in its place, so a response that never arrives doesn't strand the store. Don't rely on a fixed retry-window duration. See How refresh token rotation works. If the refresh token is expired or otherwise invalid, Shopify returns 401 Unauthorized with {"error": "invalid_request"}. Clear the stored token pair and send the merchant back through authorization to mint a new one. For the full error behavior, see Refresh an expiring offline token.
+
+Skip to code
+Only show updated code lines
+index.js
+Copy
+/node/index.js
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+import express from 'express';
+import crypto from 'crypto';
+import cookieParser from 'cookie-parser';
+import * as dotenv from 'dotenv';
+
+
+dotenv.config();
+
+
+// Falls back to a random secret for local dev. Set COOKIE_SECRET in production
+// so signed cookies stay valid across restarts and deployments.
+const COOKIE_SECRET = process.env.COOKIE_SECRET || crypto.randomBytes(64).toString('hex');
+
+
+const app = express();
+app.use(cookieParser(COOKIE_SECRET));
+
+
+const CLIENT_ID = process.env.SHOPIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI;
+const SCOPES = process.env.SCOPES || 'read_products,write_orders';
+
+
+// In-memory token store (use a database in production)
+const tokenStore = {};
+
+
+// Send cookies only over HTTPS in production; over plain HTTP on localhost in
+// dev. httpOnly + sameSite protect them the rest of the time.
+const cookieOptions = {
+  signed: true,
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+};
+
+
+// A valid expiring-token response includes expires_in (seconds until the access
+// token expires). Return null when it's absent or non-positive: treat the token
+// as non-expiring and never refresh it. Storing Date.now() instead would make
+// the next request refresh a token that has no refresh_token — a permanent 401.
+function expiresAtFrom(expiresIn) {
+Anchor to Tutorial complete!
+Tutorial complete!
+
+Your app now completes the authorization code grant and holds an access token it can use against Shopify APIs.
+
+Anchor to Next steps
+Next steps
+Manage your credentials
+
+Find your client ID and secret, secure them, and rotate your client secret.
+
+Query store data
+
+Use your access token to query and mutate store data with the GraphQL Admin API.
+
+Set up webhooks
+
+Register webhooks for background tasks that run using your offline access token.
+
+Manage access scopes
+
+Change your declared scopes after launch, and request or revoke optional scopes dynamically.
+
+Delegate API access
+
+Give subsystems scoped, limited access to Shopify APIs without sharing your app's full credentials.
+
+Was this page helpful?
+Yes
+No
+Updates
+Developer changelog
+Shopify Editions
+Business growth
+Shopify Partners Program
+Shopify App Store
+Legal
+Terms of service
+API terms of use
+Privacy policy
+Partners Program Agreement
+Shopify
+About Shopify
+Shopify Plus
+Careers
+Investors
+Press and media
+Assistant

@@ -1,0 +1,132 @@
+Skip to main content
+Getting Started
+2026 App Awards
+Documentation
+Tools
+Support
+Sign up
+Log in
+Documentation
+Getting started
+Development accounts
+SDKs and tools
+Libraries
+Tools
+Best Practices
+Overview
+Managing connections
+Branding and Naming
+Categorising Transactions
+Data Integrity
+User Experience
+API Call Efficiencies
+Guides
+OAuth2
+Overview
+The code flow
+The PKCE flow
+Custom Connections
+Client Credentials
+Token types
+Scopes
+Tenants
+Limits
+Troubleshooting
+Webhooks
+Remote MCP
+Collaborators
+Idempotent Requests
+How-to guides
+Xero App Store
+App partner guides
+App success tips
+Market your app
+OAuth 2.0
+
+OAuth 2.0 is a protocol that lets your app access a user’s account without accessing their password. Your app requests specific permission scopes and is granted an access token upon a user’s approval.
+
+A user will connect your app to one or more tenants. Depending on the API you’re using, a tenant can be a Xero organisation, a Xero HQ practice, or a Xero Practice Manager account.
+Apps using the code or PKCE flow can connect to a maximum of 5 tenants. To connect to more than 5 tenants you need to upgrade to the Core Tier. Custom Connections can only ever connect to a single organisation.
+Choose the right authorization flow for your app
+
+Xero’s API supports the authorization code grant type using the standard authorization code flow or the Proof Key for Code Exchange (PKCE) extension. We also have a premium integration option called Custom Connections which utilises the client credentials grant type.
+
+Description	Code flow	PKCE flow	Custom Connection
+Best for	Web server apps that can securely store a client secret.	Mobile and desktop apps that can’t securely store a client secret. (SPAs not currently supported).	Back end, machine-to-machine integrations.
+Connection limit	5 connections on the Starter Tier	5 connections on the Starter Tier	One connection
+Eligible for Marketplace	Yes	Yes	No
+Offline Access	Yes	Yes	Yes
+Cost	Free (Starter Tier)	Free (Starter Tier)	Monthly fee on the Xero organisation
+- $10/m AUD inc GST
+- $10/m NZD ex GST
+- £5/m GBP ex VAT
+- $5/m USD ex tax
+Regional availability	Global	Global	UK, AU, NZ and US Xero organisations only
+
+The standard flow is the most well known OAuth 2.0 flow and typically used by web server applications. It requires your app to securely use and store a client secret.
+
+The PKCE flow requires your app to create a secret (called a code verifier) for each authorization request. It’s slightly more complicated to implement but offers a secure way to connect to the API if your app can’t be trusted to store a client secret. Native (desktop and mobile) apps are required to use PKCE if connecting directly to the API.
+
+Xero’s Custom Connections leverage the client_credentials grant type and are designed to make it easier to build bespoke integrations. Custom connections require less technical knowledge to build because Xero provides the authorisation flow. This means they’re also quicker to integrate and are easier to manage over time.
+
+OpenID Connect Discovery
+
+Xero does share an OpenID Connect Discovery configuration file to simplify connecting with OAuth, and verifying access and ID tokens. Many OAuth 2.0 libraries implement this standard, check the documentation of your preferred library to use it.
+
+It is available at https://identity.xero.com/.well-known/openid-configuration.
+
+Sign Up with Xero
+
+Sign Up with Xero is optional for app partners who are eligible to be listed on the Xero App Store. Eligibility requires your App to be on the Plus Tier or above.
+
+Sign Up with Xero brings potential customers directly to your app – ensuring a seamless onboarding experience and helping customers see the unique value of your app sooner. Customers can swiftly provision an app trial or an account for your app that is pre-populated with their Xero data directly from your listing in the Xero App Store.
+
+Learn more in the Sign Up with Xero guide.
+
+Sign In with Xero
+
+Allow users to sign in to your app with their Xero account by using Xero as an identity provider. It’s simple and secure.
+
+Sign In with Xero leverages security features including two step authentication, anomalous login detection, email address verification and more. It conforms to the OpenId Connect specification and will work with any certified client library.
+
+Learn more in the Sign In with Xero guide.
+
+SDKs
+
+We have a range of new SDKs and sample apps that integrate with OAuth 2.0. These are all generated from our collection of OpenAPI definitions.
+
+On this page
+Choose the right authorization flow for your app
+Sign Up with Xero
+Sign In with Xero
+SDKs
+AI toolkit
+MCP Server
+Agents Toolkit
+Prompt Library
+Documentation
+OAuth 2
+API reference
+Webhooks
+Community
+GitHub
+Product Feedback
+Connect to the Community
+Weekly Office Hours
+Dev Day Discord Server
+Find a developer
+Events
+News
+DevBlog
+API status
+Changelog
+Support
+Contact us
+FAQ
+© 2026 Xero Limited. All rights reserved. "Xero", "Beautiful business" and "Your business supercharged" are trademarks of Xero Limited.
+About Xero
+Developer Platform Terms and Conditions
+The Xero Developer Platform Commercial Terms
+Xero ecosystem principles
+Dev Council Terms and Conditions
+We use cookies on our website and apps. Want to know more? Check out our cookie notice

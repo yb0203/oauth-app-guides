@@ -1,0 +1,6 @@
+.venv/
+.env
+.state.json
+runs/
+secrets/
+__pycache__/

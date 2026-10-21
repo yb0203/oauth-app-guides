@@ -1,0 +1,335 @@
+name,slug,auth_scheme,managed_or_byo,needs_manual_provider_app,in_proposed_top100,composio_has_own_guide
+Adobe Marketing Agent MCP,adobe_marketing_agent_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+AdRoll,adroll,OAUTH2,byo,yes,no,no
+Ahrefs,ahrefs,"API_KEY, OAUTH2",byo,yes,no,no
+Ahrefs MCP,ahrefs_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Aircall,aircall,"OAUTH2, BASIC",byo,yes,yes,no
+AirOps MCP,airops_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Airtable,airtable,"OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Alpaca,alpaca,"API_KEY, OAUTH2",byo,yes,yes,no
+Amplitude MCP,amplitude_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Apaleo,apaleo,OAUTH2,managed,optional (managed app available),no,no
+Apify MCP,apify_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Asana,asana,OAUTH2,managed,optional (managed app available),no,yes
+Atlassian MCP,atlassian_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Attio,attio,OAUTH2,managed,optional (managed app available),no,no
+Audioscrape MCP,audioscrape_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+AWeber,aweber,OAUTH2,byo,yes,yes,no
+Azure Monitor Activity Log,azure_monitor_activity_log,OAUTH2,byo,yes,yes,no
+BambooHR,bamboohr,"OAUTH2, API_KEY",byo,yes,yes,no
+Basecamp,basecamp,OAUTH2,managed,optional (managed app available),no,no
+Beeminder,beeminder,"API_KEY, OAUTH2",byo,yes,no,no
+Better Stack MCP,better_stack_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Bitbucket,bitbucket,OAUTH2,managed,optional (managed app available),no,no
+Bitly,bitly,"API_KEY, OAUTH2",byo,yes,yes,no
+Bitwarden,bitwarden,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Blackbaud,blackbaud,OAUTH2,managed,optional (managed app available),no,no
+Blackboard,blackboard,OAUTH2,byo,yes,yes,no
+Boldsign,boldsign,OAUTH2,managed,optional (managed app available),no,no
+Borneo,borneo,"API_KEY, OAUTH2",byo,yes,no,no
+Box,box,OAUTH2,managed,optional (managed app available),no,no
+Box MCP,box_mcp,OAUTH2,byo,yes,no,no
+Brevo,brevo,"API_KEY, OAUTH2",byo,yes,yes,no
+Brex,brex,"OAUTH2, API_KEY",byo,yes,yes,no
+Buffer,buffer,OAUTH2,byo,yes,yes,no
+Cal,cal,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Calendly,calendly,OAUTH2,managed,optional (managed app available),no,yes
+Calendly MCP,calendly_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Candid MCP,candid_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Canva,canva,OAUTH2,managed,optional (managed app available),no,yes
+Canva MCP,canva_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Canvas,canvas,"OAUTH2, API_KEY",byo,yes,yes,no
+Capsule CRM,capsule_crm,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Carbon Voice MCP,carbon_voice_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Cashfree MCP,cashfree_payments_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Circleback MCP,circleback_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Clarify MCP,clarify_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Clay MCP,clay_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+ClickHouse MCP,clickhouse_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+ClickUp,clickup,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+ClickUp MCP,clickup_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Clio Manage,clio_manage,OAUTH2,byo,yes,yes,no
+Clockify,clockify,"API_KEY, OAUTH2",byo,yes,no,no
+Close MCP,close_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Cloudflare MCP,cloudflare_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Clover,clover,OAUTH2,byo,yes,yes,no
+Coinbase Agents MCP,coinbase_agents_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Coinbase Wallet MCP,coinbase_wallet_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Commerce Layer,commerce_layer,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Common Room MCP,common_room_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Confluence,confluence,"OAUTH2, S2S_OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Consensus MCP,consensus_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Constant Contact,constant_contact,OAUTH2,byo,yes,yes,no
+Contacts+,contacts_plus,OAUTH2,byo,yes,no,no
+Contentful,contentful,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Contentsquare MCP,contentsquare_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Coupa,coupa,OAUTH2,byo,yes,yes,no
+Cradl AI,cradl_ai,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Craft MCP,craft_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Crowdin,crowdin,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Customer.io MCP,customerio_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+D2L Brightspace,d2lbrightspace,OAUTH2,byo,yes,yes,no
+Dart,dart,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Databricks,databricks,"OAUTH2, API_KEY",byo,yes,yes,no
+Datadog,datadog,"OAUTH2, API_KEY, BEARER_TOKEN",byo,yes,yes,no
+Datadog MCP,datadog_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Daytona,daytona,"API_KEY, OAUTH2",managed,optional (managed app available),no,yes
+Descript MCP,descript_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+DevCycle,dev_cycle,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Dialpad,dialpad,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+DigitalOcean,digital_ocean,"API_KEY, OAUTH2",byo,yes,yes,no
+Discord,discord,OAUTH2,managed,optional (managed app available),no,no
+Discord Bot,discordbot,OAUTH2,managed,optional (managed app available),no,no
+Disqus,disqus,OAUTH2,byo,yes,yes,no
+DocuSign,docusign,OAUTH2,byo,yes,yes,yes
+Dribbble,dribbble,OAUTH2,byo,yes,yes,no
+Dropbox,dropbox,OAUTH2,managed,optional (managed app available),yes,yes
+Dropbox Sign,dropbox_sign,"API_KEY, OAUTH2",byo,yes,yes,no
+Dub,dub,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Dynamics 365,dynamics365,OAUTH2,managed,optional (managed app available),no,no
+Egnyte,egnyte,OAUTH2,byo,yes,no,no
+Epic Games,epic_games,OAUTH2,byo,yes,yes,no
+Era Context MCP,era_context_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Eraser MCP,eraser_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Eventbrite,eventbrite,OAUTH2,managed,optional (managed app available),no,no
+Excel,excel,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),no,no
+Exist,exist,OAUTH2,managed,optional (managed app available),no,no
+Facebook,facebook,OAUTH2,managed,optional (managed app available),yes,yes
+Fathom,fathom,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Fellow.ai MCP,fellow_ai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Figma,figma,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Financial Datasets AI MCP,financial_datasets_ai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Follow Up Boss,follow_up_boss,"API_KEY, OAUTH2",byo,yes,yes,no
+Freeagent,freeagent,OAUTH2,managed,optional (managed app available),no,no
+FreshBooks,freshbooks,OAUTH2,managed,optional (managed app available),no,no
+FuseAI MCP,fuseai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Gagelist,gagelist,S2S_OAUTH2,byo,no (client-credentials only),no,no
+GetResponse,getresponse,"API_KEY, OAUTH2",byo,yes,yes,no
+GitHub,github,OAUTH2,managed,optional (managed app available),yes,yes
+GitLab,gitlab,OAUTH2,managed,optional (managed app available),no,yes
+Glide MCP,glide_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Gmail,gmail,OAUTH2,managed,optional (managed app available),yes,no
+GoCardless MCP,gocardless_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Gong,gong,"BASIC, OAUTH2",managed,optional (managed app available),no,yes
+Google Admin,google_admin,OAUTH2,byo,yes,yes,no
+Google Ads,googleads,OAUTH2,managed,optional (managed app available),no,no
+Google AdSense,google_adsense,OAUTH2,byo,yes,yes,no
+Google Analytics,google_analytics,OAUTH2,managed,optional (managed app available),no,no
+Google BigQuery,googlebigquery,"OAUTH2, GOOGLE_SERVICE_ACCOUNT",managed,optional (managed app available),no,no
+Google Calendar,googlecalendar,OAUTH2,managed,optional (managed app available),yes,no
+Google Chat,google_chat,OAUTH2,byo,yes,yes,no
+Google Classroom,google_classroom,OAUTH2,managed,optional (managed app available),no,no
+Google Data Studio,google_data_studio,OAUTH2,byo,yes,yes,no
+Google Docs,googledocs,OAUTH2,managed,optional (managed app available),no,no
+Google Drive,googledrive,OAUTH2,managed,optional (managed app available),yes,no
+Google Maps,google_maps,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Google Meet,googlemeet,OAUTH2,managed,optional (managed app available),no,no
+Google Photos,googlephotos,OAUTH2,managed,optional (managed app available),no,no
+Google Search Console,google_search_console,OAUTH2,managed,optional (managed app available),no,no
+Google Sheets,googlesheets,OAUTH2,managed,optional (managed app available),no,no
+Google Slides,googleslides,OAUTH2,managed,optional (managed app available),no,no
+Google Super,googlesuper,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Google Tasks,googletasks,OAUTH2,managed,optional (managed app available),no,no
+Googlecontacts,googlecontacts,OAUTH2,byo,yes,yes,no
+Googleforms,googleforms,OAUTH2,byo,yes,yes,no
+Gorgias,gorgias,"API_KEY, OAUTH2",managed,optional (managed app available),no,yes
+Grafana Cloud MCP,grafana_cloud_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Granola MCP,granola_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Greenhouse,greenhouse,"S2S_OAUTH2, OAUTH2",managed,optional (managed app available),no,no
+Greptile MCP,greptile_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Gumroad,gumroad,OAUTH2,managed,optional (managed app available),no,no
+Gusto,gusto,OAUTH2,byo,yes,yes,no
+Harvest,harvest,OAUTH2,managed,optional (managed app available),no,no
+Help Scout,help_scout,OAUTH2,byo,yes,yes,no
+Higgsfield MCP,higgsfield_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+HighLevel Agency,highlevel_agency,OAUTH2,byo,yes,yes,no
+HighLevel Location,highlevel_location,"OAUTH2, BEARER_TOKEN",byo,yes,yes,no
+Honeycomb MCP,honeycomb_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+HubSpot,hubspot,"OAUTH2, API_KEY",managed,optional (managed app available),yes,yes
+Hugging Face,hugging_face,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Ignav Flights MCP,ignav_flights_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Instagram,instagram,OAUTH2,managed,optional (managed app available),yes,no
+Intercom,intercom,OAUTH2,managed,optional (managed app available),no,no
+Jentic MCP,jentic_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Jira,jira,"OAUTH2, S2S_OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Jobber,jobber,OAUTH2,byo,yes,yes,no
+Kernel MCP,kernel_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Kintone REST,kintone_rest,OAUTH2,byo,yes,yes,no
+Kit,kit,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Klaviyo,klaviyo,"API_KEY, OAUTH2",byo,yes,yes,no
+Kommo,kommo,OAUTH2,byo,yes,yes,no
+LaunchDarkly,launch_darkly,"API_KEY, OAUTH2",byo,yes,yes,no
+Legal Data Hunter MCP,legal_data_hunter_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Lever,lever,"API_KEY, OAUTH2",byo,yes,yes,no
+Lightspeed Retail X-Series,lightspeed,OAUTH2,byo,yes,yes,no
+LILT MCP,lilt_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Linear,linear,"OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Linear MCP,linear_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+LinkedIn,linkedin,OAUTH2,managed,optional (managed app available),yes,yes
+Linkedin Ads,linkedin_ads,OAUTH2,byo,yes,yes,no
+Linkhut,linkhut,OAUTH2,managed,optional (managed app available),no,no
+Lodgify,lodgify,"API_KEY, OAUTH2",byo,yes,no,no
+Longbridge MCP,longbridge_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Lucid MCP,lucid_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Magic Patterns MCP,magic_patterns_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Mailchimp,mailchimp,OAUTH2,managed,optional (managed app available),no,no
+MarcoPolo MCP,marcopolo_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Matterport,matterport,"BASIC, OAUTH2",byo,yes,yes,no
+Mercury MCP,mercury_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Meta Ads,metaads,"OAUTH2, API_KEY",byo,yes,yes,no
+Microsoft OneNote,onenote,OAUTH2,byo,yes,yes,no
+Microsoft Power Bi,microsoft_power_bi,OAUTH2,byo,yes,yes,no
+Microsoft Teams,microsoft_teams,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),yes,no
+Microsoft To Do,microsoft_todo,OAUTH2,byo,yes,yes,no
+Midpage MCP,midpage_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Mintlify MCP,mintlify_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Miro,miro,OAUTH2,managed,optional (managed app available),no,no
+Mobbin MCP,mobbin_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Modem MCP,modem_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Monday,monday,OAUTH2,managed,optional (managed app available),no,yes
+Monday MCP,monday_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Moneybird,moneybird,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+MongoDB,mongodb,S2S_OAUTH2,byo,no (client-credentials only),no,no
+MongoDB MCP,mongodb_mcp,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Mural,mural,OAUTH2,managed,optional (managed app available),no,no
+Neo4J,neo4j,"OAUTH2, BASIC, API_KEY, S2S_OAUTH2",byo,yes,no,no
+Neon MCP,neon_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Netlify MCP,netlify_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Netsuite,netsuite,OAUTH2,byo,yes,yes,no
+NotebookLM,notebook_lm,OAUTH2,managed,optional (managed app available),no,no
+Notion,notion,"OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Notion MCP,notion_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Octagon MCP,octagon_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Omnisend,omnisend,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+OneDrive,one_drive,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),no,no
+Otter.ai MCP,otter_ai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Outlook,outlook,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),yes,yes
+PagerDuty,pagerduty,"OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+PandaDoc MCP,pandadoc_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Parallel Task MCP,parallel_task_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Parma,parma,"OAUTH2, API_KEY",byo,yes,no,no
+Particl MCP,particl_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Paypal,paypal,S2S_OAUTH2,byo,no (client-credentials only),yes,no
+Peec AI MCP,peec_ai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Personio,personio,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Pinecone,pinecone,"API_KEY, OAUTH2",byo,yes,no,no
+Pinterest,pinterest,OAUTH2,managed,optional (managed app available),no,no
+Pinterest Ads,pinterest_ads,OAUTH2,managed,optional (managed app available),no,no
+Pipedrive,pipedrive,"OAUTH2, API_KEY",byo,yes,yes,yes
+Plaid MCP,plaid_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Plain MCP,plain_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+PlanetScale,planetscale,OAUTH2,byo,yes,yes,no
+PostHog MCP,posthog_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Prisma,prisma,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Productboard,productboard,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Pushbullet,pushbullet,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Pylon MCP,pylon_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+QuickBooks,quickbooks,OAUTH2,managed,optional (managed app available),yes,no
+QuickNode MCP,quicknode_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Railway,railway,"API_KEY, OAUTH2",byo,yes,yes,no
+Railway MCP,railway_mcp,OAUTH2,byo,yes,no,no
+Ramp,ramp,OAUTH2,byo,yes,yes,yes
+Ramp MCP,ramp_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Razorpay,razorpay,"API_KEY, OAUTH2",byo,yes,yes,no
+Read AI MCP,read_ai_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Recruitee,recruitee,"API_KEY, OAUTH2",byo,yes,yes,no
+Reddit,reddit,OAUTH2,managed,optional (managed app available),no,no
+Reddit Ads,reddit_ads,OAUTH2,managed,optional (managed app available),no,no
+Reloadly,reloadly,S2S_OAUTH2,byo,no (client-credentials only),no,no
+Resend,resend,"API_KEY, OAUTH2",byo,yes,no,no
+Resend MCP,resend_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Roam,roam,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Salesforce,salesforce,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),yes,yes
+Salesforce Service Cloud,salesforce_service_cloud,OAUTH2,byo,yes,yes,no
+Scheduleonce,scheduleonce,"API_KEY, OAUTH2",byo,yes,no,no
+Scorecard MCP,scorecard_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+SearchAPI MCP,searchapi_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Semrush MCP,semrush_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Sendloop,sendloop,"API_KEY, OAUTH2",byo,yes,no,no
+SendPulse,send_pulse,"API_KEY, S2S_OAUTH2",byo,yes,no,no
+Sentry,sentry,OAUTH2,managed,optional (managed app available),no,no
+Sentry MCP,sentry_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Servicem8,servicem8,OAUTH2,managed,optional (managed app available),no,no
+ServiceNow,servicenow,"BASIC, OAUTH2, S2S_OAUTH2",byo,yes,yes,no
+ServiceTitan,servicetitan,S2S_OAUTH2,byo,no (client-credentials only),yes,no
+SharePoint,share_point,"OAUTH2, S2S_OAUTH2",managed,optional (managed app available),no,no
+SharePoint Graph,sharepoint_graph,"OAUTH2, S2S_OAUTH2",byo,yes,yes,no
+Shippo,shippo,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Shopify,shopify,"OAUTH2, S2S_OAUTH2",byo,yes,yes,yes
+Sideshow MCP,sideshow_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+SignNow,sign_now,OAUTH2,byo,yes,yes,no
+Simplescraper MCP,simplescraper_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Slack,slack,OAUTH2,managed,optional (managed app available),yes,yes
+Slackbot,slackbot,OAUTH2,managed,optional (managed app available),no,no
+Snapchat,snapchat,OAUTH2,byo,yes,yes,no
+Snowflake,snowflake,OAUTH2,byo,yes,yes,yes
+SoundCloud,soundcloud,OAUTH2,byo,yes,yes,no
+Splice MCP,splice_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Splitwise,splitwise,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Spotify,spotify,OAUTH2,byo,yes,yes,no
+Square,square,OAUTH2,managed,optional (managed app available),no,no
+Stack Exchange,stack_exchange,OAUTH2,managed,optional (managed app available),no,no
+Statsig MCP,statsig_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Storyblok,storyblok,"API_KEY, OAUTH2",byo,yes,no,no
+Stripe,stripe,"API_KEY, OAUTH2",managed,optional (managed app available),yes,yes
+Stripe MCP,stripe_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Stytch MCP,stytch_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Supabase,supabase,"OAUTH2, API_KEY",managed,optional (managed app available),no,yes
+Supabase MCP,supabase_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Supabase Read MCP,supabase_read_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+SurveyMonkey,survey_monkey,"OAUTH2, API_KEY",byo,yes,yes,no
+Synthesize Bio MCP,synthesize_bio_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Tally,tally,"API_KEY, OAUTH2",byo,yes,yes,no
+Tavily MCP,tavily_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+ThoughtSpot Spotter MCP,thoughtspot_spotter_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Ticket Tailor MCP,ticket_tailor_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Ticketmaster,ticketmaster,"API_KEY, OAUTH2",managed,optional (managed app available),no,no
+Ticktick,ticktick,OAUTH2,managed,optional (managed app available),no,yes
+Tiktok,tiktok,OAUTH2,byo,yes,yes,no
+TikTok Ads,tiktok_ads,OAUTH2,managed,optional (managed app available),no,no
+Timely,timely,OAUTH2,managed,optional (managed app available),no,no
+TinyFish MCP,tinyfish_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Todoist,todoist,OAUTH2,managed,optional (managed app available),no,no
+Todoist MCP,todoist_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Toneden,toneden,"API_KEY, OAUTH2",byo,yes,no,no
+Trello,trello,OAUTH1,managed,optional (managed app available),no,yes
+Twitch,twitch,OAUTH2,managed,optional (managed app available),no,no
+Twitter,twitter,OAUTH2,byo,yes,yes,yes
+Typeform,typeform,OAUTH2,managed,optional (managed app available),no,no
+Vantage MCP,vantage_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Vercel,vercel,"OAUTH2, API_KEY",byo,yes,yes,no
+Vercel MCP,vercel_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Vibe,vibe,"OAUTH2, S2S_OAUTH2",byo,yes,no,no
+Vibe Prospecting MCP,vibe_prospecting_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+vidIQ MCP,vidiq_mcp,"DCR_OAUTH, API_KEY",byo,yes,no,no
+Vimeo,vimeo,OAUTH2,byo,yes,yes,no
+WakaTime,wakatime,OAUTH2,managed,optional (managed app available),no,no
+Webex,webex,OAUTH2,managed,optional (managed app available),no,no
+Webflow,webflow,"OAUTH2, API_KEY",byo,yes,yes,no
+WhatsApp,whatsapp,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Whop,whop,"API_KEY, OAUTH2",byo,yes,yes,no
+WildApricot,wild_apricot,S2S_OAUTH2,byo,no (client-credentials only),yes,no
+Wispr Flow MCP,wispr_flow_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Wix,wix,"OAUTH2, API_KEY",byo,yes,yes,no
+Wix MCP,wix_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+WordPress.com,wordpress_com,OAUTH2,byo,yes,yes,no
+Workable,workable,"OAUTH2, API_KEY",byo,yes,yes,no
+Workday,workday,OAUTH2,byo,yes,yes,yes
+Wrike,wrike,OAUTH2,managed,optional (managed app available),no,no
+Xero,xero,OAUTH2,byo,yes,yes,yes
+Yandex,yandex,OAUTH2,managed,optional (managed app available),no,no
+YNAB,ynab,OAUTH2,managed,optional (managed app available),no,no
+YouTube,youtube,OAUTH2,managed,optional (managed app available),yes,no
+Zendesk,zendesk,OAUTH2,managed,optional (managed app available),no,yes
+Zeplin,zeplin,"OAUTH2, API_KEY",managed,optional (managed app available),no,no
+Zernio MCP,zernio_mcp,DCR_OAUTH,byo,"no (DCR, INFERRED)",no,no
+Zoho,zoho,OAUTH2,managed,optional (managed app available),no,yes
+Zoho Bigin,zoho_bigin,OAUTH2,managed,optional (managed app available),no,no
+Zoho Books,zoho_books,OAUTH2,managed,optional (managed app available),no,no
+Zoho Desk,zoho_desk,OAUTH2,managed,optional (managed app available),no,no
+Zoho Inventory,zoho_inventory,OAUTH2,managed,optional (managed app available),no,no
+Zoho Invoice,zoho_invoice,OAUTH2,managed,optional (managed app available),no,no
+Zoho Mail,zoho_mail,OAUTH2,managed,optional (managed app available),no,no
+Zoom,zoom,OAUTH2,managed,optional (managed app available),yes,yes
+Zoom Team Chat,zoom_chat,OAUTH2,byo,yes,yes,no
+Zoominfo,zoominfo,OAUTH2,byo,yes,yes,no

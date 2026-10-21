@@ -1,0 +1,97 @@
+{
+  "app": "Xero (OAuth 2.0 app)",
+  "run_mode": "public",
+  "captured_on": "2026-10-21",
+  "steps": [
+    {
+      "n": 1,
+      "title": "Log in to Xero to reach the developer portal (My Apps)",
+      "actor": "human",
+      "human_reason": "credential",
+      "evidence": "TESTED",
+      "url": "https://developer.xero.com/app/manage",
+      "screenshot": "step-01-console-login-wall.png",
+      "quote": "Log in to your account",
+      "notes": "developer.xero.com/app/manage redirects in one hop to login.xero.com/identity/user/login (an OIDC authorize round trip for the developer portal client). The wall is a plain email + password form with a 'Sign up' link for people without a Xero account. No bot check and no cookie banner seen on the login page. Quote verified on the live page (after redirect)."
+    },
+    {
+      "n": 2,
+      "title": "Pick the app type: Auth Code (web server), Auth Code with PKCE (native), or Custom connection",
+      "actor": "either",
+      "human_reason": null,
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/overview/",
+      "screenshot": "step-02-docs-choose-app-type.png",
+      "quote": "Apps using the code or PKCE flow can connect to a maximum of 5 tenants",
+      "notes": "For Composio's server-side OAuth flow the standard code flow (grant type 'Auth Code') is the match. Docs table: code flow and PKCE are free on the Starter Tier with 5 connections; Custom Connection is one connection, not eligible for the Marketplace, and costs a monthly fee on the Xero organisation. Quote verified on the live page. Which of these is right for Composio is our inference, not a Xero statement."
+    },
+    {
+      "n": 3,
+      "title": "Create the app: My Apps > New app, enter a name, choose the integration type, add a company or application URL, accept the developer terms",
+      "actor": "human",
+      "human_reason": "legal_acceptance",
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "screenshot": "step-06-docs-custom-connection.png",
+      "quote": "create an OAuth2 app and make sure you select the “Auth Code” grant type",
+      "notes": "Quote verified on the live page. The screenshot is an 'Add a new app' dialog image embedded in the Custom Connections docs page (fields: Name, Integration type, Company or application URL, a Terms and Conditions checkbox, Create app). It is a docs picture, not the live form, and it looks older than the text: its labels say 'Connect up to 25 organisations before certification' while the current text says 5 connections. The Custom Connections page also says to log in to My Apps and click New App, then give the integration a name (verified). Agent can prepare the name and URL values; a human accepts the terms and submits."
+    },
+    {
+      "n": 4,
+      "title": "Add Composio's callback as the redirect URI",
+      "actor": "either",
+      "human_reason": null,
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "screenshot": "step-04-docs-redirect-uri-rule.png",
+      "quote": "This must be an https address, however for testing you can use http://localhost/",
+      "notes": "Quote verified on the live page. Value to paste: https://backend.composio.dev/api/v3/toolkits/auth/callback (per Composio docs; copy the exact value shown in your Composio auth config, since some toolkits still show the legacy v1 URL). The same page says 'http://127.0.0.1 cannot be used' (verified). The PKCE page adds that custom URL schemes are not supported (verified). The captured docs do not say where in the portal the redirect URI field sits (the Custom Connections docs image shows a 'Configuration' page); that placement was not seen in this run."
+    },
+    {
+      "n": 5,
+      "title": "Know the limits before you share the app: 5 connections on the Starter Tier, and 5 uncertified apps per Xero organisation",
+      "actor": "either",
+      "human_reason": null,
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/limits/",
+      "screenshot": "step-05-docs-uncertified-app-limits.png",
+      "quote": "each organisation or practice is limited to connecting a maximum of five uncertified apps",
+      "notes": "Quote verified on the live page. Same page, also verified: 'New apps default to the starter tier with 5 connections. Moving up to Core will give you up to 50 connections.' and 'There is no limit on connecting certified apps'. Custom Connection apps do not count toward the five uncertified app limit (verified on the Custom Connections page). Consequence for Composio: a customer whose Xero organisation already has 5 uncertified apps cannot connect a sixth, and every tenant a user connects counts against the app's connection limit. No review or approval is needed to create the app; certification only matters for scale and the App Store."
+    },
+    {
+      "n": 6,
+      "title": "Request offline_access in the scopes so Composio can refresh tokens",
+      "actor": "either",
+      "human_reason": null,
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "screenshot": null,
+      "quote": "You get a refresh token by requesting the offline_access scope during the initial user authorization",
+      "notes": "Quote verified on the live page. Same page, verified: 'Refresh tokens expire after 60 days.' Access tokens last 30 minutes (docs). Scopes are passed in the authorize URL, not set in the form we captured; where Composio sets them is a Composio-side detail not checked here."
+    },
+    {
+      "n": 7,
+      "title": "Generate a client secret and paste the client ID and secret into a Composio auth config",
+      "actor": "human",
+      "human_reason": "credential",
+      "evidence": "DOCS",
+      "url": "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "screenshot": "step-03-docs-create-app-and-redirect-uri.png",
+      "quote": "Your app is assigned a unique Client ID and you can then generate a Client Secret",
+      "notes": "Quote verified on the live page. The secret is only a docs statement here; the real button was not seen. A PKCE app gets no secret ('there will be no option to generate a client secret' on the PKCE page), so choose the code flow type for Composio."
+    }
+  ],
+  "blocked_at": {
+    "url": "https://login.xero.com/identity/user/login",
+    "what_it_asks_for": "A Xero account (email + password). There is a Sign up link for people without one.",
+    "screenshot": "step-01-console-login-wall.png"
+  },
+  "observations": [
+    "Console wall reached in one redirect, with no bot check or cookie banner on the login page.",
+    "Xero's docs rendered fine for headless capture (14k, 8k, 13k, 8k and 5k characters of text). No JavaScript problem.",
+    "The docs pages show a fixed cookie banner that sits over part of the screenshots. It cannot be dismissed read-only, so crops were chosen to keep the key lines above or below it.",
+    "The docs describe the app types by grant type ('Auth Code', 'Auth Code with PKCE', 'Custom connection'); the portal's own labels (the docs image says 'Web app' and 'Mobile or desktop app') were not seen live.",
+    "Single Page Apps are not currently supported with PKCE (verified on the PKCE page).",
+    "20 of 20 quotes verified on the live pages."
+  ]
+}

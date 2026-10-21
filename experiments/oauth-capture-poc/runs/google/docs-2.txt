@@ -1,0 +1,74 @@
+Skip to main content
+Google Cloud Platform Console Help
+Sign in
+Google Cloud Platform Console
+Google Auth PlatformManage App Audience
+Manage App Audience
+
+The audience setting is used to manage user groups that are allowed to authorize your application to access their data.
+
+User Type 
+
+The user type setting determines the target audience for your app
+
+External
+Internal
+Publishing status 
+
+The publishing status determines if your application is in test or production mode.
+
+Testing
+In Production
+OAuth user cap 
+
+To protect users and Google systems from abuse, apps that use OAuth and Cloud Identity have certain quota restrictions based on the risk level of the OAuth scopes an app uses.
+
+The user cap limits the number of users that can grant permission to your app when requesting unapproved sensitive or restricted scopes. The user cap applies over the entire lifetime of the project, and it cannot be reset or changed. Verified apps will still display the user cap on this page, but the user cap does not apply if you are requesting only approved sensitive or restricted scopes. If your users are seeing the "unverified app" screen  , it is because your OAuth request includes additional scopes that haven't been approved.
+
+The OAuth user quotas are summarized in the following table. These might be adjusted for specific apps based on the app history, developer reputation, and riskiness.
+
+ 	
+
+Applicable apps
+
+	
+
+Quota
+
+	
+
+Appeal
+
+
+
+
+New user cap
+
+	
+
+Apps that present the unverified app screen to users
+
+	
+
+100 new users in total, after the app presents the unverified app screen
+
+	
+
+Request verification for your app
+
+For more information, see the OAuth Application Rate Limits page.
+
+ 
+
+Give feedback about this article
+Was this helpful?YesNo
+Google Auth Platform
+Get started with the Google Auth Platform
+Google Auth Platform Overview
+Manage App Audience
+Manage OAuth App Branding
+Manage OAuth Clients
+Manage App Data Access
+©2026 Google  Privacy Policy  Terms of Service
+Language
+English‎

@@ -1,0 +1,152 @@
+Skip to content
+Documentation
+Community
+Log in
+
+Web API
+
+Overview
+Getting started
+Building with AI
+Concepts
+Access Token
+API calls
+Apps
+Authorization
+Redirect URIs
+Playlists
+Quota modes
+Rate limits
+Scopes
+Spotify URIs and IDs
+Track Relinking
+Tutorials
+How-Tos
+Changelog
+REFERENCE
+Albums
+Artists
+Audiobooks
+Categories
+Chapters
+Episodes
+Genres
+Library
+Markets
+Player
+Playlists
+Search
+Shows
+Tracks
+Users
+Quota modes
+
+The quota mode refers to the mode in which an app can be: development mode or extended quota mode.
+
+You can check the current mode of your app by checking the App Status value in the App Settings:
+
+Development mode
+
+Newly-created apps begin in development mode. This mode is perfect for apps that are under construction and apps that have been built for accessing or managing data in a single Spotify account.
+
+Note: The app owner must have a Spotify Premium account for apps in development mode to function.
+
+Up to 5 authenticated Spotify users can use an app that is in development mode — so you can share your app with beta testers, friends, or with fellow developers who are working on the app. Each Spotify user who installs your app will need to be added to your app's allowlist before they can use it.
+
+Quota counting
+
+Spotify's Web API has a quota system that limits the number of requests made through development mode apps that belong to a single developer account. Note that this is different from rate limits.
+
+Endpoints are grouped into quota buckets and requests to endpoints in the same bucket count toward a shared limit. The specific groupings and limits are subject to change.
+
+When the quota has been exceeded, the Web API returns a 429 Too Many Requests response with the following info:
+
+1
+{
+
+2
+    "error": {
+
+3
+        "status": 429,
+
+4
+        "message": "Too many requests",
+
+5
+        "reason": "QUOTA_EXCEEDED"
+
+6
+    }
+
+7
+}
+
+Adding a user to your app's allowlist
+
+Allow another user to use your development mode app by following these steps:
+
+Log in to the Developer Dashboard
+Tap on the name of your app
+Tap on the Settings button
+Tap on the Users Management tab 
+Tap on the Add new user button and enter the name and Spotify email address of the user that you want to enable to use your app
+Invite the new user to install and use your app
+
+Users may be able to log into a development mode app without having been allowlisted by the developer. However, API requests with an access token associated to that user and app will receive a 403 status code error.
+
+Extended quota mode
+
+Extended quota mode is for Spotify apps that are ready for a wider audience. Apps in this category can be installed by an unlimited number of users and the allowlist in development mode no longer applies. Extended quota mode apps also have access to a higher rate limit than development mode apps do.
+
+Quota Extension Request for New Potential Partners
+
+Please note that as of May 15th 2025, Spotify only accepts applications from organizations (not individuals). For more information on this update, read here.
+
+Application must be sent through a company email by using this form. Check out the implementation requirements below to make sure your company is compatible before submitting your application.
+
+Implementation requirements:
+
+Established Business Entity (legally registered business or organisation)
+Operating an active, and Launched Service
+Maintaining a minimum of active users (at least 250k MAUs)
+Being available in key Spotify markets
+Commercial Viability
+Adherence to Terms
+Moving from development mode into extended quota mode
+
+If your Partner Application form is approved, you can ask Spotify to move your app from development mode into extended quota mode. Spotify's app review team will take a look at your app and evaluate it for compliance with our Developer Policy.
+
+Log in to the Developer Dashboard
+Tap on the name of your app
+Tap on the Settings button
+Tap on the Quota extension Request tab 
+Tell us about your app by filling out the provided questionnaire (4 steps)
+Tap Submit
+
+When you have successfully submitted your app for review you should see the word 'Sent' in blue on your app detail page. The app review team will review the information that you have provided, test out your app and send you feedback by email, to the email address associated with your Spotify account. This review process can take up to six weeks.
+
+Footer
+DOCUMENTATION
+Web API
+Web Playback SDK
+Ads API
+iOS
+Android
+Embeds
+Commercial Hardware
+GUIDELINES
+Design
+Accessibility
+COMMUNITY
+News
+Forum
+LEGAL
+Developer Terms
+Developer Policy
+Compliance Tips
+Third Party Licenses
+
+LegalCookies© 2026 Spotify AB
+
+We and our partners use cookies to personalize your experience, to show you ads based on your interests, and for measurement and analytics purposes. By using our website and services, you agree to our use of cookies as described in our Cookie Policy.
