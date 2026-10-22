@@ -62,3 +62,34 @@ Source: `evals/RESULTS.md`, scored by `evals/score.py` against the answer key in
 - Costs with no official figure, such as Google's CASA security assessment.
 - Whether providers enforce their written terms against shared connector-platform apps (HubSpot token brokering, Xero aggregation). That's flagged as uncertain.
 - Every fact is true only as of its "last verified" date. Spotify, Slack, Shopify, Xero, HubSpot and Google all changed their rules during 2026.
+
+## 7. Performance and cost (production, 2026-10-22)
+
+Measured on production (Vercel Python, free OpenRouter models). Each run reports its own `data-run-stats` (per-stage seconds, model calls, and the provider-reported input/output tokens per model). The batch is `evals/perf.py`; raw streams are `evals/runs/perf-*.sse`. **Actual spend** is the change in OpenRouter account usage across the batch, read from the account before and after. **Paid-model equivalent** prices the same tokens at the paid (non-`:free`) variant of each model, from OpenRouter's public model list. MiniMax M3.1 Flash has no paid variant, so its tokens are unpriced.
+
+### Per run
+
+| Model | App | Total | find_docs | research | synthesize | probe + verify | LLM calls (failed) | Input tokens | Output tokens | Actual cost | Paid equivalent |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| MiniMax M3.1 Flash (default) | GitHub | 59.1 s | 6.9 s | 24.4 s | 27.2 s | 0.3 s | 7 (0) | 21,632 | 9,992 | $0.00 | n/a (free-only model) |
+| MiniMax M3.1 Flash | Gmail | 72.3 s | 10.2 s | 17.2 s | 43.5 s | 0.4 s | 7 (0) | 24,206 | 11,382 | $0.00 | n/a |
+| MiniMax M3.1 Flash | Spotify | 50.8 s | 6.4 s | 16.1 s | 27.9 s | 0.2 s | 7 (0) | 22,300 | 10,741 | $0.00 | n/a |
+| MiniMax M3.1 Flash | Asana | **stalled**: no bytes after the research stage until the client timed out | | | | | | | | $0.00 | |
+| Nemotron 3 Ultra | GitHub | 95.7 s | | | 59.2 s | | 7 (0) | 22,835 | 8,535 | $0.00 | $0.034 |
+| Nemotron 3 Ultra | Spotify | 64.5 s | | | 45.8 s | | 7 (0) | 20,025 | 6,755 | $0.00 | $0.028 |
+| Nemotron 3 Ultra | Asana | 69.2 s | | | 39.7 s | | 6 (0) | 17,859 | 5,948 | $0.00 | $0.025 |
+
+### Summary
+
+| | MiniMax M3.1 Flash (default) | Nemotron 3 Ultra |
+|---|---|---|
+| Mean time per guide | **61 s** | 77 s |
+| Mean tokens per guide (in / out) | 22.7k / 10.7k | 20.2k / 7.1k |
+| Model calls per guide | 7 | 6–7 |
+| Actual spend | **$0.00** (account usage change: $0) | **$0.00** |
+| Same tokens on the paid model | n/a (no paid variant) | **about $0.03 per guide**, so about $3 for a 100-guide library |
+
+- **Where the time goes:** writing the guide (`synthesize`, two parallel LLM calls) takes 45–60% of each run, and reading pages (`research`, one extraction per page in parallel) another 25–40%. Search, fetching, the console probe and quote verification together take about 10 seconds. The deterministic work is cheap; the model calls are the cost.
+- **Ask this guide:** one LLM call. The first version took about 37 seconds; after moving `/ask` to the faster model with a 20-second cutoff and a deterministic fallback, answers come back in about 5 seconds.
+- **Throughput on free models:** about 7 requests per guide against OpenRouter's free limit of 20 requests per minute, or 1,000 per day once 10 credits are bought (about 140 guides a day). That's fine for a demo, but a production library would use the paid variant at about 3 cents a guide.
+- **Reliability finding:** one MiniMax run (Asana) stalled in the research stage on production: one heartbeat, then silence until the client timed out. **We couldn't reproduce it.** Three local Asana runs completed in 51–62 seconds, and the worst event-loop lag we measured was 0.67 seconds, so the root cause is unproven (likely the function being frozen or killed on the platform side). We hardened the backend anyway: blocking work moved off the event loop, an independent heartbeat task, and a 240-second run watchdog that publishes a labeled partial guide instead of going silent. The re-runs are below.

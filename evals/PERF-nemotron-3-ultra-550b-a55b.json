@@ -1,0 +1,202 @@
+{
+  "apps": [
+    {
+      "app": "GitHub",
+      "client_seconds": 96.2,
+      "guide": true,
+      "stats": {
+        "run_id": "020f115faef1",
+        "app": "GitHub",
+        "mode": "live",
+        "total_seconds": 95.7,
+        "stages": {
+          "resolve": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "find_docs": {
+            "seconds": 2.7,
+            "status": "done"
+          },
+          "research": {
+            "seconds": 33.2,
+            "status": "done"
+          },
+          "probe": {
+            "seconds": 0.2,
+            "status": "done"
+          },
+          "synthesize": {
+            "seconds": 59.2,
+            "status": "done"
+          },
+          "verify": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "publish": {
+            "seconds": 0.0,
+            "status": "done"
+          }
+        },
+        "llm": {
+          "calls": 7,
+          "failed_calls": 0,
+          "input_tokens": 22835,
+          "output_tokens": 8535,
+          "by_model": {
+            "nvidia/nemotron-3-ultra-550b-a55b:free": {
+              "calls": 7,
+              "input_tokens": 22835,
+              "output_tokens": 8535
+            }
+          }
+        },
+        "cost_usd": 0.0,
+        "pages_fetched": 10,
+        "quotes_checked": 75,
+        "config": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "fallback_model": "minimax/minimax-m3.1-flash:free",
+          "max_pages": 5,
+          "probe_console": true
+        }
+      },
+      "paid_equivalent_usd": 0.0342,
+      "unpriced_models": []
+    },
+    {
+      "app": "Spotify",
+      "client_seconds": 64.8,
+      "guide": true,
+      "stats": {
+        "run_id": "342585a3faa7",
+        "app": "Spotify",
+        "mode": "live",
+        "total_seconds": 64.5,
+        "stages": {
+          "resolve": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "find_docs": {
+            "seconds": 6.1,
+            "status": "done"
+          },
+          "research": {
+            "seconds": 12.4,
+            "status": "done"
+          },
+          "probe": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "synthesize": {
+            "seconds": 45.8,
+            "status": "done"
+          },
+          "verify": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "publish": {
+            "seconds": 0.0,
+            "status": "done"
+          }
+        },
+        "llm": {
+          "calls": 7,
+          "failed_calls": 0,
+          "input_tokens": 20025,
+          "output_tokens": 6755,
+          "by_model": {
+            "nvidia/nemotron-3-ultra-550b-a55b:free": {
+              "calls": 7,
+              "input_tokens": 20025,
+              "output_tokens": 6755
+            }
+          }
+        },
+        "cost_usd": 0.0,
+        "pages_fetched": 10,
+        "quotes_checked": 47,
+        "config": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "fallback_model": "minimax/minimax-m3.1-flash:free",
+          "max_pages": 5,
+          "probe_console": true
+        }
+      },
+      "paid_equivalent_usd": 0.0282,
+      "unpriced_models": []
+    },
+    {
+      "app": "Asana",
+      "client_seconds": 69.5,
+      "guide": true,
+      "stats": {
+        "run_id": "72dc92e3555e",
+        "app": "Asana",
+        "mode": "live",
+        "total_seconds": 69.2,
+        "stages": {
+          "resolve": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "find_docs": {
+            "seconds": 11.4,
+            "status": "done"
+          },
+          "research": {
+            "seconds": 17.7,
+            "status": "done"
+          },
+          "probe": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "synthesize": {
+            "seconds": 39.7,
+            "status": "done"
+          },
+          "verify": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "publish": {
+            "seconds": 0.0,
+            "status": "done"
+          }
+        },
+        "llm": {
+          "calls": 6,
+          "failed_calls": 0,
+          "input_tokens": 17859,
+          "output_tokens": 5948,
+          "by_model": {
+            "nvidia/nemotron-3-ultra-550b-a55b:free": {
+              "calls": 6,
+              "input_tokens": 17859,
+              "output_tokens": 5948
+            }
+          }
+        },
+        "cost_usd": 0.0,
+        "pages_fetched": 8,
+        "quotes_checked": 49,
+        "config": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "fallback_model": "minimax/minimax-m3.1-flash:free",
+          "max_pages": 5,
+          "probe_console": true
+        }
+      },
+      "paid_equivalent_usd": 0.025,
+      "unpriced_models": []
+    }
+  ],
+  "account_usage_before": 0,
+  "account_usage_after": 0,
+  "account_delta_usd": 0
+}

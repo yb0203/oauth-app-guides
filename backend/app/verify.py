@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
@@ -19,6 +20,7 @@ def _fold(text: str) -> str:
     return re.sub(r"\s+", " ", text.translate(_QUOTES)).strip()
 
 
+@lru_cache(maxsize=64)  # a page is normalized once, not once per quote checked against it
 def normalize(text: str) -> str:
     return _fold(text).lower()
 

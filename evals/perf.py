@@ -76,7 +76,10 @@ def main():
     before = account_usage(key)
     results = []
     for app in APPS:
-        res = run(app)
+        try:
+            res = run(app)
+        except Exception as exc:  # a stalled or dropped run is a result too
+            res = {"app": app, "client_seconds": None, "guide": False, "stats": None, "error": repr(exc)[:200]}
         st = res["stats"] or {}
         paid, unpriced = 0.0, []
         for model, u in (st.get("llm", {}).get("by_model") or {}).items():
@@ -88,7 +91,7 @@ def main():
         res["paid_equivalent_usd"] = round(paid, 4)
         res["unpriced_models"] = unpriced
         results.append(res)
-        print(f"{app}: {res['client_seconds']} s, guide={res['guide']}", file=sys.stderr)
+        print(f"{app}: {res['client_seconds']} s, guide={res['guide']} {res.get('error', '')}", file=sys.stderr)
     after = account_usage(key)
     summary = {"apps": results, "account_usage_before": before, "account_usage_after": after,
                "account_delta_usd": None if before is None or after is None else round(after - before, 6)}
@@ -98,6 +101,9 @@ def main():
     print("|---|---|---|---|---|---|---|---|")
     for r in results:
         st = r["stats"] or {}
+        if not st:
+            print(f"| {r['app']} | failed: {r.get('error', 'no run stats')} | | | | | | |")
+            continue
         llm = st.get("llm", {})
         stages = st.get("stages") or {}
         slow = max(stages.items(), key=lambda kv: kv[1].get("seconds") or 0, default=(None, {}))

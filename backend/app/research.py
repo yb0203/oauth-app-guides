@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 from dataclasses import dataclass
 from typing import Literal
@@ -41,6 +42,7 @@ them: any cap on users, connections, installs or test users (with value and unit
 approval requirement, who is eligible (individuals vs organizations), and how long approval takes."""
 
 EXTRACT_TIMEOUT_S = 45.0
+MAX_PAGE_CHARS = 600_000  # bounds every regex pass over a page, so none can hold the interpreter for long
 KEYWORDS = re.compile(
     r"oauth|redirect|callback|scope|review|verif|approv|limit|quota|client|secret|token|user|install|"
     r"expire|refresh|consent|admin|publish|submit|register|create|credential|permission|restrict|"
@@ -88,9 +90,10 @@ def select_relevant(text: str, budget: int = 12000) -> str:
 
 
 async def extract_page(llm: LLM, app_name: str, source_id: str, page: Page, deadline: float | None = None) -> PageClaims:
+    relevant = await asyncio.to_thread(select_relevant, (page.visible_text or page.hidden_text)[:MAX_PAGE_CHARS])
     prompt = (
         f"App: {app_name}\nPage URL: {page.final_url}\nPage title: {page.title}\n\n"
-        f"<page_text>\n{select_relevant(page.visible_text or page.hidden_text)}\n</page_text>"
+        f"<page_text>\n{relevant}\n</page_text>"
     )
     return await llm.run(PageClaims, EXTRACT_INSTRUCTIONS, prompt, label=f"extract:{source_id}", timeout=EXTRACT_TIMEOUT_S,
                          deadline=deadline)

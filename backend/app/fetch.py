@@ -47,6 +47,7 @@ try:
     _PARSER = "lxml"
 except ImportError:  # lxml is optional
     _PARSER = "html.parser"
+MAX_HTML_CHARS = 2_500_000  # parse at most this much of a page
 
 _ALWAYS_DROP = ("script", "style")
 _VISIBLE_DROP = ("noscript", "template")
@@ -198,12 +199,13 @@ async def _fetch_http(url: str, timeout: float, client: httpx.AsyncClient | None
     hops = [*resp.history, resp]
     for hop in hops:
         _notify(hop.request.method, str(hop.request.url))
+    html = resp.text[:MAX_HTML_CHARS]
     try:
-        visible, everything, title = html_to_texts(resp.text)
+        visible, everything, title = await asyncio.to_thread(html_to_texts, html)  # parsing is CPU-bound
     except Exception:  # one odd page must never take the run down
-        visible, everything, title = _crude_texts(resp.text)
+        visible, everything, title = _crude_texts(html)
     chain = [str(hop.url) for hop in hops]
-    return Page(url, str(resp.url), chain, resp.status_code, title, visible, everything, "http", None, resp.text)
+    return Page(url, str(resp.url), chain, resp.status_code, title, visible, everything, "http", None, html)
 
 
 # --- shared browser ---------------------------------------------------------------------------

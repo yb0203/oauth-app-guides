@@ -197,7 +197,8 @@ def create_app() -> FastAPI:
                 status_code=429,
                 headers={"retry-after": str(retry_after)},
             )
-        return StreamingResponse(stream.with_heartbeat(_guarded(_source(app_input, cfg))), headers=stream.STREAM_HEADERS)
+        return StreamingResponse(stream.run_in_thread(lambda: _guarded(_source(app_input, cfg))),
+                                 headers=stream.STREAM_HEADERS)
 
     @app.post("/api/guides/{slug}/ask")
     async def ask_guide(slug: str, request: Request):

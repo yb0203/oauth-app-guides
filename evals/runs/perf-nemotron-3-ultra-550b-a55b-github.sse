@@ -1,0 +1,132 @@
+data: {"type":"start","messageId":"020f115faef1"}
+
+data: {"type":"text-start","id":"aaee3fa2570b4b178dd0a2142764b35d"}
+
+data: {"type":"text-delta","id":"aaee3fa2570b4b178dd0a2142764b35d","delta":"Using NVIDIA Nemotron 3 Ultra (free), 5 pages"}
+
+data: {"type":"text-end","id":"aaee3fa2570b4b178dd0a2142764b35d"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"3f29c7f2cf9f489d98e2c076d26cf676"}
+
+data: {"type":"text-delta","id":"3f29c7f2cf9f489d98e2c076d26cf676","delta":"Resolved GitHub to Composio toolkit github (MANAGED)."}
+
+data: {"type":"text-end","id":"3f29c7f2cf9f489d98e2c076d26cf676"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"GitHub -> github","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+data: {"type":"text-start","id":"cec9423796c943efa54ad2cdeb349d1d"}
+
+data: {"type":"text-delta","id":"cec9423796c943efa54ad2cdeb349d1d","delta":"Found 5 docs pages (docs.github.com); skipped 4 that were unreadable or don't cover the topic."}
+
+data: {"type":"text-end","id":"cec9423796c943efa54ad2cdeb349d1d"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":4}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"32e677adc1d64defad2e869c970cd5b7"}
+
+data: {"type":"text-delta","id":"32e677adc1d64defad2e869c970cd5b7","delta":"docs.github.com: 0 of 0 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"32e677adc1d64defad2e869c970cd5b7"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"719dc195aece4b41873c0c4fa3e15fcc"}
+
+data: {"type":"text-delta","id":"719dc195aece4b41873c0c4fa3e15fcc","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"719dc195aece4b41873c0c4fa3e15fcc"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps","title":"Authorizing OAuth apps - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":14}}}
+
+data: {"type":"text-start","id":"04f17ee574bf4750a84573cebb5ec756"}
+
+data: {"type":"text-delta","id":"04f17ee574bf4750a84573cebb5ec756","delta":"docs.github.com: 13 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"04f17ee574bf4750a84573cebb5ec756"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/best-practices-for-creating-a-github-app","title":"Best practices for creating a GitHub App - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":27}}}
+
+data: {"type":"text-start","id":"8a1eb6e16be64cd08dd2b106ff86d114"}
+
+data: {"type":"text-delta","id":"8a1eb6e16be64cd08dd2b106ff86d114","delta":"docs.github.com: 7 of 8 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"8a1eb6e16be64cd08dd2b106ff86d114"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app","title":"Creating an OAuth app - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":34}}}
+
+data: {"type":"text-start","id":"65226d1d3e694be79ddd45f7681a5491"}
+
+data: {"type":"text-delta","id":"65226d1d3e694be79ddd45f7681a5491","delta":"docs.github.com: 13 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"65226d1d3e694be79ddd45f7681a5491"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/best-practices-for-creating-an-oauth-app","title":"Best practices for creating an OAuth app - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":47}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":4,"claims":47}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://github.com/settings/applications/new"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://github.com/settings/applications/new","final_url":"https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew","redirect_chain":["https://github.com/settings/applications/new","https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"],"outcome":"login_wall","wall_host":"github.com","asks_for":"Sign-in page at github.com","bot_check":false,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"8a207ba2f5b444c8b4d68a71d0758920"}
+
+data: {"type":"text-delta","id":"8a207ba2f5b444c8b4d68a71d0758920","delta":"Developer console probe: login wall at github.com. Sign-in page at github.com"}
+
+data: {"type":"text-end","id":"8a207ba2f5b444c8b4d68a71d0758920"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"login_wall"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","counts":{"llm_calls":7}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":29}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":25,"docs_verified":25,"hidden":0,"downgraded":0,"total":29}}
+
+data: {"type":"text-start","id":"cdcb7c6d42ee4147b821169896b43f1a"}
+
+data: {"type":"text-delta","id":"cdcb7c6d42ee4147b821169896b43f1a","delta":"Verified 25 of 25 quotes on the live pages; downgraded 0 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"cdcb7c6d42ee4147b821169896b43f1a"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":25,"downgraded":0}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/github","counts":{"llm_calls":7}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"github","permalink":"/guides/github","guide":{"verdict":{"tier":"instant","summary":"GitHub OAuth app registration is self-serve with no provider review or cap; create the app in Settings > Developer settings > OAuth apps, set the redirect URI to Composio's callback, pick scopes, and you get a client ID and secret immediately.","effort_hours":{"min":0.25,"max":0.5},"calendar":{"min_days":0.0,"max_days":0.0,"label":"Same day"},"calendar_basis":"official","confidence":"high"},"situations":{"questions":[{"id":"who","text":"Who will connect their GitHub account?","options":[{"id":"own","label":"My own organization only"},{"id":"outside","label":"Outside users or other organizations"}]},{"id":"action","text":"What must the agent do?","options":[{"id":"read","label":"Read data (repos, issues, PRs)"},{"id":"write","label":"Write or send (create PRs, push code, manage repos)"}]}],"variants":[{"when":{"who":"own","action":"read"},"tier":"instant","summary":"Personal or internal use with read scopes; register the OAuth app and connect immediately.","calendar_label":"Same day","notes":[]},{"when":{"who":"own","action":"write"},"tier":"instant","summary":"Personal or internal use with write scopes; register the OAuth app and connect immediately.","calendar_label":"Same day","notes":[]},{"when":{"who":"outside","action":"read"},"tier":"instant","summary":"Public read-only app; register the OAuth app and connect immediately. Provide a way for users to delete their data without contacting support.","calendar_label":"Same day","notes":["If your GitHub App is available to other users or organizations, you should give users and organization owners a way to delete their data. Users should not need to email or call a support person in order to delete their data."]},{"when":{"who":"outside","action":"write"},"tier":"instant","summary":"Public read-write app; register the OAuth app and connect immediately. Provide a way for users to delete their data without contacting support.","calendar_label":"Same day","notes":["If your GitHub App is available to other users or organizations, you should give users and organization owners a way to delete their data. Users should not need to email or call a support person in order to delete their data."]}]},"byo_advice":"Composio's managed GitHub app is enough for quick internal prototypes and single-org use. Bring your own OAuth app when you need your own branding on the consent screen, control over scopes and permissions, or plan to distribute the integration to outside users or organizations.","before_you_start":[{"text":"The developer console needs a signed-in account: Sign-in page at github.com.","evidence":{"label":"TESTED","source_id":"s6","quote":null,"found_in":null,"note":"Our read-only probe on 2026-10-22 loaded https://github.com/settings/applications/new and ended at https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew (login wall)."}},{"text":"You need a GitHub account with admin rights on the target organization (if creating under an org).","evidence":{"label":"DOCS","source_id":"s3","quote":"You can create and register an OAuth app under your personal account or under any organization you have administrative access to.","found_in":"visible","note":null}},{"text":"Prepare a public homepage URL and privacy policy URL for the OAuth app registration.","evidence":{"label":"DOCS","source_id":"s3","quote":"Only use information in your OAuth app that you consider public. Avoid using sensitive data, such as internal URLs, when creating an OAuth app.","found_in":"visible","note":null}},{"text":"Decide the minimal OAuth scopes your AI agent requires (e.g., repo, user:email).","evidence":{"label":"DOCS","source_id":"s5","quote":"Your OAuth app should only request the scopes that the app needs to perform its intended functionality.","found_in":"visible","note":null}}],"limits":[{"what":"OAuth apps per user or organization","value":100.0,"unit":"apps","scope":"per user or organization","evidence":{"label":"DOCS","source_id":"s3","quote":"A user or organization can own up to 100 OAuth apps.","found_in":"visible","note":null}},{"what":"Callback URLs per OAuth app","value":10.0,"unit":"URLs","scope":"per OAuth app","evidence":{"label":"DOCS","source_id":"s3","quote":"You can enter up to 10 callback URLs. To add additional callback URLs, click Add callback URL.","found_in":"visible","note":null}},{"what":"Tokens per user/application/scope combination","value":10.0,"unit":"tokens","scope":"per user/application/scope combination","evidence":{"label":"DOCS","source_id":"s2","quote":"There is a limit of ten tokens that are issued per user/application/scope combination","found_in":"visible","note":null}},{"what":"Token creation rate limit","value":10.0,"unit":"tokens per hour","scope":"per user/application/scope combination","evidence":{"label":"DOCS","source_id":"s2","quote":"a rate limit of ten tokens created per hour","found_in":"visible","note":null}},{"what":"Expiring access token lifetime","value":8.0,"unit":"hours","scope":"expiring access token","evidence":{"label":"DOCS","source_id":"s2","quote":"The access token expires after eight hours","found_in":"visible","note":null}},{"what":"Refresh token inactivity expiry","value":6.0,"unit":"months","scope":"refresh token","evidence":{"label":"DOCS","source_id":"s2","quote":"the refresh token expires after six months without use","found_in":"visible","note":null}},{"what":"Authorization code lifetime","value":10.0,"unit":"minutes","scope":"authorization code","evidence":{"label":"DOCS","source_id":"s2","quote":"The temporary code will expire after 10 minutes","found_in":"visible","note":null}},{"what":"Device flow user code lifetime","value":15.0,"unit":"minutes","scope":"device flow user code","evidence":{"label":"DOCS","source_id":"s2","quote":"The user must enter a valid code within 15 minutes (or 900 seconds). After 15 minutes, you will need to request a new device authorization code","found_in":"visible","note":null}}],"steps":[{"n":1,"title":"Sign in to GitHub and open Developer settings","detail":"Open GitHub, sign in with your account, then go to Settings > Developer settings > OAuth apps.","actor":"human","human_reason":"real_account","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s3","quote":"In the upper-right corner of any page on GitHub, click your profile picture, then click Settings. In the left sidebar, click Developer settings. In the left sidebar, click OAuth apps.","found_in":"visible","note":null}},{"n":2,"title":"Create a new OAuth app","detail":"Click New OAuth App, choose personal account or organization with admin access, and fill in the required fields.","actor":"human","human_reason":"submit","irreversible":false,"values":[{"label":"Application name","value":"Your App Name"},{"label":"Homepage URL","value":"https://your-domain.com"},{"label":"Authorization callback URL","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s3","quote":"You can create and register an OAuth app under your personal account or under any organization you have administrative access to.","found_in":"visible","note":null}},{"n":3,"title":"Set minimal scopes and optional device flow","detail":"In the app settings, add only the scopes your agent needs (e.g., repo, user:email). Enable Device Flow if you will use it.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Scopes","value":"repo, user:email"}],"evidence":{"label":"DOCS","source_id":"s5","quote":"Your OAuth app should only request the scopes that the app needs to perform its intended functionality.","found_in":"visible","note":null}},{"n":4,"title":"Generate and copy Client ID and Client Secret","detail":"After saving, generate a new client secret, then copy both Client ID and Client Secret.","actor":"human","human_reason":"credential","irreversible":false,"values":[{"label":"Client ID","value":"<your-client-id>"},{"label":"Client Secret","value":"<your-client-secret>"}],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Standard OAuth app creation flow; verify in GitHub UI after saving the app."}},{"n":5,"title":"Paste credentials into Composio auth config","detail":"In Composio, create or edit the GitHub auth config and paste the Client ID and Client Secret.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Composio Client ID field","value":"<your-client-id>"},{"label":"Composio Client Secret field","value":"<your-client-secret>"}],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Composio BYO flow expects these fields; confirm in Composio dashboard."}}],"review":{"required":"no","trigger":null,"submit":[],"reviewer":null,"wait_official":null,"wait_community":null,"cost":null,"evidence":[{"label":"DOCS","source_id":"s3","quote":"You can create and register an OAuth app under your personal account or under any organization you have administrative access to.","found_in":"visible","note":null},{"label":"DOCS","source_id":"s3","quote":"In the upper-right corner of any page on GitHub, click your profile picture, then click Settings. In the left sidebar, click Developer settings. In the left sidebar, click OAuth apps.","found_in":"visible","note":null}]},"customer_gates":[{"text":"If the app is available to other users or orgs, you must provide a way for them to delete their data without contacting support.","evidence":{"label":"DOCS","source_id":"s1","quote":"If your GitHub App is available to other users or organizations, you should give users and organization owners a way to delete their data. Users should not need to email or call a support person in order to delete their data.","found_in":"visible","note":null}},{"text":"Organization admins may restrict third-party OAuth app access; verify org settings before distributing.","evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Common GitHub org policy; check target org's OAuth app restrictions."}}],"gotchas":[{"text":"Access tokens expire after 8 hours when expiring tokens are enabled; refresh tokens expire after 6 months of inactivity.","evidence":{"label":"DOCS","source_id":"s2","quote":"The access token expires after eight hours","found_in":"visible","note":null}},{"text":"Rate limit: 10 tokens per hour per user/application/scope; exceeding triggers re-authorization.","evidence":{"label":"DOCS","source_id":"s2","quote":"a rate limit of ten tokens created per hour","found_in":"visible","note":null}},{"text":"Maximum 10 callback URLs per OAuth app; wildcard matching is a security risk unless you control all subdomains/paths.","evidence":{"label":"DOCS","source_id":"s3","quote":"You can enter up to 10 callback URLs. To add additional callback URLs, click Add callback URL.","found_in":"visible","note":null}},{"text":"Authorization code expires after 10 minutes; device flow user code expires after 15 minutes.","evidence":{"label":"DOCS","source_id":"s2","quote":"The temporary code will expire after 10 minutes","found_in":"visible","note":null}},{"text":"Enabling expiring tokens does not expire existing long-lived tokens until the user signs in again.","evidence":{"label":"DOCS","source_id":"s2","quote":"Enabling this feature does not cause existing tokens to expire—they will continue to be long-lived","found_in":"visible","note":null}}],"blockers":[{"symptom":"bad_refresh_token error when using a refresh token","cause":"Refresh token is invalid or expired (e.g., after 6 months of no use).","fix":"Send the user through the web application flow or device flow again to obtain a new token pair.","evidence":{"label":"DOCS","source_id":"s2","quote":"If the refresh token that you specified is invalid or expired, you will receive a bad_refresh_token error. To resolve this error, send the user through the web application flow or device flow again","found_in":"visible","note":null}},{"symptom":"Client secret compromised","cause":"Secret leaked or exposed in code/logs.","fix":"Generate a new secret in GitHub, update the app and Composio config, then delete the old secret.","evidence":{"label":"DOCS","source_id":"s5","quote":"In the event that your app's client secret is compromised, you will need to generate a new secret, update your app to use the new secret, and delete your old secret.","found_in":"visible","note":null}},{"symptom":"Cannot create new OAuth app","cause":"User or organization already owns 100 OAuth apps (limit).","fix":"Delete unused OAuth apps or request a limit increase from GitHub.","evidence":{"label":"DOCS","source_id":"s3","quote":"A user or organization can own up to 100 OAuth apps.","found_in":"visible","note":null}}],"prepared":{"scopes":[{"scope":"repo","why":"Full repository access for code reading/writing, issues, PRs.","review_class":"sensitive"},{"scope":"user:email","why":"Read user email for identification and notifications.","review_class":"sensitive"}],"privacy_policy_outline":["Describe what data the agent accesses (repos, emails).","Explain data retention and deletion process (self-service).","State that data is not sold or shared with third parties.","Provide contact for privacy questions."],"consent_screen":{"app_name":"Your App Name","homepage_url":"https://your-domain.com","privacy_policy_url":"https://your-domain.com/privacy","terms_of_service_url":"https://your-domain.com/terms"},"review_text":"GitHub does not require a formal OAuth app review for most scopes, but sensitive scopes (repo, user:email) may trigger additional scrutiny if the app is published publicly. Ensure minimal scopes and a clear privacy policy."},"open_questions":["Exact Composio BYO auth config field names for GitHub (Client ID, Client Secret, redirect URI).","Whether GitHub requires a formal app review for the chosen scopes when the app is used privately vs. published.","If the organization has OAuth app restrictions that block third-party apps by default."],"schema_version":"1","slug":"github","app_name":"GitHub","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"github","status":"managed","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":{"console_url":"https://github.com/settings/applications/new","final_url":"https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew","redirect_chain":["https://github.com/settings/applications/new","https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"],"outcome":"login_wall","wall_host":"github.com","asks_for":"Sign-in page at github.com","bot_check":false,"method":"http","observed_at":"2026-10-22"},"conflicts":[],"sources":[{"id":"s1","url":"https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/best-practices-for-creating-a-github-app","title":"Best practices for creating a GitHub App - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s2","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps","title":"Authorizing OAuth apps - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s3","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app","title":"Creating an OAuth app - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s5","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/best-practices-for-creating-an-oauth-app","title":"Best practices for creating an OAuth app - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s6","url":"https://github.com/settings/applications/new","title":"Developer console sign-in wall probe","accessed":"2026-10-22","kind":"observation"}],"verification_summary":{"total":29,"tested":1,"docs_verified":25,"docs_hidden":0,"community":0,"uncertain":3}}}}
+
+data: {"type":"data-run-stats","id":"run-stats","data":{"run_id":"020f115faef1","app":"GitHub","mode":"live","total_seconds":95.7,"stages":{"resolve":{"seconds":0.0,"status":"done"},"find_docs":{"seconds":2.7,"status":"done"},"research":{"seconds":33.2,"status":"done"},"probe":{"seconds":0.2,"status":"done"},"synthesize":{"seconds":59.2,"status":"done"},"verify":{"seconds":0.1,"status":"done"},"publish":{"seconds":0.0,"status":"done"}},"llm":{"calls":7,"failed_calls":0,"input_tokens":22835,"output_tokens":8535,"by_model":{"nvidia/nemotron-3-ultra-550b-a55b:free":{"calls":7,"input_tokens":22835,"output_tokens":8535}}},"cost_usd":0.0,"pages_fetched":10,"quotes_checked":75,"config":{"model":"nvidia/nemotron-3-ultra-550b-a55b:free","fallback_model":"minimax/minimax-m3.1-flash:free","max_pages":5,"probe_console":true}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+

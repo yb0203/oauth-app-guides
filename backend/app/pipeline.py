@@ -18,6 +18,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from urllib.parse import urlparse
 
 from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, settings, store, stream, synthesize
+from . import fetch as fetch_mod
 from .fetch import Page, fetch_page
 from .llm import LLM, LLMError, has_key
 from .models import Composio, Evidence, Fact, Guide, Source, WallProbe, iter_evidence
@@ -27,13 +28,27 @@ from .settings import GenerateConfig
 
 log = logging.getLogger("pipeline")
 # A run must fit a 300 s serverless limit: LLM work stops by LLM_BUDGET_S, and the run as a whole by RUN_TIMEOUT_S.
-RUN_TIMEOUT_S = float(os.getenv("RUN_TIMEOUT_S", "285"))
+RUN_TIMEOUT_S = float(os.getenv("RUN_TIMEOUT_S", "270"))  # last-resort cap; stage deadlines below normally end the run first
 LLM_BUDGET_S = float(os.getenv("LLM_BUDGET_S", "240"))
-RESEARCH_BUDGET_S = float(os.getenv("RESEARCH_BUDGET_S", "110"))
+RESEARCH_BUDGET_S = float(os.getenv("RESEARCH_BUDGET_S", "110"))  # LLM deadline for page extraction (from run start)
+FIND_DOCS_STAGE_S = float(os.getenv("FIND_DOCS_STAGE_S", "60"))
+RESEARCH_STAGE_S = float(os.getenv("RESEARCH_STAGE_S", "120"))
+PROBE_STAGE_S = float(os.getenv("PROBE_STAGE_S", "20"))
 
 
 PART_NAMES = {"synthesize-a": "the verdict, limits and review", "synthesize-b": "the steps and gotchas"}
 PART_SHORT = {"synthesize-a": "verdict and limits", "synthesize-b": "steps and gotchas"}
+
+
+async def _watch_loop_lag(threshold: float = 2.0) -> None:
+    """Log (never fail) when something blocks this run's event loop, so a stall is diagnosable from the logs."""
+    last = time.monotonic()
+    while True:
+        await asyncio.sleep(0.5)
+        now = time.monotonic()
+        if now - last - 0.5 > threshold:
+            log.warning("event loop was blocked for %.1fs", now - last - 0.5)
+        last = now
 
 
 class PipelineError(Exception):
@@ -67,6 +82,7 @@ async def run_pipeline(
     yield stream.start(run.stats.run_id)
     yield stream.text(cfg.describe())
     current = "resolve"
+    monitor = asyncio.create_task(_watch_loop_lag())
     try:
         async with asyncio.timeout(RUN_TIMEOUT_S):
             async for ev in _run(app, run, searcher, fetcher, prober):
@@ -87,6 +103,11 @@ async def run_pipeline(
         log.exception("pipeline failed")
         yield stream.error(f"Unexpected error: {type(exc).__name__}: {exc}")
         yield watch(stream.stage(current, "error", detail=type(exc).__name__))
+    monitor.cancel()
+    try:
+        await fetch_mod.close_browser()  # a browser started in this loop must not outlive it
+    except Exception:  # best effort
+        pass
     data = run.stats.to_dict(list(getattr(run.llm, "call_log", [])))
     run.stats.log_line(data)
     yield stream.run_stats(data)
@@ -132,8 +153,12 @@ async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | 
     yield stream.stage("find_docs", "running")
     typed = [app.strip()] if re.match(r"^(https?://)?[\w-]+(\.[\w-]+)+(/.*)?$", app.strip()) else []
     official = domains.official_domains(slug, name, typed)  # a URL the user typed is the vendor's own domain
-    pages, rejected = await docsearch.find_docs(name, slug, search=searcher, fetch=fetcher, domains=official or None,
-                                                max_pages=cfg.max_pages)
+    try:
+        pages, rejected = await asyncio.wait_for(
+            docsearch.find_docs(name, slug, search=searcher, fetch=fetcher, domains=official or None,
+                                max_pages=cfg.max_pages), FIND_DOCS_STAGE_S)
+    except TimeoutError:
+        raise PipelineError("find_docs", f"Finding the docs took longer than {FIND_DOCS_STAGE_S:.0f} seconds.") from None
     stats.pages_fetched = len(pages) + len(rejected)
     if not pages:
         raise PipelineError("find_docs", f"Couldn't find current docs pages about OAuth apps for {name}.")
@@ -156,33 +181,51 @@ async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | 
     console_urls: list[str] = []
     used: set[str] = set()
 
-    async def extract(sid: str) -> tuple[str, research.PageClaims | None]:
+    async def extract(sid: str):
+        """One page: the LLM extraction, then the quote check in a thread (it scans the whole page text)."""
+        page = page_by_id[sid]
         try:
-            return sid, await research.extract_page(llm, name, sid, page_by_id[sid],
-                                                             started + RESEARCH_BUDGET_S)
+            extracted = await research.extract_page(llm, name, sid, page, started + RESEARCH_BUDGET_S)
+            good = await asyncio.to_thread(research.verify_claims, sid, page, extracted)
+            return sid, extracted, good
         except Exception as exc:  # LLM failures and anything odd in one page: skip that page only
             log.warning("extract %s failed: %s", sid, exc)
-            return sid, None
+            return sid, None, []
 
-    for fut in asyncio.as_completed([extract(sid) for sid in page_by_id]):
-        sid, extracted = await fut
-        page = page_by_id[sid]
-        if extracted is None:
-            yield stream.text(f"Couldn't read {_host(page.final_url)}; skipping that page.")
-            continue
-        if extracted.oauth_supported is not None:
-            oauth_votes.append(extracted.oauth_supported)
-        if extracted.console_url:
-            console_urls.append(extracted.console_url)
-        good = research.verify_claims(sid, page, extracted, start=len(claims) + 1)
-        stats.quotes_checked += len(extracted.claims)
-        claims.extend(good)
-        yield stream.text(f"{_host(page.final_url)}: {len(good)} of {len(extracted.claims)} claims have a quote "
-                          "found on the page.")
-        if good:
-            used.add(sid)
-            yield stream.source_url(sid, page.final_url, page.title or page.final_url)
-        yield stream.stage("research", "running", counts={"pages": len(pages), "claims": len(claims)})
+    tasks = {asyncio.create_task(extract(sid)): sid for sid in page_by_id}
+    pending = set(tasks)
+    stage_deadline = time.monotonic() + RESEARCH_STAGE_S
+    while pending:
+        done, pending = await asyncio.wait(pending, timeout=max(0.0, stage_deadline - time.monotonic()),
+                                           return_when=asyncio.FIRST_COMPLETED)
+        if not done:  # the stage deadline passed: cancel what is still running and go on with what we have
+            for t in pending:
+                t.cancel()
+            names = ", ".join(_host(page_by_id[tasks[t]].final_url) for t in pending)
+            log.warning("research stage deadline: abandoning %d page(s): %s", len(pending), names)
+            yield stream.text(f"Stopped waiting for {len(pending)} slow page(s) ({names}); continuing with what was read.")
+            pending = set()
+            break
+        for fut in done:
+            sid, extracted, good = fut.result()
+            page = page_by_id[sid]
+            if extracted is None:
+                yield stream.text(f"Couldn't read {_host(page.final_url)}; skipping that page.")
+                continue
+            if extracted.oauth_supported is not None:
+                oauth_votes.append(extracted.oauth_supported)
+            if extracted.console_url:
+                console_urls.append(extracted.console_url)
+            for i, vc in enumerate(good, start=len(claims) + 1):
+                vc.id = f"c{i}"  # ids are assigned in completion order
+            stats.quotes_checked += len(extracted.claims)
+            claims.extend(good)
+            yield stream.text(f"{_host(page.final_url)}: {len(good)} of {len(extracted.claims)} claims have a quote "
+                              "found on the page.")
+            if good:
+                used.add(sid)
+                yield stream.source_url(sid, page.final_url, page.title or page.final_url)
+            yield stream.stage("research", "running", counts={"pages": len(pages), "claims": len(claims)})
     if oauth_votes and not any(oauth_votes):
         yield stream.stage("research", "done", detail="no third-party OAuth")
         for st in stream.STAGES[3:]:
@@ -197,23 +240,32 @@ async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | 
     # 4. probe the sign-in wall ---------------------------------------------------------------------
     yield ("stage", "probe")
     known = probe.KNOWN_CONSOLES.get(slug) or probe.KNOWN_CONSOLES.get(slug.split("_")[0]) or store.curated_console(slug)
-    from_pages = [u for sid in sorted(used) for u in consoles.console_candidates(page_by_id[sid], slug, name, official or None)]
+    from_pages = [u for sid in sorted(used) for u in await asyncio.to_thread(
+        consoles.console_candidates, page_by_id[sid], slug, name, official or None)]
     from_model = [u for u in console_urls if consoles.looks_like_console(u)
                   and domains.is_official(u, slug, name, official or None)]
     console_url = known or next(iter(from_pages + from_model), None)
     wall: WallProbe | None = None
-    if console_url and not cfg.probe_console:
-        yield stream.stage("probe", "skipped", detail="console probe turned off in settings")
-    elif console_url:
+    skipped = None
+    if not console_url:
+        skipped = "no developer console URL found in the docs pages"
+    elif not cfg.probe_console:
+        skipped = "console probe turned off in settings"
+    else:
         stats.pages_fetched += 1
         yield stream.stage("probe", "running", detail=console_url)
-        wall = await prober(console_url)
+        try:
+            wall = await asyncio.wait_for(prober(console_url), PROBE_STAGE_S)
+        except TimeoutError:
+            skipped = "probe timed out"
+            yield stream.text(f"The console probe took longer than {PROBE_STAGE_S:.0f} seconds and was skipped.")
+    if wall is not None:
         yield stream.wall(wall.model_dump(mode="json"))
         yield stream.text(f"Developer console probe: {wall.outcome.replace('_', ' ')}"
                           f"{' at ' + wall.wall_host if wall.wall_host else ''}. {wall.asks_for}")
         yield stream.stage("probe", "done", detail=wall.outcome)
     else:
-        yield stream.stage("probe", "skipped", detail="no developer console URL found in the docs pages")
+        yield stream.stage("probe", "skipped", detail=skipped)
 
     # 5. synthesize ---------------------------------------------------------------------------------
     yield ("stage", "synthesize")
@@ -251,7 +303,7 @@ async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | 
     yield stream.verification(0, 0, 0, 0, total)
     page_text = {sid: evidence.PageText(visible=p.visible_text, hidden=p.hidden_text) for sid, p in page_by_id.items()}
     kinds = {s.id: s.kind for s in sources}
-    downgrades = evidence.apply_verification(content, page_text, kinds)
+    downgrades = await asyncio.to_thread(evidence.apply_verification, content, page_text, kinds)
     conflicts = evidence.find_conflicts(content)
     summary = evidence.verification_summary(content, conflicts)
     checked = summary.docs_verified + len(downgrades)

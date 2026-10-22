@@ -165,3 +165,59 @@ async def with_heartbeat(source: AsyncIterator[str], interval: float | None = No
 def run_stats(data: dict) -> str:
     """Performance and cost numbers for the run, sent right before `finish` (CONTRACT §4 item 8)."""
     return sse({"type": "data-run-stats", "id": "run-stats", "data": data})
+
+
+_END = object()
+
+
+async def run_in_thread(factory, interval: float | None = None) -> AsyncIterator[str]:
+    """Run `factory()` (an async generator of chunks) on its own thread and event loop; this loop only forwards
+    chunks and sends pings. A blocked or starved pipeline can therefore never silence the keep-alive."""
+    import threading
+
+    interval = float(os.getenv("HEARTBEAT_SECONDS", "10")) if interval is None else interval
+    loop = asyncio.get_running_loop()
+    queue: asyncio.Queue = asyncio.Queue()
+    worker: dict = {}
+
+    def post(item) -> None:
+        try:
+            loop.call_soon_threadsafe(queue.put_nowait, item)
+        except RuntimeError:  # the consumer's loop is already gone (client disconnected)
+            pass
+
+    def run() -> None:
+        async def pump() -> None:
+            worker["loop"], worker["task"] = asyncio.get_running_loop(), asyncio.current_task()
+            try:
+                async for chunk in factory():
+                    post(chunk)
+            except asyncio.CancelledError:
+                pass
+            except BaseException as exc:  # handed to the consumer, which re-raises it
+                post(exc)
+            finally:
+                post(_END)
+
+        asyncio.run(pump())
+
+    thread = threading.Thread(target=run, name="pipeline", daemon=True)
+    thread.start()
+    try:
+        while True:
+            try:
+                item = await asyncio.wait_for(queue.get(), interval) if interval > 0 else await queue.get()
+            except TimeoutError:
+                yield PING
+                continue
+            if item is _END:
+                return
+            if isinstance(item, BaseException):
+                raise item
+            yield item
+    finally:  # the client went away (or we finished): stop the worker
+        if "task" in worker and thread.is_alive():
+            try:
+                worker["loop"].call_soon_threadsafe(worker["task"].cancel)
+            except RuntimeError:  # the worker loop finished in the meantime
+                pass
