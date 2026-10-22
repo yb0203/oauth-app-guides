@@ -208,3 +208,41 @@ async def test_browser_exception_never_raises(monkeypatch):
 
 async def test_close_browser_is_safe_when_never_started():
     await fetch.close_browser()
+
+
+# --- regression: Notion crashed the run with "'NavigableString' object has no attribute 'parent'" ---------------
+
+import pytest  # noqa: E402
+
+from app.fetch import _crude_texts, html_to_texts  # noqa: E402
+
+
+@pytest.mark.parametrize("html", [
+    '<body><details style="display:none">secret <b>x</b> text</details><p>shown</p></body>',
+    '<body><div hidden><details>one<b>two</b></details></div><p>shown</p></body>',
+    '<body><details aria-hidden="true"><summary>S</summary>body text<span hidden>inner</span></details><p>shown</p></body>',
+])
+def test_hidden_containers_with_hidden_children_do_not_crash(html):
+    visible, everything, _ = html_to_texts(html)
+    assert "shown" in visible and "secret" not in visible and "inner" not in visible
+    assert "shown" in everything
+
+
+def test_crude_fallback_strips_tags_and_scripts():
+    visible, hidden, title = _crude_texts("<html><script>var a=1</script><p>Hello <b>world</b></p></html>")
+    assert visible == hidden == "Hello world" and title == ""
+
+
+async def test_a_page_the_parser_chokes_on_becomes_a_rough_page_not_an_exception(monkeypatch):
+    import httpx
+
+    from app import fetch
+
+    def boom(_html):
+        raise AttributeError("'NavigableString' object has no attribute 'parent'")
+
+    monkeypatch.setattr(fetch, "html_to_texts", boom)
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, text="<p>OAuth app docs " + "word " * 200 + "</p>"))
+    async with httpx.AsyncClient(transport=transport) as client:
+        page = await fetch.fetch_page("https://example.com/x", allow_browser=False, client=client)
+    assert page.status == 200 and "OAuth app docs" in page.visible_text and page.error is None

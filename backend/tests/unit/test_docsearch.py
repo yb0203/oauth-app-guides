@@ -105,3 +105,20 @@ def test_vendor_family_queries_are_added_for_gmail_but_not_for_a_standalone_app(
 def test_a_page_about_only_one_setup_word_does_not_cover_the_topic():
     thin = Page("https://x.com/a", "https://x.com/a", [], 200, "t", "Pasta with OAuth sauce. " + "word " * 200, "", "http", None)
     assert not covers_topic(thin, "Pasta")
+
+
+async def test_one_page_that_raises_or_is_malformed_is_skipped_not_fatal():
+    good_text = "Set up OAuth: create a client id and redirect URI for the Notion app. " + "word " * 200
+
+    async def fetch(url):
+        if url.endswith("boom"):
+            raise AttributeError("'NavigableString' object has no attribute 'parent'")
+        if url.endswith("none"):
+            return Page(url, url, [], 200, "t", None, None, "http", None)  # malformed: no text at all
+        return Page(url, url, [], 200, "t", good_text, "", "http", None)
+
+    urls = ["https://developers.notion.com/boom", "https://developers.notion.com/none",
+            "https://developers.notion.com/a", "https://developers.notion.com/b"]
+    good, rejected = await find_docs("Notion", "notion", search=lambda q, n: [{"href": u} for u in urls], fetch=fetch)
+    assert [p.final_url for p in good] == ["https://developers.notion.com/a", "https://developers.notion.com/b"]
+    assert len(rejected) == 2

@@ -164,7 +164,10 @@ async def find_docs(
     async def fetch_all(urls: list[str]) -> list[Page]:
         async def one(url: str) -> Page:
             async with sem:
-                return await fetch(url)
+                try:
+                    return await fetch(url)
+                except Exception as exc:  # one bad page is skipped, never fatal
+                    return Page(url, url, [], None, "", "", "", "http", f"{type(exc).__name__}: {exc}")
 
         return list(await asyncio.gather(*(one(u) for u in urls)))
 
@@ -182,9 +185,12 @@ async def find_docs(
             if key in seen:
                 continue
             seen.add(key)
-            is_off = is_official(page.final_url, slug, name, official)
-            ok = (covers_topic(page, name, need_name=not is_off) and is_off == want_official
-                  and not OFF_TOPIC_PATH.search(page.final_url))
+            try:
+                is_off = is_official(page.final_url, slug, name, official)
+                ok = (covers_topic(page, name, need_name=not is_off) and is_off == want_official
+                      and not OFF_TOPIC_PATH.search(page.final_url))
+            except Exception:  # a malformed page is rejected, not fatal
+                ok = False
             if ok and limit > 0:
                 good.append(page)
                 limit -= 1

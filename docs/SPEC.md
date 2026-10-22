@@ -1,6 +1,6 @@
 # Spec: OAuth App Setup Guides for Agent Builders
 
-Status: **DRAFT v2** for approval · Date: 2026-10-21 · Owner: Yashvi
+Status: **v2: approved and implemented** · Date: 2026-10-21 · Owner: Yashvi
 Inputs: the Composio take-home brief; `research/providers/` (10 verified provider studies); `research/composio/` (auth model, 334-toolkit catalog, prior art); `experiments/oauth-capture-poc/` (setup-capture proof of concept on 5 apps).
 
 **What changed from v1:** the agent no longer attempts setup. It runs a sign-in wall probe plus docs research with live quote verification instead (§6 FR5, §14). The quote checker reads hidden page text. Docs URLs are found fresh on every run. Screenshots are optional. Verification is a separate stage from research. The time budget reflects the hours already spent.

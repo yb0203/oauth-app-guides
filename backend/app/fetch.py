@@ -112,13 +112,22 @@ def html_to_texts(html: str) -> tuple[str, str, str]:
     title = " ".join(soup.title.get_text().split()) if soup.title else ""
     everything = _text(_clean_root(soup, _ALWAYS_DROP))
     root = _clean_root(BeautifulSoup(html, _PARSER), _ALWAYS_DROP + _VISIBLE_DROP)
-    for node in _hidden_nodes(root):
-        if isinstance(node, Tag):
-            if not node.decomposed:
-                node.decompose()
-        else:
-            node.extract()
+    for node in reversed(_hidden_nodes(root)):  # children before parents: decomposing a parent destroys its strings
+        try:
+            if isinstance(node, Tag):
+                if not node.decomposed:
+                    node.decompose()
+            elif getattr(node, "parent", None) is not None:
+                node.extract()
+        except (AttributeError, ValueError):  # already detached by an earlier removal
+            continue
     return _text(root), everything, title
+
+
+def _crude_texts(html: str) -> tuple[str, str, str]:
+    """Last resort when the HTML parser chokes: strip tags with a regex. Better a rough page than no run."""
+    text = _tidy(re.sub(r"<[^>]+>", " ", re.sub(r"(?is)<(script|style|noscript)\b.*?</\1>", " ", html)))
+    return text, text, ""
 
 
 # --- decision rules ---------------------------------------------------------------------------
@@ -189,7 +198,10 @@ async def _fetch_http(url: str, timeout: float, client: httpx.AsyncClient | None
     hops = [*resp.history, resp]
     for hop in hops:
         _notify(hop.request.method, str(hop.request.url))
-    visible, everything, title = html_to_texts(resp.text)
+    try:
+        visible, everything, title = html_to_texts(resp.text)
+    except Exception:  # one odd page must never take the run down
+        visible, everything, title = _crude_texts(resp.text)
     chain = [str(hop.url) for hop in hops]
     return Page(url, str(resp.url), chain, resp.status_code, title, visible, everything, "http", None, resp.text)
 

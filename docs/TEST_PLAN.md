@@ -1,6 +1,6 @@
 # Test Plan: OAuth App Setup Guides
 
-Status: DRAFT for approval · Date: 2026-10-21 · Spec: `docs/SPEC.md` (v2)
+Status: approved; live results in `evals/RESULTS.md` · Date: 2026-10-21 · Spec: `docs/SPEC.md` (v2)
 
 ## 1. Approach
 

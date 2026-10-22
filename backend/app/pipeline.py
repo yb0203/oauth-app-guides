@@ -122,7 +122,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
         sources.append(Source(id=sid, url=page.final_url, title=page.title or page.final_url, accessed=today,
                               kind=domains.source_kind(page.final_url, slug, name, official or None)))
     hosts = ", ".join(sorted({_host(p.final_url) for p in pages}))
-    yield stream.text(f"Found {len(pages)} docs pages ({hosts}); rejected {len(rejected)} that don't cover the topic.")
+    yield stream.text(f"Found {len(pages)} docs pages ({hosts}); skipped {len(rejected)} that were unreadable or don't cover the topic.")
     yield stream.stage("find_docs", "done", counts={"pages": len(pages), "rejected": len(rejected)})
 
     # 3. research (parallel, one LLM call per page) -------------------------------------------------
@@ -137,7 +137,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
         try:
             return sid, await research.extract_page(llm, name, sid, page_by_id[sid],
                                                              started + RESEARCH_BUDGET_S)
-        except LLMError as exc:
+        except Exception as exc:  # LLM failures and anything odd in one page: skip that page only
             log.warning("extract %s failed: %s", sid, exc)
             return sid, None
 
@@ -145,7 +145,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
         sid, extracted = await fut
         page = page_by_id[sid]
         if extracted is None:
-            yield stream.text(f"Couldn't read {_host(page.final_url)} (model error); skipping it.")
+            yield stream.text(f"Couldn't read {_host(page.final_url)}; skipping that page.")
             continue
         if extracted.oauth_supported is not None:
             oauth_votes.append(extracted.oauth_supported)
