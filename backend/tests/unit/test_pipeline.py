@@ -1,6 +1,7 @@
 """Pipeline with a fake LLM, fake search/fetch/probe: no network."""
 
 import json
+import re
 
 import pytest
 
@@ -226,3 +227,36 @@ def test_infrastructure_limits_are_dropped_from_the_guide(github_guide_dict):
     content.limits = [*junk, keep]
     postprocess(content, [])
     assert [lim.what for lim in content.limits] == ["Test users in Testing mode"]
+
+
+@pytest.mark.parametrize("text,expected", [
+    ("App Directory publication requires review (c1, c8, c11, c26, c33, c35).", "App Directory publication requires review."),
+    ("Review is required [c12] before launch.", "Review is required before launch."),
+    ("It takes 3 to 5 days (see c3).", "It takes 3 to 5 days."),
+    ("Limits apply per c4 and c5, then reset.", "Limits apply, then reset."),
+    ("Both docs agree (c2 and c9).", "Both docs agree."),
+    ("Nothing to strip: version 2.5 of the c-sharp SDK, abc1 and cc12x.", "Nothing to strip: version 2.5 of the c-sharp SDK, abc1 and cc12x."),
+])
+def test_claim_ids_are_stripped_from_prose(text, expected):
+    from app.synthesize import scrub_claim_ids
+
+    assert scrub_claim_ids(text) == expected
+
+
+def test_postprocess_scrubs_every_prose_field_but_never_the_quotes(github_guide_dict):
+    from app.synthesize import postprocess
+
+    content = GuideContent.model_validate({k: github_guide_dict[k] for k in GuideContent.model_fields})
+    quote = content.limits[0].evidence.quote
+    content.verdict.summary += " Review applies (c1, c8)."
+    content.situations.variants[0].summary += " See c3." if content.situations.variants else ""
+    content.steps[0].title += " [c2]"
+    content.steps[0].detail += " (c4)"
+    content.gotchas[0].text += " (c5, c6)"
+    content.limits[0].evidence.note = "from c7"
+    postprocess(content, [])
+    blob = content.model_dump_json()
+    assert not re.search(r"\bc\d{1,3}\b", blob)
+    assert content.limits[0].evidence.quote == quote
+    assert content.verdict.summary.endswith("Review applies.")
+    assert content.steps[0].title == github_guide_dict["steps"][0]["title"]

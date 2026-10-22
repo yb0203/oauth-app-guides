@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { STAGE_DEFAULT_LABEL } from "@/lib/chat-types";
 import { STAGE_ORDER, type StageData, type StageId } from "@/types/guide";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { formatDuration, STAGE_WHY } from "./run-info";
+import { formatDuration, STAGE_WHY, humanize } from "./run-info";
 
 export interface StageTiming {
   start: number;
@@ -125,7 +125,7 @@ export function StageStepper({
               <div className="mt-1.5 flex min-h-6 flex-wrap items-center gap-1.5">
                   {s?.detail && (
                     <span className={cn("text-xs first-letter:uppercase", status === "error" ? "text-danger" : "text-foreground")}>
-                      {s.detail}
+                      {humanize(s.detail)}
                     </span>
                   )}
                   {active && !s?.detail && counts.length === 0 && (

@@ -9,9 +9,9 @@ import { hostOf } from "./run-info";
 
 const OUTCOME = {
   login_wall: { label: "Sign-in wall", Icon: LockKeyholeIcon, classes: "border-warning-border bg-warning-soft text-warning" },
-  console_reachable: { label: "Console open", Icon: ShieldCheckIcon, classes: "border-success-border bg-success-soft text-success" },
+  console_reachable: { label: "Console reachable", Icon: ShieldCheckIcon, classes: "border-success-border bg-success-soft text-success" },
   blocked: { label: "Blocked", Icon: ShieldAlertIcon, classes: "border-danger-border bg-danger-soft text-danger" },
-  error: { label: "Probe error", Icon: ShieldAlertIcon, classes: "border-border bg-muted text-muted-foreground" },
+  error: { label: "Couldn't reach", Icon: ShieldAlertIcon, classes: "border-border bg-muted text-muted-foreground" },
 } as const;
 
 function shortUrl(url: string) {

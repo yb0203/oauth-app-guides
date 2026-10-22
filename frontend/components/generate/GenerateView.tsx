@@ -21,7 +21,7 @@ import { NarrationLog } from "./NarrationLog";
 import { Panel } from "./Panel";
 import { RunErrorPanel } from "./RunErrorPanel";
 import { RunSummary, type RunState } from "./RunSummary";
-import { formatDuration, verifiedClaims } from "./run-info";
+import { formatDuration, humanize, verifiedClaims } from "./run-info";
 import { SourcesPanel } from "./SourcesPanel";
 import { StageStepper, type StageTiming } from "./StageStepper";
 import { VerificationCard } from "./VerificationCard";
@@ -240,7 +240,8 @@ function GenerateRun({
     [...STAGE_ORDER].reverse().find((id) => viewStages[id]) ??
     null;
   const progress = state === "done" ? 1 : runProgress(viewStages, run.verification);
-  const latest = run.narration[run.narration.length - 1]?.text;
+  const latestRaw = run.narration[run.narration.length - 1]?.text;
+  const latest = latestRaw ? humanize(latestRaw) : undefined;
   const sourcesSeen = run.sources.length;
   const claims = guidePart ? verifiedClaims(guidePart.guide) : null;
   const logId = "run-log";

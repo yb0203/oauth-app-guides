@@ -1,5 +1,7 @@
 "use client";
 
+import { humanize } from "./run-info";
+
 import { cn } from "@/lib/utils";
 import type { NarrationLine } from "@/lib/chat-types";
 
@@ -50,7 +52,7 @@ export function NarrationLog({
                     latest ? "animate-pulse bg-info motion-reduce:animate-none" : "bg-muted-foreground/40",
                   )}
                 />
-                <span className="min-w-0 break-words">{l.text}</span>
+                <span className="min-w-0 break-words">{humanize(l.text)}</span>
               </li>
             );
           })}

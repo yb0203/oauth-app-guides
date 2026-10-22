@@ -37,6 +37,7 @@ source_id and quote copied exactly from that claim (same characters). found_in s
 marked community use label "COMMUNITY" with the same source_id and quote.
   * label "UNCERTAIN" for anything not backed by a claim: source_id null, quote null, note says what to check. \
 Prefer UNCERTAIN to guessing. Never use "TESTED".
+- Never write claim ids (c1, c2, ...) in any text field: they are for your reference only, readers never see them.
 - Be brief: every text field at most two short sentences. A short, complete answer beats a long one."""
 
 PART_A = COMMON + """
@@ -274,8 +275,38 @@ INFRA_LIMIT = re.compile(r"\b(nodes?|throughput|processing|transactions?|latency
                          r"billing|disk|storage quota)\b", re.I)
 
 
+_ID = r"c\d{1,3}"
+_ID_LIST = rf"{_ID}(?:\s*(?:,|;|&|and|/|-|–)\s*{_ID})*"
+_BRACKETED = re.compile(rf"\s*[\(\[]\s*(?:(?:see|per|from|claims?|sources?|refs?)\s*:?\s*)?{_ID_LIST}\s*[\)\]]", re.I)
+_BARE = re.compile(rf"(?:\s*(?:\(|,)?\s*\b(?:see|per|from|claims?)\s+)?\b{_ID_LIST}\b(?!\.\w)")
+_KEEP_KEYS = {"quote", "source_id", "id", "when", "unit", "label"}  # exact strings: never rewritten
+
+
+def scrub_claim_ids(text: str) -> str:
+    """Remove references to internal claim ids ("(c1, c8)", "[c12]", "see c3") from prose, and tidy what is left."""
+    out = _BRACKETED.sub("", text)
+    out = re.sub(rf"\s*(?:\b(?:see|per|from)\s+)?\b{_ID_LIST}\b(?!\.\w)", "", out) if re.search(rf"\b{_ID}\b", out) else out
+    out = re.sub(r"\s+([.,;:!?])", r"\1", out)
+    out = re.sub(r"([,;])\s*([.,;])", r"\2", out)
+    out = re.sub(r"\(\s*\)|\[\s*\]", "", out)
+    return re.sub(r"[ \t]{2,}", " ", out).strip()
+
+
+def _scrub(obj, key: str = ""):
+    if isinstance(obj, str):
+        return obj if key in _KEEP_KEYS else scrub_claim_ids(obj)
+    if isinstance(obj, dict):
+        return {k: _scrub(v, k) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_scrub(v, key) for v in obj]
+    return obj
+
+
 def postprocess(content: GuideContent, claims: list[VerifiedClaim] | None = None) -> GuideContent:
     """Deterministic fix-ups the prompt can't guarantee."""
+    scrubbed = GuideContent.model_validate(_scrub(content.model_dump()))
+    for name in GuideContent.model_fields:  # in place, so callers holding `content` see the clean text
+        setattr(content, name, getattr(scrubbed, name))
     for ev in iter_evidence(content):
         if ev.label == "TESTED":  # only our own tooling may claim TESTED
             ev.label, ev.note = "UNCERTAIN", f"Model claimed TESTED without a probe. {ev.note or ''}".strip()

@@ -16,7 +16,7 @@
 1. **Open a curated guide:** [Gmail](https://oauth-guides-web.vercel.app/guides/google-gmail). Under "Your situation", pick *Only people inside our own Google Workspace* and the verdict flips from **Review required** to **Instant**. Pick *Outside users* and *Read email* and it becomes review plus a paid security assessment. The URL keeps your choices, so a shared link keeps the decision.
 2. **Hover a citation** (the small numbered markers). Each one shows the exact quote, whether it was found in a collapsed section of the page, its evidence label, and the source.
 3. **Ask the guide:** "Can I avoid Google review?" The answer comes only from this guide's verified evidence, and **Apply** sets your situation for you.
-4. **Generate a guide for an app we never researched:** type it on the [home page](https://oauth-guides-web.vercel.app), for example *Asana*, *Zoom* or *Dropbox*. You watch the agent resolve the app, find the provider's official docs, extract claims, probe the developer console, write the guide, and then **re-check every quote on the live page** before publishing. It takes about 1 to 1.5 minutes on free models.
+4. **Generate a guide for an app we never researched** (Settings let you pick the free model, docs depth and console probe): type it on the [home page](https://oauth-guides-web.vercel.app), for example *Asana*, *Zoom* or *Dropbox*. You watch the agent resolve the app, find the provider's official docs, extract claims, probe the developer console, write the guide, and then **re-check every quote on the live page** before publishing. It takes about 1 to 1.5 minutes on free models.
 5. **Compare the tiers:** [GitHub](https://oauth-guides-web.vercel.app/guides/github) (instant) · [Xero](https://oauth-guides-web.vercel.app/guides/xero) (verify to scale) · [Shopify](https://oauth-guides-web.vercel.app/guides/shopify) (review required) · [Spotify](https://oauth-guides-web.vercel.app/guides/spotify) (partner only).
 
 ## The problem, as we understood it
@@ -37,6 +37,8 @@ That's where developers get stuck. The answer depends on their situation (intern
 | Ask this guide | Home and catalog |
 |---|---|
 | ![Ask this guide](docs/screenshots/ask-this-guide.png) | ![Home](docs/screenshots/home.png) |
+| **Live generation (Asana, never researched)** | **Finished guide hand-off** |
+| ![Generation running](docs/screenshots/generate-running.png) | ![Generation done](docs/screenshots/generate-done.png) |
 
 ## Evidence model: the core decision
 
@@ -92,7 +94,8 @@ Full details are in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 | Setup-attempt experiment (5 apps) | All 5 blocked at sign-in → design changed; 68 of 68 quotes verified, plus 8 of 8 in a re-check; 1 false negative found (hidden text) → checker fixed |
 | Curated guides (5) | Every DOCS quote re-checked live (`data/guides/_quote_checks.md`, 247 checks); all validate against [`data/schema/guide.schema.json`](data/schema/guide.schema.json) |
 | Live agent on production, 3 eval rounds | Tier accuracy 1.5 of 3, then 2 of 3, then **3 of 3**; mean key-fact recall 0.72; **0 inflated evidence labels in every round**; unseen apps (Todoist, Zoom, Dropbox, Asana, Calendly) produce bring-your-own guides from official docs in about 50–90 s |
-| Backend tests | 346 offline unit tests and 13 live-network tests |
+| Performance and cost (8 production runs) | About **66 s** and **33k tokens** per guide on the default free model (MiniMax M3.1 Flash), 7 model calls, **$0 actual spend**; Nemotron 3 Ultra about 77 s, about **$0.03 per guide** at its paid rate. Details in [`docs/VERIFICATION.md` §7](docs/VERIFICATION.md#7-performance-and-cost-production-2026-10-22) |
+| Backend tests | 420 offline unit tests and 13 live-network tests |
 
 **Couldn't verify:** anything behind a console login (real form fields, logo limits, where secrets are generated), community-reported wait times (anecdotal), and costs with no official figure (Google CASA). Those show as UNCERTAIN or "check on first sign-in".
 
@@ -107,6 +110,8 @@ Full details are in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 ## Limitations
 
 - Generation takes about 1 to 1.5 minutes. Rarely, a run ends in a clearly labeled fallback draft rather than hanging.
+- On production we twice saw the progress stream to the browser go silent while the run kept going on the server (Asana). The root cause is unproven. The stream is now exception-proof, and the page recovers by polling the run status and loading the published guide.
+- Only free models are offered in the demo. The server rejects any model not on its free allow-list.
 - Production runs on Vercel's Python runtime, which has no Chromium. Docs that render only with JavaScript, and sign-in redirects done in JavaScript, may show as UNCERTAIN there; they work locally with Playwright installed.
 - Generated guides live in the function's temporary storage, so a **permalink to a generated guide can expire** on a cold start. Curated guides are permanent.
 - Free-model rate limits apply (about 20 requests per minute shared), and generations are limited to 30 per IP per 10 minutes.

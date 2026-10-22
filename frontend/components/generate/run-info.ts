@@ -22,9 +22,9 @@ export const STAGE_NOW: Record<StageId, (app: string) => string> = {
   publish: () => "Publishing the guide",
 };
 
-export const TYPICAL_RUN = "2 to 4 minutes";
+export const TYPICAL_RUN = "1 to 2 minutes";
 /** After this long a run is slower than the usual range; the summary says so instead of staying silent. */
-export const SLOW_AFTER_MS = 5 * 60 * 1000;
+export const SLOW_AFTER_MS = 3 * 60 * 1000;
 
 /** A stage that has been running this long without finishing gets an explanation instead of silence. */
 export const QUIET_AFTER_MS = 20 * 1000;
@@ -40,7 +40,24 @@ export function formatDuration(ms: number): string {
 /** "n of m claims" for the badge, read from the guide so it matches what the reader sees below. */
 export function verifiedClaims(guide: Guide): { n: number; total: number } {
   const v = guide.verification_summary;
-  return { n: v.tested + v.docs_verified + v.docs_hidden, total: v.total };
+  return { n: Math.min(v.docs_verified, v.total), total: v.total };
+}
+
+/** Probe outcomes as people say them. Used for any text that may carry the raw enum. */
+export const OUTCOME_LABEL: Record<string, string> = {
+  login_wall: "Sign-in wall",
+  console_reachable: "Console reachable",
+  blocked: "Blocked",
+  error: "Couldn't reach",
+};
+
+/** Replace raw enum tokens (login_wall, console_reachable, MANAGED/BYO) in backend-written text with plain words. */
+export function humanize(text: string): string {
+  return text
+    .replace(/\b(login_wall|console_reachable)\b/gi, (m) => OUTCOME_LABEL[m.toLowerCase()])
+    .replace(/\((?:managed)\)/gi, "(managed by Composio)")
+    .replace(/\((?:byo)\)/gi, "(bring your own app)")
+    .replace(/^(blocked|error)$/i, (m) => OUTCOME_LABEL[m.toLowerCase()]);
 }
 
 export type SourceKind = "official" | "composio" | "community" | "observation" | "other";

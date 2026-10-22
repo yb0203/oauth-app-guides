@@ -77,6 +77,7 @@ Measured on production (Vercel Python, free OpenRouter models). Each run reports
 | MiniMax M3.1 Flash | Notion | 78.1 s | 15.7 s | 18.7 s | 43.3 s | 0.1 s | 7 (0) | 24,717 | 9,973 | $0.00 | n/a |
 | MiniMax M3.1 Flash | Zoom | 69.3 s | 15.7 s | 15.4 s | 38.0 s | 0.1 s | 7 (0) | 22,793 | 9,546 | $0.00 | n/a |
 | MiniMax M3.1 Flash | Asana | **stream went silent twice** after the first research result (see below) | | | | | | | | $0.00 | |
+| MiniMax M3.1 Flash | Asana (after the fixes, real browser) | **74 s, completed** | 9.5 s | 18 s | | 0.1 s | | | | $0.00 | n/a |
 | Nemotron 3 Ultra | GitHub | 95.7 s | | | 59.2 s | | 7 (0) | 22,835 | 8,535 | $0.00 | $0.034 |
 | Nemotron 3 Ultra | Spotify | 64.5 s | | | 45.8 s | | 7 (0) | 20,025 | 6,755 | $0.00 | $0.028 |
 | Nemotron 3 Ultra | Asana | 69.2 s | | | 39.7 s | | 6 (0) | 17,859 | 5,948 | $0.00 | $0.025 |

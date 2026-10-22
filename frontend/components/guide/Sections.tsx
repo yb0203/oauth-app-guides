@@ -270,10 +270,10 @@ export function PreparedSection({ guide }: { guide: Guide }) {
 }
 
 const OUTCOME: Record<WallProbe["outcome"], { label: string; cls: string }> = {
-  login_wall: { label: "login wall", cls: "border-warning-border bg-warning-soft text-warning" },
-  console_reachable: { label: "console reachable", cls: "border-success-border bg-success-soft text-success" },
-  blocked: { label: "blocked", cls: "border-danger-border bg-danger-soft text-danger" },
-  error: { label: "error", cls: "border-border bg-muted text-muted-foreground" },
+  login_wall: { label: "Sign-in wall", cls: "border-warning-border bg-warning-soft text-warning" },
+  console_reachable: { label: "Console reachable", cls: "border-success-border bg-success-soft text-success" },
+  blocked: { label: "Blocked", cls: "border-danger-border bg-danger-soft text-danger" },
+  error: { label: "Couldn't reach", cls: "border-border bg-muted text-muted-foreground" },
 };
 
 function hostPath(u: string): string {
