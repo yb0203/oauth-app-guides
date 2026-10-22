@@ -37,7 +37,7 @@ That's where developers get stuck. The answer depends on their situation (intern
 | Ask this guide | Home and catalog |
 |---|---|
 | ![Ask this guide](docs/screenshots/ask-this-guide.png) | ![Home](docs/screenshots/home.png) |
-| **Live generation (Asana, never researched)** | **Finished guide hand-off** |
+| **Live generation (Dropbox, never researched)** | **Finished guide hand-off (64 s)** |
 | ![Generation running](docs/screenshots/generate-running.png) | ![Generation done](docs/screenshots/generate-done.png) |
 
 ## Evidence model: the core decision
@@ -112,6 +112,7 @@ Full details are in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 - Generation takes about 1 to 1.5 minutes. Rarely, a run ends in a clearly labeled fallback draft rather than hanging.
 - On production we twice saw the progress stream to the browser go silent while the run kept going on the server (Asana). The root cause is unproven. The stream is now exception-proof, and the page recovers by polling the run status and loading the published guide.
 - Only free models are offered in the demo. The server rejects any model not on its free allow-list.
+- Tier rules lean cautious. When any common path needs review, the tier says "Review required" even if the basic path doesn't (Dropbox: a standard app is self-serve, but Dropbox Sign workflows need review). The summary and the situation toggles explain the difference.
 - Production runs on Vercel's Python runtime, which has no Chromium. Docs that render only with JavaScript, and sign-in redirects done in JavaScript, may show as UNCERTAIN there; they work locally with Playwright installed.
 - Generated guides live in the function's temporary storage, so a **permalink to a generated guide can expire** on a cold start. Curated guides are permanent.
 - Free-model rate limits apply (about 20 requests per minute shared), and generations are limited to 30 per IP per 10 minutes.
