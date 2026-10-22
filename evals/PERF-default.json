@@ -1,0 +1,150 @@
+{
+  "apps": [
+    {
+      "app": "Asana",
+      "client_seconds": null,
+      "guide": false,
+      "stats": null,
+      "error": "TimeoutError('The read operation timed out')",
+      "paid_equivalent_usd": 0.0,
+      "unpriced_models": []
+    },
+    {
+      "app": "Notion",
+      "client_seconds": 78.7,
+      "guide": true,
+      "stats": {
+        "run_id": "5dfab892f9b4",
+        "app": "Notion",
+        "mode": "live",
+        "total_seconds": 78.1,
+        "stages": {
+          "resolve": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "find_docs": {
+            "seconds": 15.7,
+            "status": "done"
+          },
+          "research": {
+            "seconds": 18.7,
+            "status": "done"
+          },
+          "probe": {
+            "seconds": 0.0,
+            "status": "skipped"
+          },
+          "synthesize": {
+            "seconds": 43.3,
+            "status": "done"
+          },
+          "verify": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "publish": {
+            "seconds": 0.0,
+            "status": "done"
+          }
+        },
+        "llm": {
+          "calls": 7,
+          "failed_calls": 0,
+          "input_tokens": 24717,
+          "output_tokens": 9973,
+          "by_model": {
+            "minimax/minimax-m3.1-flash:free": {
+              "calls": 7,
+              "input_tokens": 24717,
+              "output_tokens": 9973
+            }
+          }
+        },
+        "cost_usd": 0.0,
+        "pages_fetched": 18,
+        "quotes_checked": 67,
+        "config": {
+          "model": "minimax/minimax-m3.1-flash:free",
+          "fallback_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "max_pages": 5,
+          "probe_console": true
+        }
+      },
+      "paid_equivalent_usd": 0.0,
+      "unpriced_models": [
+        "minimax/minimax-m3.1-flash:free"
+      ]
+    },
+    {
+      "app": "Zoom",
+      "client_seconds": 69.9,
+      "guide": true,
+      "stats": {
+        "run_id": "c0e6d121a162",
+        "app": "Zoom",
+        "mode": "live",
+        "total_seconds": 69.3,
+        "stages": {
+          "resolve": {
+            "seconds": 0.0,
+            "status": "done"
+          },
+          "find_docs": {
+            "seconds": 15.7,
+            "status": "done"
+          },
+          "research": {
+            "seconds": 15.4,
+            "status": "done"
+          },
+          "probe": {
+            "seconds": 0.0,
+            "status": "skipped"
+          },
+          "synthesize": {
+            "seconds": 38.0,
+            "status": "done"
+          },
+          "verify": {
+            "seconds": 0.1,
+            "status": "done"
+          },
+          "publish": {
+            "seconds": 0.0,
+            "status": "done"
+          }
+        },
+        "llm": {
+          "calls": 7,
+          "failed_calls": 0,
+          "input_tokens": 22793,
+          "output_tokens": 9546,
+          "by_model": {
+            "minimax/minimax-m3.1-flash:free": {
+              "calls": 7,
+              "input_tokens": 22793,
+              "output_tokens": 9546
+            }
+          }
+        },
+        "cost_usd": 0.0,
+        "pages_fetched": 9,
+        "quotes_checked": 82,
+        "config": {
+          "model": "minimax/minimax-m3.1-flash:free",
+          "fallback_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "max_pages": 5,
+          "probe_console": true
+        }
+      },
+      "paid_equivalent_usd": 0.0,
+      "unpriced_models": [
+        "minimax/minimax-m3.1-flash:free"
+      ]
+    }
+  ],
+  "account_usage_before": 0,
+  "account_usage_after": 0,
+  "account_delta_usd": 0
+}

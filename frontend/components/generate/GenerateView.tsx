@@ -5,14 +5,16 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ChevronDownIcon } from "lucide-react";
 import { GuideView } from "@/components/guide/GuideView";
-import { GENERATE_URL } from "@/lib/api";
+import { GENERATE_URL, getGuide } from "@/lib/api";
 import { apiFetch, ApiError } from "@/lib/http-error";
 import { configToBody, configToQuery, type GenConfig, type ModelsInfo } from "@/lib/models";
+import { RecoveryNotice } from "./RecoveryNotice";
+import { useRunRecovery, type RecoveryOutcome } from "./useRunRecovery";
 import { RunStatsLine } from "./RunStatsLine";
 import { configSummary, SettingsPopover } from "./SettingsPopover";
-import { deriveRun, type GenerateMessage } from "@/lib/chat-types";
+import { deriveRun, STAGE_DEFAULT_LABEL, type GenerateMessage } from "@/lib/chat-types";
 import { cn } from "@/lib/utils";
-import { STAGE_ORDER, type StageData, type StageId, type VerificationProgress } from "@/types/guide";
+import { STAGE_ORDER, type GuideDataPart, type StageData, type StageId, type VerificationProgress } from "@/types/guide";
 import { GuideReadyBanner } from "./GuideReadyBanner";
 import { ReplayBanner } from "./ReplayBanner";
 import { NarrationLog } from "./NarrationLog";
@@ -121,12 +123,36 @@ function GenerateRun({
     if (badModel) onBadModel();
   }, [badModel, onBadModel]);
 
+  // The stream can go silent while the server carries on. Recovery asks GET /api/runs/{run_id} and, when the
+  // server says done, loads the published guide from its permalink and hands off exactly like a streamed one.
+  const [recovered, setRecovered] = useState<GuideDataPart | null>(null);
+  const [recoverError, setRecoverError] = useState<string | null>(null);
+  const runId = useMemo(() => messages.find((m) => m.role === "assistant")?.id ?? null, [messages]);
+
   const run = useMemo(() => deriveRun(messages), [messages]);
+  const guidePart = run.guide ?? recovered;
 
   const busy = status === "submitted" || status === "streaming";
   const starting = !busy && messages.length === 0 && !error && !stopped;
   const running = busy || starting;
-  const state: RunState = run.guide ? "done" : running ? "running" : stopped ? "stopped" : "failed";
+
+  const recovery = useRunRecovery({
+    active: running && !run.guide,
+    runId,
+    activityKey: messages,
+    onOutcome: async (o: RecoveryOutcome) => {
+      if (o.kind === "done") {
+        const g = await getGuide(o.slug).catch(() => null);
+        if (g) setRecovered({ slug: o.slug, permalink: o.permalink ?? `/guides/${o.slug}`, guide: g });
+        else setRecoverError("The run finished on the server, but the guide could not be loaded. Open it from the catalog or retry.");
+      } else {
+        setRecoverError(o.message);
+      }
+      markEnded();
+      void stop(); // drop the stalled stream
+    },
+  });
+  const state: RunState = guidePart ? "done" : running ? "running" : stopped ? "stopped" : "failed";
 
   const now = useNow(running);
   const elapsedMs = (endedAt ?? now) - startedAt;
@@ -134,6 +160,18 @@ function GenerateRun({
   // A stage still marked running after the stream has ended was interrupted.
   const viewStages = useMemo(() => {
     if (running) return run.stages;
+    if (recovered) {
+      // The live feed dropped but the server finished: show every step as done, and say why.
+      const all: Partial<Record<StageId, StageData>> = {};
+      for (const id of STAGE_ORDER) {
+        const st = run.stages[id];
+        all[id] =
+          st && (st.status === "done" || st.status === "skipped")
+            ? st
+            : { stage: id, status: "done", label: st?.label || STAGE_DEFAULT_LABEL[id], detail: "Finished on the server; the live feed had dropped" };
+      }
+      return all;
+    }
     const out: Partial<Record<StageId, StageData>> = {};
     for (const id of STAGE_ORDER) {
       const s = run.stages[id];
@@ -152,9 +190,9 @@ function GenerateRun({
           : s;
     }
     return out;
-  }, [run.stages, running, stopped, error]);
+  }, [run.stages, running, stopped, error, recovered]);
 
-  const hasGuide = Boolean(run.guide);
+  const hasGuide = Boolean(guidePart);
 
   // Hand-off: let the finished pipeline sit for a beat, fold the run log away, then bring the guide into view.
   const [logOpen, setLogOpen] = useState(true);
@@ -182,6 +220,7 @@ function GenerateRun({
 
   const stageError = STAGE_ORDER.map((id) => viewStages[id]).find((s) => s?.status === "error");
   const errorMessage =
+    recoverError ||
     error?.message ||
     (stageError ? `${stageError.label}${stageError.detail ? `: ${stageError.detail}` : ""}` : "") ||
     "The run ended without producing a guide.";
@@ -195,7 +234,7 @@ function GenerateRun({
     probe: sc?.probe_console ?? config.probe,
   };
   // A replay is always the recorded GitHub run; keep the heading on what the user asked for.
-  const name = replay ? app : (run.guide?.guide.app_name ?? app);
+  const name = replay ? app : (guidePart?.guide.app_name ?? app);
   const currentStage =
     STAGE_ORDER.find((id) => viewStages[id]?.status === "running") ??
     [...STAGE_ORDER].reverse().find((id) => viewStages[id]) ??
@@ -203,7 +242,7 @@ function GenerateRun({
   const progress = state === "done" ? 1 : runProgress(viewStages, run.verification);
   const latest = run.narration[run.narration.length - 1]?.text;
   const sourcesSeen = run.sources.length;
-  const claims = run.guide ? verifiedClaims(run.guide.guide) : null;
+  const claims = guidePart ? verifiedClaims(guidePart.guide) : null;
   const logId = "run-log";
 
   return (
@@ -231,6 +270,8 @@ function GenerateRun({
         }}
         onRestart={onRestart}
       />
+
+      {recovery.quiet && running && <RecoveryNotice status={recovery.status} canPoll={recovery.canPoll} />}
 
       {replay && <ReplayBanner app={name} />}
 
@@ -322,10 +363,10 @@ function GenerateRun({
         </div>
       </div>
 
-      {run.guide && (
+      {guidePart && (
         <div ref={guideRef} tabIndex={-1} aria-label={`${name} guide`} className="mt-8 max-w-[760px] scroll-mt-14 space-y-6 outline-none">
-          <GuideReadyBanner permalink={run.guide.permalink} guide={run.guide.guide} replay={replay} />
-          <GuideView guide={run.guide.guide} variant="inline" replay={replay} />
+          <GuideReadyBanner permalink={guidePart.permalink} guide={guidePart.guide} replay={replay} />
+          <GuideView guide={guidePart.guide} variant="inline" replay={replay} />
         </div>
       )}
     </div>

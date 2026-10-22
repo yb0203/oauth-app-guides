@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import math
 import os
+import re
 import time
 import uuid
 from collections import defaultdict, deque
@@ -15,8 +17,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
-from . import ask, catalog, config, fake, markdown, settings, store, stream
+from . import ask, catalog, config, fake, markdown, runs, settings, store, stream
 
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(name)s %(message)s")  # no-op if already set up
 log = logging.getLogger(__name__)
 
 MAX_INPUT_CHARS = 200
@@ -142,6 +145,44 @@ async def _guarded(source: AsyncIterator[str]) -> AsyncIterator[str]:
         yield stream.DONE
 
 
+_EVENT_TYPE = re.compile(r'"type":"([\w-]+)"')
+
+
+async def _transport(source: AsyncIterator[str]) -> AsyncIterator[bytes]:
+    """The last layer before the socket. Whatever happens upstream, the client gets valid bytes and a proper end
+    (error, run stats, finish, [DONE]); a stall is diagnosable from the log (every 10th event, plus how it ended)."""
+    n, run_id, last = 0, None, None
+    try:
+        async for chunk in source:
+            if chunk.startswith("data:"):
+                n += 1
+                m = _EVENT_TYPE.search(chunk[:80])
+                last = m.group(1) if m else last
+                if run_id is None and last == "start":
+                    run_id = json.loads(chunk[6:]).get("messageId")
+                if n % 10 == 0:
+                    log.info("stream run=%s event=%d type=%s", run_id, n, last)
+            yield stream.to_bytes(chunk)
+    except (asyncio.CancelledError, GeneratorExit):
+        log.warning("client went away: run=%s after %d events (last: %s)", run_id, n, last)
+        raise
+    except Exception:
+        log.exception("stream failed: run=%s after %d events (last: %s)", run_id, n, last)
+        rec = runs.get(run_id) if run_id else None
+        tail = [stream.error("The stream broke on the server. The run may still finish: check /api/runs/" + (run_id or "")
+                             + " for its status.")]
+        if rec and rec.snapshot:
+            try:
+                tail.append(stream.run_stats(rec.snapshot()))
+            except Exception:  # the stats are a nicety; the ending is not
+                log.exception("could not snapshot run stats")
+        tail += [stream.finish(), stream.DONE]
+        for chunk in tail:
+            yield stream.to_bytes(chunk)
+    else:
+        log.info("stream ended: run=%s events=%d", run_id, n)
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="OAuth setup guides")
     limiter = RateLimiter()
@@ -163,6 +204,13 @@ def create_app() -> FastAPI:
     @app.get("/api/models")
     async def get_models() -> dict:
         return await settings.models_payload()
+
+    @app.get("/api/runs/{run_id}")
+    def get_run(run_id: str) -> dict:
+        record = runs.get(run_id)
+        if record is None:
+            raise HTTPException(404, f"No run {run_id!r} (runs are remembered for an hour, per server instance).")
+        return record.public()
 
     @app.get("/api/guides")
     def get_guides() -> list[dict]:
@@ -197,8 +245,10 @@ def create_app() -> FastAPI:
                 status_code=429,
                 headers={"retry-after": str(retry_after)},
             )
-        return StreamingResponse(stream.run_in_thread(lambda: _guarded(_source(app_input, cfg))),
-                                 headers=stream.STREAM_HEADERS)
+        # The run lives on its own thread and finishes (and publishes) even if this client disconnects.
+        return StreamingResponse(
+            _transport(stream.run_in_thread(lambda: _guarded(_source(app_input, cfg)), cancel_on_close=False)),
+            headers=stream.STREAM_HEADERS)
 
     @app.post("/api/guides/{slug}/ask")
     async def ask_guide(slug: str, request: Request):
@@ -210,7 +260,7 @@ def create_app() -> FastAPI:
         except ValueError:
             raise HTTPException(422, "Request body must be JSON.") from None
         req = ask.parse_ask_body(body)
-        return StreamingResponse(stream.with_heartbeat(ask.ask_stream(guide, req, mode=config.llm_mode())),
+        return StreamingResponse(_transport(stream.with_heartbeat(ask.ask_stream(guide, req, mode=config.llm_mode()))),
                                  headers=stream.STREAM_HEADERS)
 
     return app

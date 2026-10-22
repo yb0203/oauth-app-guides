@@ -74,7 +74,9 @@ Measured on production (Vercel Python, free OpenRouter models). Each run reports
 | MiniMax M3.1 Flash (default) | GitHub | 59.1 s | 6.9 s | 24.4 s | 27.2 s | 0.3 s | 7 (0) | 21,632 | 9,992 | $0.00 | n/a (free-only model) |
 | MiniMax M3.1 Flash | Gmail | 72.3 s | 10.2 s | 17.2 s | 43.5 s | 0.4 s | 7 (0) | 24,206 | 11,382 | $0.00 | n/a |
 | MiniMax M3.1 Flash | Spotify | 50.8 s | 6.4 s | 16.1 s | 27.9 s | 0.2 s | 7 (0) | 22,300 | 10,741 | $0.00 | n/a |
-| MiniMax M3.1 Flash | Asana | **stalled**: no bytes after the research stage until the client timed out | | | | | | | | $0.00 | |
+| MiniMax M3.1 Flash | Notion | 78.1 s | 15.7 s | 18.7 s | 43.3 s | 0.1 s | 7 (0) | 24,717 | 9,973 | $0.00 | n/a |
+| MiniMax M3.1 Flash | Zoom | 69.3 s | 15.7 s | 15.4 s | 38.0 s | 0.1 s | 7 (0) | 22,793 | 9,546 | $0.00 | n/a |
+| MiniMax M3.1 Flash | Asana | **stream went silent twice** after the first research result (see below) | | | | | | | | $0.00 | |
 | Nemotron 3 Ultra | GitHub | 95.7 s | | | 59.2 s | | 7 (0) | 22,835 | 8,535 | $0.00 | $0.034 |
 | Nemotron 3 Ultra | Spotify | 64.5 s | | | 45.8 s | | 7 (0) | 20,025 | 6,755 | $0.00 | $0.028 |
 | Nemotron 3 Ultra | Asana | 69.2 s | | | 39.7 s | | 6 (0) | 17,859 | 5,948 | $0.00 | $0.025 |
@@ -83,8 +85,8 @@ Measured on production (Vercel Python, free OpenRouter models). Each run reports
 
 | | MiniMax M3.1 Flash (default) | Nemotron 3 Ultra |
 |---|---|---|
-| Mean time per guide | **61 s** | 77 s |
-| Mean tokens per guide (in / out) | 22.7k / 10.7k | 20.2k / 7.1k |
+| Mean time per guide | **66 s** (5 runs: 51–78 s) | 77 s (3 runs: 65–96 s) |
+| Mean tokens per guide (in / out) | 23.1k / 10.3k | 20.2k / 7.1k |
 | Model calls per guide | 7 | 6–7 |
 | Actual spend | **$0.00** (account usage change: $0) | **$0.00** |
 | Same tokens on the paid model | n/a (no paid variant) | **about $0.03 per guide**, so about $3 for a 100-guide library |
@@ -92,4 +94,4 @@ Measured on production (Vercel Python, free OpenRouter models). Each run reports
 - **Where the time goes:** writing the guide (`synthesize`, two parallel LLM calls) takes 45–60% of each run, and reading pages (`research`, one extraction per page in parallel) another 25–40%. Search, fetching, the console probe and quote verification together take about 10 seconds. The deterministic work is cheap; the model calls are the cost.
 - **Ask this guide:** one LLM call. The first version took about 37 seconds; after moving `/ask` to the faster model with a 20-second cutoff and a deterministic fallback, answers come back in about 5 seconds.
 - **Throughput on free models:** about 7 requests per guide against OpenRouter's free limit of 20 requests per minute, or 1,000 per day once 10 credits are bought (about 140 guides a day). That's fine for a demo, but a production library would use the paid variant at about 3 cents a guide.
-- **Reliability finding:** one MiniMax run (Asana) stalled in the research stage on production: one heartbeat, then silence until the client timed out. **We couldn't reproduce it.** Three local Asana runs completed in 51–62 seconds, and the worst event-loop lag we measured was 0.67 seconds, so the root cause is unproven (likely the function being frozen or killed on the platform side). We hardened the backend anyway: blocking work moved off the event loop, an independent heartbeat task, and a 240-second run watchdog that publishes a labeled partial guide instead of going silent. The re-runs are below.
+- **Reliability finding (open):** Asana on MiniMax went silent twice on production, both times right after the first research result. The production logs show **the run kept going on the server** (it reached the guide-writing step minutes later), and the response headers rule out proxy buffering. So the event stream to the client stopped while the pipeline continued. We couldn't reproduce it locally: 3 Asana runs took 51–62 s with at most 0.67 s of event-loop lag. Mitigations: the stream is now exception-proof (any failure becomes a visible error and the stream ends cleanly), a 240-second run watchdog, and a run-status endpoint the page polls when the stream goes quiet, so it can still load the published guide.

@@ -47,3 +47,7 @@ export async function getGuide(slug: string): Promise<Guide | null> {
 }
 
 export const markdownUrl = (slug: string) => `${API_URL}/api/guides/${encodeURIComponent(slug)}/markdown`;
+
+/** GET /api/runs/{run_id} (CONTRACT section 3): lets the client recover when a generation stream goes silent. */
+export const RUN_URL = (runId: string) =>
+  USE_MOCK ? `/api/dev-runs/${encodeURIComponent(runId)}` : `${API_URL}/api/runs/${encodeURIComponent(runId)}`;

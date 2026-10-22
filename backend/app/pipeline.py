@@ -17,7 +17,8 @@ import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from urllib.parse import urlparse
 
-from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, settings, store, stream, synthesize
+from . import (catalog, config, consoles, docsearch, domains, evidence, probe, research, runs, settings, store, stream,
+               synthesize)
 from . import fetch as fetch_mod
 from .fetch import Page, fetch_page
 from .llm import LLM, LLMError, has_key
@@ -78,7 +79,11 @@ async def run_pipeline(
 ) -> AsyncIterator[str]:
     cfg = config or settings.resolve_config(None)
     run = Run(cfg, RunStats(app, "live", cfg.as_dict()), llm)
-    watch = run.stats.watch
+    record = runs.start(run.stats.run_id, app, lambda: run.stats.to_dict(list(getattr(run.llm, "call_log", []))))
+
+    def watch(chunk: str) -> str:
+        return run.stats.watch(record.observe(chunk))
+
     yield stream.start(run.stats.run_id)
     yield stream.text(cfg.describe())
     current = "resolve"
@@ -91,23 +96,24 @@ async def run_pipeline(
                 else:
                     yield watch(ev)
     except PipelineError as exc:
-        yield stream.error(str(exc))
+        yield watch(stream.error(str(exc)))
         yield watch(stream.stage(exc.stage, "error", detail=str(exc)))
     except LLMError as exc:
-        yield stream.error(f"The language model could not produce a valid result: {exc}")
+        yield watch(stream.error(f"The language model could not produce a valid result: {exc}"))
         yield watch(stream.stage(current, "error", detail=str(exc)))
     except TimeoutError:
-        yield stream.error(f"The run took longer than {RUN_TIMEOUT_S:.0f} seconds and was stopped.")
+        yield watch(stream.error(f"The run took longer than {RUN_TIMEOUT_S:.0f} seconds and was stopped."))
         yield watch(stream.stage(current, "error", detail="timed out"))
     except Exception as exc:  # never leave the client hanging
         log.exception("pipeline failed")
-        yield stream.error(f"Unexpected error: {type(exc).__name__}: {exc}")
+        yield watch(stream.error(f"Unexpected error: {type(exc).__name__}: {exc}"))
         yield watch(stream.stage(current, "error", detail=type(exc).__name__))
     monitor.cancel()
     try:
         await fetch_mod.close_browser()  # a browser started in this loop must not outlive it
     except Exception:  # best effort
         pass
+    record.finish()
     data = run.stats.to_dict(list(getattr(run.llm, "call_log", [])))
     run.stats.log_line(data)
     yield stream.run_stats(data)
@@ -325,7 +331,7 @@ async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | 
     # 7. publish ------------------------------------------------------------------------------------
     yield ("stage", "publish")
     yield stream.stage("publish", "running")
-    data = guide.model_dump(mode="json")
+    data = store.clean(guide.model_dump(mode="json"))  # no lone surrogate may reach a JSON response later
     permalink = store.save_generated(data)
     yield stream.stage("publish", "done", detail=permalink, counts={"llm_calls": llm.calls})
     yield stream.guide_part(slug, data)

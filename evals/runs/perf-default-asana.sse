@@ -1,18 +1,18 @@
-data: {"type":"start","messageId":"f135fc21f35a"}
+data: {"type":"start","messageId":"22466af8c2a1"}
 
-data: {"type":"text-start","id":"849ea73bdf084143b992778d1f16be5c"}
+data: {"type":"text-start","id":"4253c84362454192b93d3559f6a8a218"}
 
-data: {"type":"text-delta","id":"849ea73bdf084143b992778d1f16be5c","delta":"Using MiniMax M3.1 Flash (free), 5 pages"}
+data: {"type":"text-delta","id":"4253c84362454192b93d3559f6a8a218","delta":"Using MiniMax M3.1 Flash (free), 5 pages"}
 
-data: {"type":"text-end","id":"849ea73bdf084143b992778d1f16be5c"}
+data: {"type":"text-end","id":"4253c84362454192b93d3559f6a8a218"}
 
 data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
 
-data: {"type":"text-start","id":"e3733dd4844b4381a043e468a63619a4"}
+data: {"type":"text-start","id":"c77ac1f399da46bcbbc8e26719bcbcfa"}
 
-data: {"type":"text-delta","id":"e3733dd4844b4381a043e468a63619a4","delta":"Resolved Asana to Composio toolkit asana (MANAGED)."}
+data: {"type":"text-delta","id":"c77ac1f399da46bcbbc8e26719bcbcfa","delta":"Resolved Asana to Composio toolkit asana (MANAGED)."}
 
-data: {"type":"text-end","id":"e3733dd4844b4381a043e468a63619a4"}
+data: {"type":"text-end","id":"c77ac1f399da46bcbbc8e26719bcbcfa"}
 
 data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"Asana -> asana","counts":{"alternatives":0}}}
 
@@ -20,23 +20,23 @@ data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status"
 
 : ping
 
-data: {"type":"text-start","id":"6a6669dca08e43b4a7ba3d1a7623b51c"}
+data: {"type":"text-start","id":"73dfa178943c41bdbfaba7678b285ec1"}
 
-data: {"type":"text-delta","id":"6a6669dca08e43b4a7ba3d1a7623b51c","delta":"Found 5 docs pages (developers.asana.com, forum.asana.com); skipped 4 that were unreadable or don't cover the topic."}
+data: {"type":"text-delta","id":"73dfa178943c41bdbfaba7678b285ec1","delta":"Found 5 docs pages (developers.asana.com, forum.asana.com); skipped 3 that were unreadable or don't cover the topic."}
 
-data: {"type":"text-end","id":"6a6669dca08e43b4a7ba3d1a7623b51c"}
+data: {"type":"text-end","id":"73dfa178943c41bdbfaba7678b285ec1"}
 
-data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":4}}}
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":3}}}
 
 data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
 
-data: {"type":"text-start","id":"5a52595cf75b4cb5bd6f66602b9e2a1d"}
+data: {"type":"text-start","id":"11ab4dce91df463fa79f2e824c7ad4b9"}
 
-data: {"type":"text-delta","id":"5a52595cf75b4cb5bd6f66602b9e2a1d","delta":"developers.asana.com: 4 of 4 claims have a quote found on the page."}
+data: {"type":"text-delta","id":"11ab4dce91df463fa79f2e824c7ad4b9","delta":"developers.asana.com: 6 of 6 claims have a quote found on the page."}
 
-data: {"type":"text-end","id":"5a52595cf75b4cb5bd6f66602b9e2a1d"}
+data: {"type":"text-end","id":"11ab4dce91df463fa79f2e824c7ad4b9"}
 
 data: {"type":"source-url","sourceId":"s4","url":"https://developers.asana.com/docs/manage-and-share-your-app","title":"Manage your app"}
 
-data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":4}}}
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":6}}}
 

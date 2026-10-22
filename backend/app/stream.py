@@ -30,7 +30,19 @@ DONE = "data: [DONE]\n\n"
 
 
 def sse(obj: dict) -> str:
-    return f"data: {json.dumps(obj, separators=(',', ':'), ensure_ascii=False)}\n\n"
+    """One event. JSON is ASCII-only (non-ASCII becomes \\uXXXX escapes), so no string, whatever it contains (lone
+    surrogates, control characters), can make the chunk unencodable on its way to the client."""
+    return f"data: {json.dumps(obj, separators=(',', ':'), ensure_ascii=True, default=str)}\n\n"
+
+
+def to_bytes(chunk: str | bytes) -> bytes:
+    """UTF-8 bytes for a chunk; a chunk that is not valid text (a lone surrogate) is repaired, never fatal."""
+    if isinstance(chunk, bytes):
+        return chunk
+    try:
+        return chunk.encode("utf-8")
+    except UnicodeEncodeError:
+        return chunk.encode("utf-8", "replace")
 
 
 def start(message_id: str) -> str:
@@ -170,9 +182,10 @@ def run_stats(data: dict) -> str:
 _END = object()
 
 
-async def run_in_thread(factory, interval: float | None = None) -> AsyncIterator[str]:
+async def run_in_thread(factory, interval: float | None = None, *, cancel_on_close: bool = True) -> AsyncIterator[str]:
     """Run `factory()` (an async generator of chunks) on its own thread and event loop; this loop only forwards
-    chunks and sends pings. A blocked or starved pipeline can therefore never silence the keep-alive."""
+    chunks and sends pings. A blocked or starved pipeline can therefore never silence the keep-alive. With
+    `cancel_on_close=False` a client that disconnects does not stop the run: it finishes and publishes anyway."""
     import threading
 
     interval = float(os.getenv("HEARTBEAT_SECONDS", "10")) if interval is None else interval
@@ -215,8 +228,8 @@ async def run_in_thread(factory, interval: float | None = None) -> AsyncIterator
             if isinstance(item, BaseException):
                 raise item
             yield item
-    finally:  # the client went away (or we finished): stop the worker
-        if "task" in worker and thread.is_alive():
+    finally:  # the client went away (or we finished): stop the worker, unless the run should outlive the client
+        if cancel_on_close and "task" in worker and thread.is_alive():
             try:
                 worker["loop"].call_soon_threadsafe(worker["task"].cancel)
             except RuntimeError:  # the worker loop finished in the meantime

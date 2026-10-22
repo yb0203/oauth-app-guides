@@ -65,6 +65,7 @@ def list_guides() -> list[dict]:
 
 def save_generated(guide: dict) -> str:
     """Store a generated guide; returns the permalink path."""
+    guide = clean(guide)
     slug = guide["slug"]
     if not _SLUG_OK.match(slug):
         raise ValueError(f"bad slug {slug!r}")
@@ -95,3 +96,18 @@ def curated_console(slug: str) -> str | None:
             if g and slug in (g.get("slug"), (g.get("composio") or {}).get("toolkit_slug")):
                 return ((g.get("wall_probe") or {}).get("console_url")) or None
     return None
+
+
+_BAD_CHARS = re.compile("[\ud800-\udfff\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+def clean(obj):
+    """Copy of a JSON-like value with lone surrogates and control characters (except \\n, \\t) replaced by U+FFFD,
+    so nothing the model or a web page produced can break JSON encoding or a response later."""
+    if isinstance(obj, str):
+        return _BAD_CHARS.sub("\ufffd", obj)
+    if isinstance(obj, dict):
+        return {clean(k) if isinstance(k, str) else k: clean(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean(v) for v in obj]
+    return obj
