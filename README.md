@@ -11,6 +11,25 @@
 
 ![Gmail guide: the verdict changes with your situation](docs/screenshots/guide-gmail-internal.png)
 
+## How this meets the brief
+
+| The brief asks… | Where it's answered |
+|---|---|
+| **How easy or difficult** it is to get the OAuth app ready | Every guide opens with a verdict: one of four tiers (Instant, Verify to scale, Review required, Partner only) on a difficulty ladder, with confidence. **"Your situation"** toggles re-render it (Gmail: Instant if internal only, Review for outside users). |
+| **Time and effort, including any wait for approval** | **Your work** (hands-on hours) and **Waiting on the provider** are shown as separate tiles, plus a work-vs-wait bar. The Review section gives the **official** wait and the **community-reported** wait, plus cost. |
+| **Requirements and nuances** that could affect setup | *Before you start*, *Limits* (value, unit and scope, such as Google's 100-test-user cap), *Customer-side gates* (org approvals, admin consent), *Gotchas*, and *Conflicts* where the provider's own docs disagree. |
+| **What an agent can do, and where you take over** | Every step has a chip: **You** (with the reason: sign in, real account, legal acceptance, submit, payment), **Agent**, or **Either**. *Prepared for you* contains agent-drafted minimum scopes with justifications, consent-screen values and a privacy-policy outline. The console probe shows exactly what a human meets at sign-in. |
+| **Use agents to investigate and attempt setup; let discoveries shape the guidance** | A live agent pipeline (resolve → find docs → extract → probe console → write → verify) runs for every new app. Our **setup-attempt experiment** found that all 5 consoles stop at sign-in, which changed the design: no pretend automation, a read-only probe plus drafted materials instead ([`experiments/oauth-capture-poc`](experiments/oauth-capture-poc/)). |
+| **Be clear about what was tested, what sources support, and what's uncertain** | Every fact is labeled **TESTED / DOCS / COMMUNITY / UNCERTAIN**. DOCS means the exact quote was re-found **on the live page by code**, including hidden sections. Each guide shows its evidence summary, and a citation hover shows the quote and source (screenshot below). |
+| **A library of ready-to-use guides; demonstrate a few varied apps** | 5 curated guides covering all four tiers: [GitHub](https://oauth-guides-web.vercel.app/guides/github), [Xero](https://oauth-guides-web.vercel.app/guides/xero), [Gmail](https://oauth-guides-web.vercel.app/guides/google-gmail), [Shopify](https://oauth-guides-web.vercel.app/guides/shopify), [Spotify](https://oauth-guides-web.vercel.app/guides/spotify). Plus a 100-app catalog drawn from Composio's toolkit list. |
+| **Submit an app name or website; an agent generates a shareable guide in real time, including apps outside the library** | Type any app on the [home page](https://oauth-guides-web.vercel.app) to see live progress, sources, the console probe and quote verification streaming in, then a permanent link. Tested on apps we never researched (Todoist, Zoom, Dropbox, Asana, Calendly, Notion) at about 50–90 s each. Settings let you pick the free model, docs depth and console probe. |
+| **A guide they can use and share** | Permalinks (situation answers are kept in the URL), copy link, Markdown export, print layout, and copy buttons for exact values such as Composio's callback URL. |
+| **How to proceed when you hit a blocker** | *When you're blocked* (symptom → cause → fix), plus **Ask this guide**: grounded Q&A with citations and **Apply** buttons that set your situation. Off-topic questions get "not covered" instead of a guess. |
+| **Understand the provider OAuth app vs. the developer's integration vs. users' connections** | [The problem section](#the-problem-as-we-understood-it) below, Composio's auth model notes ([`research/composio`](research/composio/)), and each guide's *Should you bring your own app?* section with the Composio callback. |
+| **Choose a focused scope and explain why** | [Key decisions](#key-decisions): depth on the bring-your-own app path, 5 varied curated apps plus live generation, no agent-driven setup, free models only ([`docs/SPEC.md`](docs/SPEC.md)). |
+| **Check a sample against real sources or setup attempts; show what you learned, corrected, or couldn't verify** | [`docs/VERIFICATION.md`](docs/VERIFICATION.md): about 75 research quotes re-checked (1 fix), the setup experiment (68 of 68 quotes, 1 checker bug fixed), 247 live quote checks on curated guides, 3 eval rounds (tier accuracy 1.5 → 3 of 3), performance and cost, and what remains unverified. |
+| **Link, source repo, README with setup, decisions and limitations; no credentials** | Links at the top · [Run it locally](#run-it-locally) · [Key decisions](#key-decisions) · [Limitations](#limitations) · full-history secret scan before publishing. |
+
 ## A five-minute tour
 
 1. **Open a curated guide:** [Gmail](https://oauth-guides-web.vercel.app/guides/google-gmail). Under "Your situation", pick *Only people inside our own Google Workspace* and the verdict flips from **Review required** to **Instant**. Pick *Outside users* and *Read email* and it becomes review plus a paid security assessment. The URL keeps your choices, so a shared link keeps the decision.
@@ -34,8 +53,10 @@ That's where developers get stuck. The answer depends on their situation (intern
 - **Console probe:** what the provider's developer console actually asks for (tested, read-only).
 - **Sources and evidence summary**, for example "51 claims: 46 docs-verified (8 in hidden sections), 2 tested, 2 community, 1 uncertain".
 
-| Ask this guide | Home and catalog |
+| Citation hover: exact quote, found in a hidden section | Steps: who does it, copyable values, Composio callback |
 |---|---|
+| ![Citation hover](docs/screenshots/citation-hover.png) | ![Steps](docs/screenshots/steps.png) |
+| **Ask this guide** | **Home and catalog** |
 | ![Ask this guide](docs/screenshots/ask-this-guide.png) | ![Home](docs/screenshots/home.png) |
 | **Live generation (Dropbox, never researched)** | **Finished guide hand-off (64 s)** |
 | ![Generation running](docs/screenshots/generate-running.png) | ![Generation done](docs/screenshots/generate-done.png) |
