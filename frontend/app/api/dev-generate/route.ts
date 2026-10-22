@@ -12,8 +12,13 @@ function lastUserText(body: unknown): string {
 
 export async function POST(req: Request) {
   if (process.env.NEXT_PUBLIC_USE_MOCK !== "1") return new Response("mock disabled", { status: 404 });
-  const app = lastUserText(await req.json().catch(() => ({})));
-  const events = buildFixture(app);
+  const body = await req.json().catch(() => ({}));
+  const app = lastUserText(body);
+  const model = (body as { config?: { model?: string } }).config?.model;
+  if (model && model.startsWith("bad/")) {
+    return Response.json({ detail: `Model '${model}' is not on the allow-list.` }, { status: 400 }); // dev: exercise the stale-model fallback
+  }
+  const events = buildFixture(app, (body as { config?: { model?: string; max_pages?: number; probe_console?: boolean } }).config);
   const enc = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {

@@ -2,6 +2,7 @@ import type { UIMessage } from "ai";
 import {
   STAGE_ORDER,
   type GuideDataPart,
+  type RunStats,
   type StageData,
   type StageId,
   type VerificationProgress,
@@ -16,6 +17,7 @@ export type GenerateMessage = UIMessage<
     wall: WallProbe;
     verification: VerificationProgress;
     guide: GuideDataPart;
+    "run-stats": RunStats;
   }
 >;
 
@@ -41,6 +43,7 @@ export interface RunSnapshot {
   guide: GuideDataPart | null;
   /** the run is a recorded demo replay (any stage or the guide says so); never present it as real research */
   replay: boolean;
+  stats: RunStats | null;
 }
 
 const isStageId = (s: string): s is StageId => (STAGE_ORDER as readonly string[]).includes(s);
@@ -59,6 +62,7 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
     verification: null,
     guide: null,
     replay: false,
+    stats: null,
   };
   const seenSources = new Set<string>();
 
@@ -74,6 +78,9 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
           break;
         case "data-wall":
           snap.wall = p.data;
+          break;
+        case "data-run-stats":
+          snap.stats = p.data;
           break;
         case "data-verification":
           snap.verification = p.data;

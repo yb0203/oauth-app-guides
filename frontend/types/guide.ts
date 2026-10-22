@@ -224,3 +224,23 @@ export interface GuideDataPart {
   guide: Guide;
   replay?: boolean;
 }
+
+/** data-run-stats (CONTRACT section 4, item 8). Everything but run_id is optional-tolerant. */
+export interface RunStats {
+  run_id?: string;
+  app?: string;
+  mode?: "live" | "fake";
+  total_seconds?: number;
+  stages?: Record<string, { seconds: number; status: string }>;
+  llm?: {
+    calls?: number;
+    failed_calls?: number;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    by_model?: Record<string, { calls: number; input_tokens?: number | null; output_tokens?: number | null }>;
+  };
+  config?: { model?: string; max_pages?: number; probe_console?: boolean };
+  pages_fetched?: number;
+  quotes_checked?: number;
+  cost_usd?: number;
+}

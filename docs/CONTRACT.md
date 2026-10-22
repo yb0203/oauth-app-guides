@@ -43,7 +43,8 @@ Base URL comes from env: the frontend reads `NEXT_PUBLIC_API_URL` (default `http
 | GET | `/api/guides` | `[{slug, app_name, guide_type, tier, last_verified}]` |
 | GET | `/api/guides/{slug}` | Guide JSON (curated from `data/guides/`, or generated and stored by the backend); 404 if none |
 | GET | `/api/guides/{slug}/markdown` | `text/markdown` export of the guide |
-| POST | `/api/generate` | AI SDK UI message stream (§4). Request body: `{"app": "<name or URL>"}`, or a `useChat` body (`{"messages": [...]}`), in which case the backend uses the text of the last user message |
+| GET | `/api/models` | `{"default": "<model id>", "models": [{"id", "label", "provider", "context_length", "free": true, "tested": bool, "notes"}], "options": {"max_pages": {"default": 5, "choices": [3, 5, 8]}, "probe_console": {"default": true}}}`. Only models on the server allow-list (env `ALLOWED_MODELS`, all `:free`) are listed |
+| POST | `/api/generate` | AI SDK UI message stream (§4). Request body: `{"app": "<name or URL>", "config": {"model": "<id from /api/models>", "max_pages": 3|5|8, "probe_console": bool}}` (`config` and each field optional; **any model not on the allow-list is rejected with HTTP 400**, so public users can never trigger paid models; the server picks the fallback model), or a `useChat` body (`{"messages": [...]}`), in which case the backend uses the text of the last user message |
 | POST | `/api/guides/{slug}/ask` | AI SDK UI message stream (§4b). Request body: `{"question": "...", "situation": {"<question_id>": "<option_id>"}, "history": [{"role":"user|assistant","text":"..."}]}`, or a `useChat` body (`{"messages": [...], "situation": {...}}`). 404 if the guide doesn't exist |
 
 ## 4b. "Ask this guide" stream (added 2026-10-22)
@@ -74,7 +75,8 @@ Order of events:
 5. The wall probe result: `{"type":"data-wall","id":"wall","data":<wall_probe object from the schema>}`.
 6. Verification progress: `{"type":"data-verification","id":"verification","data":{"checked":n,"docs_verified":n,"hidden":n,"downgraded":n,"total":n}}`.
 7. The final guide: `{"type":"data-guide","id":"guide","data":{"slug":"<slug>","permalink":"/guides/<slug>","guide":<Guide JSON>}}`.
-8. `{"type":"finish"}`, then `data: [DONE]`.
+8. Run statistics, sent right before `finish` (on success, fallback drafts and errors alike): `{"type":"data-run-stats","id":"run-stats","data":{"run_id":"…","app":"…","mode":"live|fake","total_seconds":n,"stages":{"<stage>":{"seconds":n,"status":"done|error|skipped"}},"llm":{"calls":n,"failed_calls":n,"input_tokens":n,"output_tokens":n,"by_model":{"<model id>":{"calls":n,"input_tokens":n,"output_tokens":n}}},"pages_fetched":n,"quotes_checked":n,"cost_usd":0.0,"config":{"model":"…","fallback_model":"…","max_pages":n,"probe_console":bool}}}`. `cost_usd` is the actual cost (0 for `:free` models). Token counts come from the provider's reported usage, with null where it isn't reported. The backend also logs the same object as one JSON log line. `/ask` sends the same part with `stages` omitted.
+9. `{"type":"finish"}`, then `data: [DONE]`.
 
 On failure, send `{"type":"error","errorText":"..."}`, then mark the failed stage with `status: error`, then `finish` and `[DONE]`. Partial results that are already useful (sources, wall) stay visible.
 

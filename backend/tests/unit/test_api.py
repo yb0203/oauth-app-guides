@@ -172,7 +172,7 @@ def test_generate_rejects_invalid_json(client):
 def test_generate_live_streams_pipeline_output(client, monkeypatch):
     seen = []
 
-    async def run_pipeline(app):
+    async def run_pipeline(app, **kw):
         seen.append(app)
         yield stream.start("m1")
         yield stream.text("hello")
@@ -187,7 +187,7 @@ def test_generate_live_streams_pipeline_output(client, monkeypatch):
 
 
 def test_pipeline_exception_becomes_error_stage_finish_done(client, monkeypatch):
-    async def run_pipeline(app):
+    async def run_pipeline(app, **kw):
         yield stream.start("m1")
         yield stream.stage("resolve", "running")
         yield stream.stage("resolve", "done")
@@ -206,7 +206,7 @@ def test_pipeline_exception_becomes_error_stage_finish_done(client, monkeypatch)
 
 
 def test_failure_before_any_event_still_starts_the_stream(client, monkeypatch):
-    async def run_pipeline(app):
+    async def run_pipeline(app, **kw):
         raise ValueError("nope")
         yield  # pragma: no cover
 
@@ -224,7 +224,7 @@ def test_missing_pipeline_module_is_reported_as_stream_error(client, monkeypatch
 
 
 def test_pipeline_that_forgets_terminator_is_closed_properly(client, monkeypatch):
-    async def run_pipeline(app):
+    async def run_pipeline(app, **kw):
         yield stream.start("m1")
 
     use_pipeline(monkeypatch, run_pipeline)

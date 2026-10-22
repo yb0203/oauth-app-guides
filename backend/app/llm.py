@@ -18,6 +18,8 @@ from pydantic_ai import Agent, PromptedOutput
 from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
 from pydantic_ai.models import Model
 
+from . import settings  # noqa: E402
+
 log = logging.getLogger("llm")
 if not log.handlers:  # per-call timing lines (never the key) show up in uvicorn's console
     _h = logging.StreamHandler()
@@ -87,7 +89,8 @@ class LLM:
             output_type=spec,
             instructions=instructions,
             retries={"output": 2, "tools": 1},
-            model_settings={"temperature": 0.2, "max_tokens": 8000, "timeout": timeout, **_reasoning_settings(model_name)},
+            model_settings={"temperature": 0.2, "max_tokens": 8000, "timeout": timeout, "openrouter_usage": {"include": True},
+                            **_reasoning_settings(model_name)},
         )
 
     async def run(self, output_type: type[T], instructions: str, prompt: str, *, label: str = "",
@@ -104,13 +107,13 @@ class LLM:
                     raise LLMError(f"out of time for {label or 'call'}: " + "; ".join(errors))
                 self.calls += 1
                 started = time.monotonic()
-                outcome, tokens = "ok", None
+                outcome, tokens, cost = "ok", None, None
                 try:
                     async with self._sem:
                         result = await asyncio.wait_for(
                             self._agent(model_name, output_type, instructions, budget).run(prompt), budget)
-                    usage = result.usage
-                    tokens = f"{usage.input_tokens}+{usage.output_tokens}"
+                    tokens = _tokens_of(result)
+                    cost = _cost_of(result)
                     return result.output
                 except TimeoutError:
                     outcome = f"timeout after {budget:.0f}s"
@@ -118,6 +121,8 @@ class LLM:
                     break  # a model that is this slow won't be faster on retry: try the next one
                 except ModelHTTPError as exc:
                     outcome = f"http {exc.status_code}"
+                    if exc.status_code == 404:
+                        settings.mark_unavailable(model_name)
                     errors.append(f"{model_name}: HTTP {exc.status_code}")
                     if exc.status_code in (429, 502, 503, 504) and attempt + 1 < self.max_attempts:
                         await self._sleep(_backoff(exc, attempt))
@@ -134,10 +139,27 @@ class LLM:
                 finally:
                     secs = time.monotonic() - started
                     self.call_log.append({"label": label, "model": model_name, "seconds": round(secs, 1),
-                                          "outcome": outcome, "tokens": tokens})
+                                          "outcome": outcome, "tokens": tokens, "cost": cost})
                     log.info("label=%s model=%s secs=%.1f outcome=%s tokens=%s calls=%d", label, model_name,
-                             secs, outcome, tokens, self.calls)
+                             secs, outcome, tokens and f"{tokens[0]}+{tokens[1]}", self.calls)
         raise LLMError(f"all models failed for {label or 'call'}: " + "; ".join(errors))
+
+
+def _tokens_of(result) -> tuple[int, int] | None:
+    """(input, output) tokens the provider reported for this run, or None when it reported nothing."""
+    usage = result.usage
+    inp, out = getattr(usage, "input_tokens", 0) or 0, getattr(usage, "output_tokens", 0) or 0
+    return (inp, out) if inp or out else None
+
+
+def _cost_of(result) -> float | None:
+    """The cost OpenRouter reports in the response (`usage.cost`, surfaced in provider_details), if any."""
+    total, seen = 0.0, False
+    for msg in result.all_messages():
+        cost = (getattr(msg, "provider_details", None) or {}).get("cost")
+        if isinstance(cost, (int, float)):
+            total, seen = total + float(cost), True
+    return total if seen else None
 
 
 def _reasoning_settings(model_name: str = "") -> dict:

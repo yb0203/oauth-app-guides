@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 
 from . import stream
 from .llm import LLM, has_key
+from .runstats import RunStats
 
 log = logging.getLogger("ask")
 # Measured 2026-10-22 on a Gmail question: nemotron-3-ultra 1.5 s, minimax 5 s. On timeout or any error the
@@ -198,6 +199,8 @@ class Answer:
     covered: bool
     citations: list[dict] = field(default_factory=list)
     actions: list[dict] = field(default_factory=list)
+    calls: list[dict] = field(default_factory=list)  # LLM request records (for run stats); empty in fake mode
+    model: str | None = None
 
     @property
     def suggest(self) -> str | None:
@@ -222,6 +225,21 @@ def _citation(marker: str, fact: Fact, guide: dict) -> dict:
             "fact": fact.text}
 
 
+def relevant_actions(guide: dict, question: str, answer_text: str, actions: list[dict]) -> list[dict]:
+    """Keep only actions for options the question names or the answer leads with; one per question, at most 2."""
+    q_words = set(re.findall(r"[a-z]+", question.lower()))
+    first = set(tokens(re.split(r"(?<=[.!?])\s", answer_text.strip(), maxsplit=1)[0]))
+    labels = {(q["id"], o["id"]): set(tokens(o["label"])) for q in guide["situations"]["questions"] for o in q["options"]}
+    scored: dict[str, tuple[int, dict]] = {}
+    for a in actions:
+        id_words = {w for w in re.findall(r"[a-z]+", a["option_id"].lower()) if w not in STOP}
+        score = 3 * bool(id_words & q_words) + 2 * bool({stem(w) for w in id_words} & first) \
+            + (len(labels.get((a["question_id"], a["option_id"]), set()) & first) >= 2)
+        if score >= 2 and score > scored.get(a["question_id"], (0, a))[0]:
+            scored[a["question_id"]] = (score, a)
+    return [a for _, a in sorted(scored.values(), key=lambda x: -x[0])][:2]
+
+
 def _attach_markers(text: str, resolved: dict[str, Fact]) -> str:
     """The model cited facts but wrote no [n] markers: put each marker after the sentence that best matches
     its fact, or at the end of the answer when no sentence shares words with it."""
@@ -234,12 +252,28 @@ def _attach_markers(text: str, resolved: dict[str, Fact]) -> str:
     return " ".join(sentences)
 
 
+def _supporting_fact(fact: Fact, evidence_facts: list[Fact]) -> Fact | None:
+    """The evidence-bearing fact that best backs a fact with no evidence of its own (a situation variant, the
+    verdict, a composite review line): the one sharing the most words with it."""
+    ranked = score_facts(evidence_facts, fact.text)
+    return ranked[0][1] if ranked and ranked[0][0] >= 1.0 else None
+
+
 def post_check(guide: dict, raw: RawAnswer, facts: list[Fact] | None = None) -> Answer:
     facts = facts if facts is not None else build_facts(guide)
     if not raw.covered:
         return Answer(raw.text, False)
     by_ref = {f.ref: f for f in facts if f.evidence is not None}
-    resolved = {m: by_ref[ref] for m, ref in raw.citations if ref in by_ref}
+    all_ref = {f.ref: f for f in facts}
+    evidence_facts = [f for f in by_ref.values() if f.evidence["label"] != "UNCERTAIN"]  # support must be real evidence
+    resolved: dict[str, Fact] = {}
+    for marker, ref in raw.citations:
+        marker, ref = re.sub(r"\D", "", str(marker)), str(ref).strip().strip("[]()` ").strip()  # "[1]" -> "1"
+        fact = by_ref.get(ref)
+        if fact is None and ref in all_ref and evidence_facts:  # variant/verdict/composite: cite what backs it
+            fact = _supporting_fact(all_ref[ref], evidence_facts)
+        if marker and fact is not None:
+            resolved.setdefault(marker, fact)
     if resolved and not set(re.findall(r"\[(\d+)\]", raw.text)) & set(resolved):
         raw = RawAnswer(_attach_markers(raw.text, resolved), raw.citations, raw.actions, raw.covered)
     order: list[str] = []
@@ -412,12 +446,12 @@ async def answer_question(guide: dict, question: str, situation: dict[str, str],
                           mode: str, llm: LLM | None = None) -> Answer:
     if mode != "live":
         return keyword_answer(guide, question, situation)
+    if llm is None:
+        if not has_key():
+            return keyword_answer(guide, question, situation)
+        llm = LLM(max_calls=1, max_attempts_per_model=1)
+        llm.model_names = [os.getenv("LLM_MODEL_ASK", DEFAULT_ASK_MODEL)]  # one fast model, no fallback model
     try:
-        if llm is None:
-            if not has_key():
-                return keyword_answer(guide, question, situation)
-            llm = LLM(max_calls=1, max_attempts_per_model=1)
-            llm.model_names = [os.getenv("LLM_MODEL_ASK", DEFAULT_ASK_MODEL)]  # one fast model, no fallback model
         facts = build_facts(guide)
         out = await llm.run(LLMAnswer, ASK_INSTRUCTIONS, build_llm_prompt(guide, facts, question, situation, history),
                             label="ask", timeout=ASK_TIMEOUT_S, deadline=time.monotonic() + ASK_TIMEOUT_S)
@@ -427,12 +461,14 @@ async def answer_question(guide: dict, question: str, situation: dict[str, str],
                         [(a.question_id, a.option_id) for a in out.actions if situation.get(a.question_id) != a.option_id],
                         out.covered)
         answer = post_check(guide, raw, facts)
+        answer.actions = relevant_actions(guide, question, answer.text, answer.actions)
         if not answer.covered:
             answer.text = NOT_COVERED.format(app=guide["app_name"]) if not answer.text else answer.text
-        return answer
     except Exception as exc:  # any LLM failure: the deterministic answerer is always available
         log.warning("live ask failed (%s); using keyword answerer", type(exc).__name__)
-        return keyword_answer(guide, question, situation)
+        answer = keyword_answer(guide, question, situation)
+    answer.calls, answer.model = list(getattr(llm, "call_log", [])), (getattr(llm, "model_names", None) or [None])[0]
+    return answer
 
 
 # --- request parsing and stream --------------------------------------------------------------------
@@ -481,9 +517,12 @@ def parse_ask_body(body: object) -> AskRequest:
 
 
 async def ask_stream(guide: dict, req: AskRequest, *, mode: str) -> AsyncIterator[str]:
-    yield stream.start(uuid.uuid4().hex)
+    stats = RunStats(guide["slug"], mode, {"model": None, "fallback_model": None}, with_stages=False)
+    yield stream.start(stats.run_id)
+    calls: list[dict] = []
     try:
         answer = await answer_question(guide, req.question, req.situation, req.history, mode=mode)
+        calls, stats.config["model"] = answer.calls, answer.model
         yield stream.text_chunks(answer.text)
         yield stream.citations(answer.citations)
         for n, action in enumerate(answer.actions, start=1):
@@ -492,5 +531,8 @@ async def ask_stream(guide: dict, req: AskRequest, *, mode: str) -> AsyncIterato
     except Exception as exc:
         log.exception("ask failed")
         yield stream.error(f"Couldn't answer that ({type(exc).__name__}). Please try again.")
+    data = stats.to_dict(calls)
+    stats.log_line(data)
+    yield stream.run_stats(data)
     yield stream.finish()
     yield stream.DONE

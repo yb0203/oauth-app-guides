@@ -15,7 +15,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
-from . import ask, catalog, config, fake, markdown, store, stream
+from . import ask, catalog, config, fake, markdown, settings, store, stream
 
 log = logging.getLogger(__name__)
 
@@ -93,14 +93,19 @@ def _client_ip(request: Request) -> str:
     return forwarded or (request.client.host if request.client else "unknown")
 
 
-async def _source(app_input: str) -> AsyncIterator[str]:
+def extract_config(body: object) -> settings.GenerateConfig:
+    """The validated generation settings from `{"config": {...}}` (plain or useChat body); HTTP 400 if not allowed."""
+    return settings.resolve_config(body.get("config") if isinstance(body, dict) else None)
+
+
+async def _source(app_input: str, cfg: settings.GenerateConfig) -> AsyncIterator[str]:
     if config.llm_mode() == "fake":
-        async for chunk in fake.fake_run(app_input):
+        async for chunk in fake.fake_run(app_input, config=cfg):
             yield chunk
         return
     from .pipeline import run_pipeline
 
-    async for chunk in run_pipeline(app_input):
+    async for chunk in run_pipeline(app_input, config=cfg):
         yield chunk
 
 
@@ -155,6 +160,10 @@ def create_app() -> FastAPI:
     def get_catalog() -> list[dict]:
         return catalog.list_catalog()
 
+    @app.get("/api/models")
+    async def get_models() -> dict:
+        return await settings.models_payload()
+
     @app.get("/api/guides")
     def get_guides() -> list[dict]:
         return store.list_guides()
@@ -180,6 +189,7 @@ def create_app() -> FastAPI:
         except ValueError:
             raise HTTPException(422, "Request body must be JSON.") from None
         app_input = extract_app_input(body)
+        cfg = extract_config(body)
         retry_after = limiter.check(_client_ip(request))
         if retry_after is not None:
             return JSONResponse(
@@ -187,7 +197,7 @@ def create_app() -> FastAPI:
                 status_code=429,
                 headers={"retry-after": str(retry_after)},
             )
-        return StreamingResponse(stream.with_heartbeat(_guarded(_source(app_input))), headers=stream.STREAM_HEADERS)
+        return StreamingResponse(stream.with_heartbeat(_guarded(_source(app_input, cfg))), headers=stream.STREAM_HEADERS)
 
     @app.post("/api/guides/{slug}/ask")
     async def ask_guide(slug: str, request: Request):

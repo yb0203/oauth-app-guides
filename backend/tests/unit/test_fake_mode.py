@@ -181,13 +181,13 @@ async def test_error_replay():
     events = await run("!error")
     types = [e["type"] if isinstance(e, dict) else e for e in events]
     assert types[0] == "start"
-    assert types[-4:] == ["error", "data-stage", "finish", "[DONE]"]
+    assert types[-5:] == ["error", "data-stage", "data-run-stats", "finish", "[DONE]"]
     assert "data-guide" not in types
     stages = stage_events(events)
     failed = stages[-1]
     assert failed["data"]["status"] == "error"
     assert any(e["id"] == failed["id"] and e["data"]["status"] == "running" for e in stages)
-    assert events[-4]["errorText"]
+    assert events[-5]["errorText"]
 
 
 async def test_speed_zero_is_instant():

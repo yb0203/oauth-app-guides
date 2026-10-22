@@ -119,7 +119,7 @@ async def test_live_path_builds_llm_from_env_and_runs(github, monkeypatch):
     """LLM_MODE=live wiring: with a key set and no injected llm, the pipeline builds its own LLM and uses it."""
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-not-real")
     built = []
-    monkeypatch.setattr("app.pipeline.LLM", lambda: built.append(1) or FakeLLM(github))
+    monkeypatch.setattr("app.pipeline.LLM", lambda *a, **k: built.append(1) or FakeLLM(github))
     events = await collect("github", None)
     assert built == [1]
     assert any(isinstance(e, dict) and e["type"] == "data-guide" for e in events)

@@ -30,7 +30,7 @@ const src = (delay: number, id: string, url: string, title: string): FixtureEven
   event: { type: "source-url", sourceId: id, url, title },
 });
 
-export function buildFixture(app: string): FixtureEvent[] {
+export function buildFixture(app: string, config: { model?: string; max_pages?: number; probe_console?: boolean } = {}): FixtureEvent[] {
   n = 0;
   const g: Guide = { ...guide, guide_type: "generated" };
   return [
@@ -90,6 +90,24 @@ export function buildFixture(app: string): FixtureEvent[] {
     {
       delay: 200,
       event: { type: "data-guide", id: "guide", data: { slug: g.slug, permalink: `/guides/${g.slug}`, guide: g, replay: true } },
+    },
+    {
+      delay: 50,
+      event: {
+        type: "data-run-stats",
+        id: "run-stats",
+        data: {
+          run_id: "run-dev-1",
+          app,
+          mode: "fake",
+          total_seconds: 14.8,
+          llm: { calls: 11, failed_calls: 1, input_tokens: 41230, output_tokens: 6120 },
+          config: { model: config.model ?? "meta-llama/llama-3.3-70b-instruct:free", max_pages: config.max_pages ?? 5, probe_console: config.probe_console ?? true },
+          pages_fetched: 4,
+          quotes_checked: 17,
+          cost_usd: 0,
+        },
+      },
     },
     { delay: 50, event: { type: "finish" } },
     { delay: 10, event: "[DONE]" },

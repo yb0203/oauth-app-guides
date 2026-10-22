@@ -160,3 +160,8 @@ async def with_heartbeat(source: AsyncIterator[str], interval: float | None = No
             pending = asyncio.ensure_future(it.__anext__())
     finally:
         pending.cancel()
+
+
+def run_stats(data: dict) -> str:
+    """Performance and cost numbers for the run, sent right before `finish` (CONTRACT §4 item 8)."""
+    return sse({"type": "data-run-stats", "id": "run-stats", "data": data})

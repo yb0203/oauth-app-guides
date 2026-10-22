@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+from dataclasses import dataclass
 import logging
 import os
 import re
@@ -16,11 +17,13 @@ import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from urllib.parse import urlparse
 
-from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, store, stream, synthesize
+from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, settings, store, stream, synthesize
 from .fetch import Page, fetch_page
 from .llm import LLM, LLMError, has_key
 from .models import Composio, Evidence, Fact, Guide, Source, WallProbe, iter_evidence
 from .research import VerifiedClaim
+from .runstats import RunStats
+from .settings import GenerateConfig
 
 log = logging.getLogger("pipeline")
 # A run must fit a 300 s serverless limit: LLM work stops by LLM_BUDGET_S, and the run as a whole by RUN_TIMEOUT_S.
@@ -43,46 +46,64 @@ def _host(url: str) -> str:
     return (urlparse(url).hostname or "").removeprefix("www.")
 
 
+@dataclass
+class Run:
+    """Per-run state shared with the stage generator, so the wrapper can report stats on every path."""
+
+    config: GenerateConfig
+    stats: RunStats
+    llm: LLM | None = None
+
+
 async def run_pipeline(
-    app: str, *, llm: LLM | None = None,
+    app: str, *, llm: LLM | None = None, config: GenerateConfig | None = None,
     searcher: docsearch.Searcher = docsearch.ddgs_search,
     fetcher: Callable[[str], Awaitable[Page]] = fetch_page,
     prober: Callable[[str], Awaitable[WallProbe]] = probe.probe_console,
 ) -> AsyncIterator[str]:
-    yield stream.start(str(uuid.uuid4()))
+    cfg = config or settings.resolve_config(None)
+    run = Run(cfg, RunStats(app, "live", cfg.as_dict()), llm)
+    watch = run.stats.watch
+    yield stream.start(run.stats.run_id)
+    yield stream.text(cfg.describe())
     current = "resolve"
     try:
         async with asyncio.timeout(RUN_TIMEOUT_S):
-            async for ev in _run(app, llm, searcher, fetcher, prober):
+            async for ev in _run(app, run, searcher, fetcher, prober):
                 if isinstance(ev, tuple):  # ("stage", name) bookkeeping so errors land on the right stage
                     current = ev[1]
                 else:
-                    yield ev
+                    yield watch(ev)
     except PipelineError as exc:
         yield stream.error(str(exc))
-        yield stream.stage(exc.stage, "error", detail=str(exc))
+        yield watch(stream.stage(exc.stage, "error", detail=str(exc)))
     except LLMError as exc:
         yield stream.error(f"The language model could not produce a valid result: {exc}")
-        yield stream.stage(current, "error", detail=str(exc))
+        yield watch(stream.stage(current, "error", detail=str(exc)))
     except TimeoutError:
         yield stream.error(f"The run took longer than {RUN_TIMEOUT_S:.0f} seconds and was stopped.")
-        yield stream.stage(current, "error", detail="timed out")
+        yield watch(stream.stage(current, "error", detail="timed out"))
     except Exception as exc:  # never leave the client hanging
         log.exception("pipeline failed")
         yield stream.error(f"Unexpected error: {type(exc).__name__}: {exc}")
-        yield stream.stage(current, "error", detail=type(exc).__name__)
+        yield watch(stream.stage(current, "error", detail=type(exc).__name__))
+    data = run.stats.to_dict(list(getattr(run.llm, "call_log", [])))
+    run.stats.log_line(data)
+    yield stream.run_stats(data)
     yield stream.finish()
     yield stream.DONE
 
 
-async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple]:
+async def _run(app, run: Run, searcher, fetcher, prober) -> AsyncIterator[str | tuple]:
     """Yields SSE strings, plus ("stage", name) markers so failures are attributed to the right stage."""
     today = dt.date.today().isoformat()
     started = time.monotonic()
-    if llm is None:
+    cfg, stats = run.config, run.stats
+    if run.llm is None:
         if not has_key():
             raise PipelineError("resolve", "OPENROUTER_API_KEY is not set; set it or use LLM_MODE=fake.")
-        llm = LLM()
+        run.llm = LLM(cfg.model, cfg.fallback_model)
+    llm = run.llm
 
     # 1. resolve ------------------------------------------------------------------------------------
     yield ("stage", "resolve")
@@ -111,7 +132,9 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     yield stream.stage("find_docs", "running")
     typed = [app.strip()] if re.match(r"^(https?://)?[\w-]+(\.[\w-]+)+(/.*)?$", app.strip()) else []
     official = domains.official_domains(slug, name, typed)  # a URL the user typed is the vendor's own domain
-    pages, rejected = await docsearch.find_docs(name, slug, search=searcher, fetch=fetcher, domains=official or None)
+    pages, rejected = await docsearch.find_docs(name, slug, search=searcher, fetch=fetcher, domains=official or None,
+                                                max_pages=cfg.max_pages)
+    stats.pages_fetched = len(pages) + len(rejected)
     if not pages:
         raise PipelineError("find_docs", f"Couldn't find current docs pages about OAuth apps for {name}.")
     sources: list[Source] = []
@@ -152,6 +175,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
         if extracted.console_url:
             console_urls.append(extracted.console_url)
         good = research.verify_claims(sid, page, extracted, start=len(claims) + 1)
+        stats.quotes_checked += len(extracted.claims)
         claims.extend(good)
         yield stream.text(f"{_host(page.final_url)}: {len(good)} of {len(extracted.claims)} claims have a quote "
                           "found on the page.")
@@ -178,7 +202,10 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
                   and domains.is_official(u, slug, name, official or None)]
     console_url = known or next(iter(from_pages + from_model), None)
     wall: WallProbe | None = None
-    if console_url:
+    if console_url and not cfg.probe_console:
+        yield stream.stage("probe", "skipped", detail="console probe turned off in settings")
+    elif console_url:
+        stats.pages_fetched += 1
         yield stream.stage("probe", "running", detail=console_url)
         wall = await prober(console_url)
         yield stream.wall(wall.model_dump(mode="json"))
@@ -228,6 +255,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     conflicts = evidence.find_conflicts(content)
     summary = evidence.verification_summary(content, conflicts)
     checked = summary.docs_verified + len(downgrades)
+    stats.quotes_checked += checked
     yield stream.verification(checked, summary.docs_verified, summary.docs_hidden,
                               len(downgrades), summary.total)
     yield stream.text(f"Verified {summary.docs_verified} of {checked} quotes on the live pages; "

@@ -116,7 +116,9 @@ def test_post_check_drops_citations_never_used_in_text_and_uncitable_facts():
     out = ask.post_check(g, raw("Only this [1].", [("1", "limits.0"), ("2", "steps.1")]))
     assert [c["marker"] for c in out.citations] == ["1"]
     out = ask.post_check(g, raw("Verdict has no evidence [1].", [("1", "verdict")]))
-    assert out.citations == [] and "[1]" not in out.text
+    # the verdict has no evidence of its own: it is cited via the best-matching fact that has real evidence, or not at all
+    assert all(c["label"] != "UNCERTAIN" and c["quote"] for c in out.citations)
+    assert bool(out.citations) == ("[1]" in out.text)
 
 
 def test_post_check_drops_actions_for_unknown_questions_or_options():
@@ -413,3 +415,43 @@ async def test_ask_endpoint_sends_heartbeats(client, monkeypatch):
     assert r.text.count(": ping") >= 2
     ev = stream.parse_sse(r.text)
     assert ev[-1] == "[DONE]" and any(isinstance(e, dict) and e["type"] == "data-answer-meta" for e in ev)
+
+
+# --- production bug: the real model reply shape (markers written as "[1]", refs to evidence-less facts) -----------
+
+REAL_SHAPE = ask.LLMAnswer(
+    covered=True,
+    answer_text=("Yes, you can avoid Google review if your app is used only inside your own Google Workspace "
+                 "organization by choosing Internal as the audience [1]. For External apps, review is required when "
+                 "you request sensitive scopes like gmail.send or restricted scopes like gmail.readonly [2]."),
+    citations=[ask.LLMCitation(marker="[1]", ref="variants.0"), ask.LLMCitation(marker="[2]", ref="review.trigger")],
+    actions=[ask.LLMAction(question_id="audience", option_id="internal"),
+             ask.LLMAction(question_id="audience", option_id="external"),
+             ask.LLMAction(question_id="capability", option_id="send"),
+             ask.LLMAction(question_id="capability", option_id="read")])
+
+
+async def test_bracketed_markers_and_evidence_less_refs_still_give_citations():
+    a = await ask.answer_question(guide("google-gmail"), "Can I avoid Google review?", {}, [], mode="live",
+                                  llm=FakeLLM(REAL_SHAPE))
+    assert re.findall(r"\[(\d+)\]", a.text) == ["1", "2"] and len(a.citations) == 2
+    assert a.citations[0]["fact"].startswith("An Internal app only works")  # backed by the fact that supports the variant
+    assert all(c["quote"] for c in a.citations)
+
+
+async def test_only_the_recommended_option_is_offered_not_all_four():
+    a = await ask.answer_question(guide("google-gmail"), "Can I avoid Google review?", {}, [], mode="live",
+                                  llm=FakeLLM(REAL_SHAPE))
+    assert [(x["question_id"], x["option_id"]) for x in a.actions] == [("audience", "internal")]
+
+
+async def test_actions_for_options_the_question_names_are_kept_up_to_two():
+    out = ask.LLMAnswer(covered=True, answer_text="Reading mail needs a restricted scope, so expect a security assessment.",
+                        citations=[], actions=[ask.LLMAction(question_id="capability", option_id="read"),
+                                               ask.LLMAction(question_id="capability", option_id="send"),
+                                               ask.LLMAction(question_id="audience", option_id="external"),
+                                               ask.LLMAction(question_id="audience", option_id="internal")])
+    a = await ask.answer_question(guide("google-gmail"), "What if my agent needs to read email for outside customers?", {},
+                                  [], mode="live", llm=FakeLLM(out))
+    got = {(x["question_id"], x["option_id"]) for x in a.actions}
+    assert ("capability", "read") in got and ("capability", "send") not in got and len(got) <= 2

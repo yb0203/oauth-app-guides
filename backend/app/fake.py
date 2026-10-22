@@ -19,7 +19,9 @@ from functools import partial
 from functools import lru_cache
 from urllib.parse import urlparse
 
-from . import config, store, stream
+from . import config, settings, store, stream
+from .runstats import RunStats
+from .settings import GenerateConfig
 from .models import Guide, iter_evidence
 
 ERROR_INPUT = "!error"
@@ -84,8 +86,7 @@ def _wall_line(wall: dict) -> str:
 _stage = partial(stream.stage, replay=True)  # every fake stage event is labelled as a replay
 
 
-async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str]:
-    speed = _default_speed() if speed is None else speed
+async def _events(app: str, speed: float, cfg: GenerateConfig) -> AsyncIterator[str]:
 
     async def pause(seconds: float) -> None:
         await asyncio.sleep(seconds * speed)
@@ -93,6 +94,7 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
     res = _resolve(app)
     yield stream.start(f"fake-{uuid.uuid4().hex[:12]}")
     yield stream.text(f"Demo replay: recorded GitHub run, not research for {res.name}")
+    yield stream.text(f"{cfg.describe()} (settings echoed; the replay doesn't use them)")
 
     # 1. resolve
     yield _stage("resolve", "running")
@@ -197,3 +199,13 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
     yield _stage("publish", "done", detail=f"/guides/{res.slug}")
     yield stream.finish()
     yield stream.DONE
+
+
+async def fake_run(app: str, *, speed: float | None = None, config: GenerateConfig | None = None) -> AsyncIterator[str]:
+    """The recorded run plus the stats part, so the client sees the same event shapes as a live run."""
+    cfg = config or settings.resolve_config(None)
+    stats = RunStats(app, "fake", cfg.as_dict())
+    async for chunk in _events(app, _default_speed() if speed is None else speed, cfg):
+        if chunk.startswith('data: {"type":"finish"'):
+            yield stream.run_stats(stats.to_dict([]))
+        yield stats.watch(chunk)

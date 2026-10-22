@@ -31,6 +31,7 @@ export function RunSummary({
   elapsedMs,
   latest,
   replay = false,
+  settings,
   stageElapsedMs = 0,
   onStop,
   onRestart,
@@ -44,6 +45,8 @@ export function RunSummary({
   latest?: string;
   /** recorded demo run: say so instead of claiming research for `app` */
   replay?: boolean;
+  /** effective model and settings: static text while running, an editor once the run has ended */
+  settings?: React.ReactNode;
   /** how long the current stage has been running, to explain quiet stretches */
   stageElapsedMs?: number;
   onStop: () => void;
@@ -149,6 +152,8 @@ export function RunSummary({
           )}
         </div>
       </div>
+
+      {settings && <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 print:hidden">{settings}</div>}
 
       <div className="mt-4">
         <div

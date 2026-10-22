@@ -7,6 +7,9 @@ import { ChevronDownIcon } from "lucide-react";
 import { GuideView } from "@/components/guide/GuideView";
 import { GENERATE_URL } from "@/lib/api";
 import { apiFetch, ApiError } from "@/lib/http-error";
+import { configToBody, configToQuery, type GenConfig, type ModelsInfo } from "@/lib/models";
+import { RunStatsLine } from "./RunStatsLine";
+import { configSummary, SettingsPopover } from "./SettingsPopover";
 import { deriveRun, type GenerateMessage } from "@/lib/chat-types";
 import { cn } from "@/lib/utils";
 import { STAGE_ORDER, type StageData, type StageId, type VerificationProgress } from "@/types/guide";
@@ -44,15 +47,33 @@ function runProgress(stages: Partial<Record<StageId, StageData>>, v: Verificatio
 }
 
 /** One run of the generation. Remount (new key) to start a fresh run. */
-function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void }) {
+function GenerateRun({
+  app,
+  config: initialConfig,
+  models,
+  onRestart,
+  onBadModel,
+  onConfigChange,
+}: {
+  app: string;
+  config: GenConfig;
+  models: ModelsInfo | null;
+  onRestart: () => void;
+  /** the backend rejected the model in the request (HTTP 400): parent falls back to the default and re-runs */
+  onBadModel: () => void;
+  /** settings edited after the run: they apply to the next run */
+  onConfigChange: (c: GenConfig) => void;
+}) {
+  // Frozen per run: changing settings afterwards must not touch a run in flight or rebuild its transport.
+  const [config] = useState(initialConfig);
   const transport = useMemo(
     () =>
       new DefaultChatTransport<GenerateMessage>({
         api: GENERATE_URL,
         fetch: apiFetch("guides"),
-        prepareSendMessagesRequest: () => ({ body: { app } }),
+        prepareSendMessagesRequest: () => ({ body: { app, config: configToBody(config) } }),
       }),
-    [app],
+    [app, config],
   );
 
   // Client-side timestamps: the stream carries no timing, so note when each stage is first seen
@@ -93,6 +114,12 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
     }, 0);
     return () => clearTimeout(t);
   }, [app, sendMessage]);
+
+  // Stale link or removed model: the backend answers 400. Fall back to the default model once, with a notice.
+  const badModel = error instanceof ApiError && error.status === 400 && Boolean(config.model);
+  useEffect(() => {
+    if (badModel) onBadModel();
+  }, [badModel, onBadModel]);
 
   const run = useMemo(() => deriveRun(messages), [messages]);
 
@@ -160,6 +187,13 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
     "The run ended without producing a guide.";
 
   const replay = run.replay;
+  // What the run actually used: the backend's report when it sent one, otherwise what we asked for.
+  const sc = run.stats?.config;
+  const effective: GenConfig = {
+    model: sc?.model ?? config.model,
+    pages: sc?.max_pages ?? config.pages,
+    probe: sc?.probe_console ?? config.probe,
+  };
   // A replay is always the recorded GitHub run; keep the heading on what the user asked for.
   const name = replay ? app : (run.guide?.guide.app_name ?? app);
   const currentStage =
@@ -182,6 +216,13 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
         elapsedMs={elapsedMs}
         latest={latest}
         replay={replay}
+        settings={
+          running ? (
+            <span className="text-xs text-muted-foreground">{configSummary(effective, models)}</span>
+          ) : (
+            <SettingsPopover value={effective} onChange={onConfigChange} models={models} className="bg-background" />
+          )
+        }
         stageElapsedMs={currentStage && viewStages[currentStage]?.status === "running" && timings[currentStage] ? now - timings[currentStage]!.start : 0}
         onStop={() => {
           setStopped(true);
@@ -192,6 +233,8 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
       />
 
       {replay && <ReplayBanner app={name} />}
+
+      {run.stats && state !== "running" && <RunStatsLine stats={run.stats} className="mt-4" />}
 
       {(state === "failed" || state === "stopped") && (
         <div className="mt-6">
@@ -289,7 +332,58 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
   );
 }
 
-export function GenerateView({ app }: { app: string }) {
+export function GenerateView({ app, initialConfig, models }: { app: string; initialConfig: GenConfig; models: ModelsInfo | null }) {
   const [runId, setRunId] = useState(0);
-  return <GenerateRun key={`${app}:${runId}`} app={app} onRestart={() => setRunId((n) => n + 1)} />;
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // A model that is not on the allow-list (stale URL) is dropped up front, with a notice.
+  const [config, setConfig] = useState<GenConfig>(() => {
+    if (models && initialConfig.model && !models.models.some((m) => m.id === initialConfig.model)) return { ...initialConfig, model: undefined };
+    return initialConfig;
+  });
+  const [startedWith] = useState(() => (models && initialConfig.model && !models.models.some((m) => m.id === initialConfig.model) ? initialConfig.model : null));
+  const noticeText = notice ?? (startedWith ? `The model in this link (${startedWith}) isn't available. Using the default model instead.` : null);
+
+  // The URL mirrors the settings, so a run can be shared and reproduced. Passive: keeps Next's history state.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    for (const [k, v] of Object.entries({ model: "", ...configToQuery(config) })) {
+      if (v) url.searchParams.set(k, v);
+      else url.searchParams.delete(k);
+    }
+    window.history.replaceState(window.history.state, "", url);
+  }, [config]);
+
+  const onBadModel = useMemo(
+    () => () => {
+      setNotice(`The model in this link (${config.model}) was rejected by the server. Using the default model instead.`);
+      setConfig((c) => ({ ...c, model: undefined }));
+      setRunId((n) => n + 1);
+    },
+    [config.model],
+  );
+
+  return (
+    <>
+      {noticeText && (
+        <div className="mx-auto w-full max-w-[1200px] px-4 pt-6 sm:px-6">
+          <div role="status" className="flex items-start justify-between gap-3 rounded-lg border border-warning-border bg-warning-soft px-3 py-2 text-sm text-warning">
+            <span>{noticeText}</span>
+            <button type="button" onClick={() => setNotice("")} className="shrink-0 cursor-pointer text-xs underline underline-offset-2">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+      <GenerateRun
+        key={`${app}:${runId}`}
+        app={app}
+        config={config}
+        models={models}
+        onRestart={() => setRunId((n) => n + 1)}
+        onBadModel={onBadModel}
+        onConfigChange={setConfig}
+      />
+    </>
+  );
 }

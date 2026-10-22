@@ -1,4 +1,5 @@
 import { getCatalog } from "@/lib/api";
+import { getModels } from "@/lib/models";
 import { CatalogList } from "@/components/home/CatalogList";
 import { StartForm } from "@/components/home/StartForm";
 import type { CatalogEntry } from "@/types/guide";
@@ -8,11 +9,13 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   let catalog: CatalogEntry[] = [];
   let error: string | null = null;
+  const modelsPromise = getModels();
   try {
     catalog = await getCatalog();
   } catch (e) {
     error = e instanceof Error ? e.message : "Backend unreachable";
   }
+  const models = await modelsPromise;
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 pt-12 pb-16 sm:px-6">
@@ -25,7 +28,7 @@ export default async function Home() {
           the wait, the cost, and the evidence for each claim. Missing an app? An agent writes the guide live.
         </p>
         <div className="mt-6">
-          <StartForm catalog={catalog} />
+          <StartForm catalog={catalog} models={models} />
         </div>
       </section>
 
