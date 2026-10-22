@@ -1,6 +1,6 @@
 # OAuth App Guides: verified setup and approval paths for agent builders
 
-**Live app:** https://oauth-guides-web.vercel.app · **API:** https://oauth-guides-api.vercel.app/api/health
+**Live app:** https://oauth-guides-web.vercel.app · **API:** https://oauth-guides-api.vercel.app/api/health · **Source:** https://github.com/yb0203/oauth-app-guides
 **Try:** open a curated guide ([Gmail](https://oauth-guides-web.vercel.app/guides/google-gmail)), toggle "Your situation", ask the guide a question, or type any app on the home page and watch the agent research it live.
 
 ## The problem, as we understood it
