@@ -110,6 +110,8 @@
   .idea { border: 1px solid var(--line); border-radius: 9px; padding: 3mm 3.5mm; margin-bottom: 3mm; }
   .idea b { display: block; font-size: 10pt; margin-bottom: .5mm; }
   .idea span { font-size: 9pt; color: var(--body); line-height: 1.45; display: block; }
+  .lims td:first-child { width: 26%; font-weight: 700; color: var(--ink); }
+  .lims td:nth-child(2) { width: 40%; }
 </style>
 </head>
 <body>
@@ -335,12 +337,27 @@
       </ul>
     </div>
   </div>
-  <div class="box soft">
-    <h3>Known limitations</h3>
-    <p style="font-size:10pt">Anything behind a console login can't be verified and is marked UNCERTAIN. Links to generated guides can expire when the server restarts; curated guides are permanent. Production has no headless browser, so pages that render only with JavaScript may show as UNCERTAIN there. Free models sometimes miss numeric caps. Full detail is in the README and the verification report.</p>
-  </div>
 </div>
 
+
+
+<!-- LIMITATIONS -->
+<div class="page">
+  <div class="kicker">Limitations</div>
+  <h2>What doesn't work perfectly yet</h2>
+  <p class="lead">Each limitation in plain words, what it means for you, and what softens it today.</p>
+  <table class="lims">
+    <tr><th>Limitation</th><th>What it means for you</th><th>What helps today</th></tr>
+    <tr><td>Console forms are behind a login</td><td>We can't see the real sign-up forms, so exact field names and logo rules aren't verified.</td><td>Marked “check on first sign-in”. Everything else is checked against public docs.</td></tr>
+    <tr><td>Generated guide links can expire</td><td>A link to a guide you just generated may stop working after the server restarts.</td><td>The five curated guides are permanent. Use Export Markdown to keep a copy.</td></tr>
+    <tr><td>Some docs need a browser to load</td><td>Docs pages built with JavaScript can't be read on the live server, so those facts may show as Uncertain.</td><td>They work when run locally with a browser installed.</td></tr>
+    <tr><td>Free models can miss numbers</td><td>A generated guide may leave out a specific limit, such as Gmail's 100-user cap.</td><td>Curated guides include them. A paid model is an option (about $0.03 a guide).</td></tr>
+    <tr><td>Difficulty can read stricter than it is</td><td>If any common path needs review, the tier says “Review required”, even when the basic path doesn't.</td><td>The summary and the “Your situation” toggles explain the difference.</td></tr>
+    <tr><td>Generation takes about a minute</td><td>Free models are slower and rate-limited, up to 30 runs per person every 10 minutes.</td><td>Live progress is shown throughout. Finished guides load instantly.</td></tr>
+    <tr><td>Progress can occasionally go quiet</td><td>Twice in testing, live updates stopped while the server carried on.</td><td>The page now checks the run's status and loads the finished guide anyway.</td></tr>
+    <tr><td>Rules change</td><td>Providers changed their OAuth rules several times in 2026.</td><td>Every guide shows its “last verified” date.</td></tr>
+  </table>
+</div>
 
 <!-- 10. FUTURE -->
 <div class="page">

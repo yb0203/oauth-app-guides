@@ -130,14 +130,16 @@ Full details are in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 
 ## Limitations
 
-- Generation takes about 1 to 1.5 minutes. Rarely, a run ends in a clearly labeled fallback draft rather than hanging.
-- On production we twice saw the progress stream to the browser go silent while the run kept going on the server (Asana). The root cause is unproven. The stream is now exception-proof, and the page recovers by polling the run status and loading the published guide.
-- Only free models are offered in the demo. The server rejects any model not on its free allow-list.
-- Tier rules lean cautious. When any common path needs review, the tier says "Review required" even if the basic path doesn't (Dropbox: a standard app is self-serve, but Dropbox Sign workflows need review). The summary and the situation toggles explain the difference.
-- Production runs on Vercel's Python runtime, which has no Chromium. Docs that render only with JavaScript, and sign-in redirects done in JavaScript, may show as UNCERTAIN there; they work locally with Playwright installed.
-- Generated guides live in the function's temporary storage, so a **permalink to a generated guide can expire** on a cold start. Curated guides are permanent.
-- Free-model rate limits apply (about 20 requests per minute shared), and generations are limited to 30 per IP per 10 minutes.
-- The free models sometimes miss numeric caps (Gmail's 100-user limits); curated guides include them. Every guide is true only as of its "last verified" date.
+| Limitation | What it means for you | What helps today |
+|---|---|---|
+| **Console forms are behind a login** | We can't see the real sign-up forms, so exact field names and logo rules aren't verified. | Marked “check on first sign-in”. Everything else is checked against public docs. |
+| **Generated guide links can expire** | A link to a guide you just generated may stop working after the server restarts. | The five curated guides are permanent. Use Export Markdown to keep a copy. |
+| **Some docs need a browser to load** | Docs pages built with JavaScript can't be read on the live server, so those facts may show as Uncertain. | They work when run locally with a browser installed. |
+| **Free models can miss numbers** | A generated guide may leave out a specific limit, such as Gmail's 100-user cap. | Curated guides include them. A paid model is an option (about $0.03 a guide). |
+| **Difficulty can read stricter than it is** | If any common path needs review, the tier says “Review required”, even when the basic path doesn't. | The summary and the “Your situation” toggles explain the difference. |
+| **Generation takes about a minute** | Free models are slower and rate-limited, up to 30 runs per person every 10 minutes. | Live progress is shown throughout. Finished guides load instantly. |
+| **Progress can occasionally go quiet** | Twice in testing, live updates stopped while the server carried on. | The page now checks the run's status and loads the finished guide anyway. |
+| **Rules change** | Providers changed their OAuth rules several times in 2026. | Every guide shows its “last verified” date. |
 
 ## Where this could go next
 
