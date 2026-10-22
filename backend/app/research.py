@@ -34,7 +34,8 @@ costs), customer_gate (admin consent or org restrictions on the customer side), 
 wait_time (how long review takes), other.
 - oauth_supported: true if the page shows OAuth 2.0 for third-party access, false if it says the API only uses API \
 keys or has no third-party OAuth, null if unclear.
-- console_url: the https URL where developers create the app, only if the page gives it, else null.
+- console_url: the https URL of the provider's developer console or app-management page where developers create \
+and manage their OAuth app, only if this page names or links it; otherwise null.
 - Return at most 14 claims, the most useful for someone setting this up."""
 
 EXTRACT_TIMEOUT_S = 45.0

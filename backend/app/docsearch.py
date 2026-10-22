@@ -7,6 +7,7 @@ import re
 from collections.abc import Awaitable, Callable
 from urllib.parse import urlparse
 
+from .domains import host_of, is_official, official_domains, registrable
 from .fetch import Page, fetch_page
 
 # Docs domains for the apps researched by hand; everything else is found by search and ranked.
@@ -55,7 +56,7 @@ def score_url(url: str, slug: str, name: str, domains: list[str]) -> int:
     host = (parsed.hostname or "").lower()
     token = re.sub(r"[^a-z0-9]", "", slug.split("_")[0].lower())
     score = 0
-    if any(host == d or host.endswith("." + d) for d in domains):
+    if any(host == d or host.endswith("." + d) for d in domains) or is_official(url, slug, name, domains):
         score += 6
     if token and token in re.sub(r"[^a-z0-9]", "", host):
         score += 3
@@ -80,50 +81,84 @@ def covers_topic(page: Page, name: str) -> bool:
     )
 
 
-async def find_docs(
-    name: str, slug: str, *, search: Searcher = ddgs_search, fetch: Callable[[str], Awaitable[Page]] = fetch_page,
-    max_pages: int = 5, domains: list[str] | None = None,
-) -> tuple[list[Page], list[str]]:
-    """Returns (pages that cover the topic, urls that were tried and rejected)."""
-    domains = DOC_DOMAINS.get(slug, []) if domains is None else domains
-    found: dict[str, dict] = {}
-    for q in queries_for(name, domains):
+MIN_OFFICIAL = 2
+
+
+def official_queries(name: str, domains: list[str]) -> list[str]:
+    """Queries restricted to the provider's own domains: registration, the app console, authorization, review."""
+    sites = " OR ".join(f"site:{d}" for d in domains[:4])
+    return [f"{name} {topic} ({sites})" for topic in (
+        "OAuth app register client id redirect URI", "developer app console", "API authorization",
+        "app review approval limits")]
+
+
+async def _collect(search: Searcher, queries: list[str], found: dict[str, dict], enough: int = 14) -> None:
+    for q in queries:
         for r in await asyncio.to_thread(search, q, 8):
             found.setdefault(r["href"].split("#")[0], r)
-        if len(found) >= 12:
-            break
-    token = re.sub(r"[^a-z0-9]", "", slug.split("_")[0].lower())
-    def official(u: str) -> bool:
-        h = _host(u)
-        return token in re.sub(r"[^a-z0-9]", "", h) and bool(re.match(r"(docs|developers?|dev|api)\.", h)) or any(
-            h == d or h.endswith("." + d) for d in domains)
+        if len(found) >= enough:
+            return
 
-    if token and not any(official(u) for u in found):
-        # nothing from the provider itself: retry restricted to its likely developer domains
-        guess = [f"developers.{token}.com", f"developer.{token}.com", f"docs.{token}.com", f"{token}.com"]
-        for q in queries_for(name, guess)[:2]:
-            for r in await asyncio.to_thread(search, q, 8):
-                found.setdefault(r["href"].split("#")[0], r)
-        domains = [*domains, *guess]
-    ranked = sorted((u for u in found if not VERSIONED.search(u)), key=lambda u: -score_url(u, slug, name, domains))[
-        : max_pages + 3]
+
+async def discover_official(name: str, slug: str, search: Searcher) -> list[str]:
+    """For a provider we have no domains for: the registrable domains of search results whose name contains the
+    provider token (todoist.com for "Todoist"). Cheap and deterministic; the model has no say."""
+    found: dict[str, dict] = {}
+    await _collect(search, [f"{name} API developer documentation", f"{name} OAuth developer app"], found, enough=16)
+    counts: dict[str, int] = {}
+    for url in found:
+        if is_official(url, slug, name, []):
+            counts[registrable(host_of(url))] = counts.get(registrable(host_of(url)), 0) + 1
+    return [d for d, _ in sorted(counts.items(), key=lambda kv: -kv[1])[:2]]
+
+
+async def find_docs(
+    name: str, slug: str, *, search: Searcher = ddgs_search, fetch: Callable[[str], Awaitable[Page]] = fetch_page,
+    max_pages: int = 5, domains: list[str] | None = None, extra_domains: list[str] | None = None,
+) -> tuple[list[Page], list[str]]:
+    """Official developer docs first; third-party pages only when fewer than MIN_OFFICIAL official ones cover the
+    topic. Returns (pages that cover the topic, urls that were tried and rejected)."""
+    official = list(domains) if domains is not None else official_domains(slug, name, extra_domains)
+    if not official:
+        official = await discover_official(name, slug, search)
     sem = asyncio.Semaphore(4)
 
-    async def one(url: str) -> Page:
-        async with sem:
-            return await fetch(url)
+    async def fetch_all(urls: list[str]) -> list[Page]:
+        async def one(url: str) -> Page:
+            async with sem:
+                return await fetch(url)
 
-    pages = await asyncio.gather(*(one(u) for u in ranked))
+        return list(await asyncio.gather(*(one(u) for u in urls)))
+
+    def ranked(found: dict[str, dict], keep) -> list[str]:
+        urls = [u for u in found if not VERSIONED.search(u) and keep(u)]
+        return sorted(urls, key=lambda u: -score_url(u, slug, name, official))[: max_pages + 3]
+
     good: list[Page] = []
     rejected: list[str] = []
     seen: set[str] = set()
-    for page in pages:
-        key = page.final_url.split("#")[0]
-        if key in seen:
-            continue
-        seen.add(key)
-        if len(good) < max_pages and covers_topic(page, name):
-            good.append(page)
-        else:
-            rejected.append(page.requested_url)
+
+    def triage(pages: list[Page], want_official: bool, limit: int) -> None:
+        for page in pages:
+            key = page.final_url.split("#")[0]
+            if key in seen:
+                continue
+            seen.add(key)
+            ok = covers_topic(page, name) and is_official(page.final_url, slug, name, official) == want_official
+            if ok and limit > 0:
+                good.append(page)
+                limit -= 1
+            else:
+                rejected.append(page.requested_url)
+
+    if official:
+        found: dict[str, dict] = {}
+        await _collect(search, official_queries(name, DOC_DOMAINS.get(slug) or official), found)
+        triage(await fetch_all(ranked(found, lambda u: True)), True, max_pages)
+    n_official = len(good)
+    if n_official < MIN_OFFICIAL:  # top up with third-party pages, but never more than three of them
+        found = {}
+        await _collect(search, queries_for(name, []), found)
+        pool = ranked(found, lambda u: is_official(u, slug, name, official) == False and u.split("#")[0] not in seen)  # noqa: E712
+        triage(await fetch_all(pool), False, min(3, max_pages - n_official))
     return good, rejected

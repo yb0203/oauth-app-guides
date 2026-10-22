@@ -10,12 +10,13 @@ import asyncio
 import datetime as dt
 import logging
 import os
+import re
 import time
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from urllib.parse import urlparse
 
-from . import catalog, config, docsearch, evidence, probe, research, store, stream, synthesize
+from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, store, stream, synthesize
 from .fetch import Page, fetch_page
 from pydantic import ValidationError
 
@@ -38,17 +39,6 @@ class PipelineError(Exception):
 
 def _host(url: str) -> str:
     return (urlparse(url).hostname or "").removeprefix("www.")
-
-
-def source_kind(url: str, slug: str) -> str:
-    host = _host(url)
-    token = "".join(ch for ch in slug.split("_")[0] if ch.isalnum())
-    if host.endswith("composio.dev"):
-        return "composio_docs"
-    if any(host.endswith(c) for c in docsearch.COMMUNITY_HOSTS):
-        return "community"
-    return "official_docs" if token and token in host.replace("-", "").replace(".", "") or any(
-        host == d or host.endswith("." + d) for d in docsearch.DOC_DOMAINS.get(slug, [])) else "community"
 
 
 async def run_pipeline(
@@ -117,7 +107,9 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     # 2. find docs ----------------------------------------------------------------------------------
     yield ("stage", "find_docs")
     yield stream.stage("find_docs", "running")
-    pages, rejected = await docsearch.find_docs(name, slug, search=searcher, fetch=fetcher)
+    typed = [app.strip()] if re.match(r"^(https?://)?[\w-]+(\.[\w-]+)+(/.*)?$", app.strip()) else []
+    official = domains.official_domains(slug, name, typed)  # a URL the user typed is the vendor's own domain
+    pages, rejected = await docsearch.find_docs(name, slug, search=searcher, fetch=fetcher, domains=official or None)
     if not pages:
         raise PipelineError("find_docs", f"Couldn't find current docs pages about OAuth apps for {name}.")
     sources: list[Source] = []
@@ -126,7 +118,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
         sid = f"s{i}"
         page_by_id[sid] = page
         sources.append(Source(id=sid, url=page.final_url, title=page.title or page.final_url, accessed=today,
-                              kind=source_kind(page.final_url, slug)))
+                              kind=domains.source_kind(page.final_url, slug, name, official or None)))
     hosts = ", ".join(sorted({_host(p.final_url) for p in pages}))
     yield stream.text(f"Found {len(pages)} docs pages ({hosts}); rejected {len(rejected)} that don't cover the topic.")
     yield stream.stage("find_docs", "done", counts={"pages": len(pages), "rejected": len(rejected)})
@@ -178,8 +170,10 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
 
     # 4. probe the sign-in wall ---------------------------------------------------------------------
     yield ("stage", "probe")
-    console_url = probe.KNOWN_CONSOLES.get(slug) or probe.KNOWN_CONSOLES.get(slug.split("_")[0]) or next(
-        (u for u in console_urls if u.startswith("https://")), None)
+    known = probe.KNOWN_CONSOLES.get(slug) or probe.KNOWN_CONSOLES.get(slug.split("_")[0])
+    from_pages = [u for sid in sorted(used) for u in consoles.console_candidates(page_by_id[sid], slug, name, official or None)]
+    from_model = [u for u in console_urls if u.startswith("https://") and domains.is_official(u, slug, name, official or None)]
+    console_url = known or next(iter(from_pages + from_model), None)
     wall: WallProbe | None = None
     if console_url:
         yield stream.stage("probe", "running", detail=console_url)
@@ -189,12 +183,12 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
                           f"{' at ' + wall.wall_host if wall.wall_host else ''}. {wall.asks_for}")
         yield stream.stage("probe", "done", detail=wall.outcome)
     else:
-        yield stream.stage("probe", "skipped", detail="no developer console URL found")
+        yield stream.stage("probe", "skipped", detail="no developer console URL found in the docs pages")
 
     # 5. synthesize ---------------------------------------------------------------------------------
     yield ("stage", "synthesize")
     yield stream.stage("synthesize", "running")
-    src_titles = {s.id: s.title for s in sources}
+    src_titles = {s.id: f"{s.title} [{s.kind}]" for s in sources}
     deadline = started + LLM_BUDGET_S
     try:
         if deadline - time.monotonic() < 20:
@@ -223,7 +217,8 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     total = sum(1 for _ in iter_evidence(content))
     yield stream.verification(0, 0, 0, 0, total)
     page_text = {sid: evidence.PageText(visible=p.visible_text, hidden=p.hidden_text) for sid, p in page_by_id.items()}
-    downgrades = evidence.apply_verification(content, page_text)
+    kinds = {s.id: s.kind for s in sources}
+    downgrades = evidence.apply_verification(content, page_text, kinds)
     conflicts = evidence.find_conflicts(content)
     summary = evidence.verification_summary(content, conflicts)
     checked = summary.docs_verified + len(downgrades)

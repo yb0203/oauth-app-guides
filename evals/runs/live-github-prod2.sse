@@ -1,0 +1,122 @@
+data: {"type":"start","messageId":"58aaef7c-ed81-4e18-8acb-a4f7844948f1"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"dccfb3c5143c446f889f8e605c77218a"}
+
+data: {"type":"text-delta","id":"dccfb3c5143c446f889f8e605c77218a","delta":"Resolved GitHub to Composio toolkit github (MANAGED)."}
+
+data: {"type":"text-end","id":"dccfb3c5143c446f889f8e605c77218a"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"GitHub -> github","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+data: {"type":"text-start","id":"370be33bc20d4fde806560f7825b5057"}
+
+data: {"type":"text-delta","id":"370be33bc20d4fde806560f7825b5057","delta":"Found 5 docs pages (docs.github.com); rejected 3 that don't cover the topic."}
+
+data: {"type":"text-end","id":"370be33bc20d4fde806560f7825b5057"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":3}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"4435d397dd1e463b857b65c682c081f1"}
+
+data: {"type":"text-delta","id":"4435d397dd1e463b857b65c682c081f1","delta":"docs.github.com: 15 of 15 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"4435d397dd1e463b857b65c682c081f1"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app","title":"Creating an OAuth app - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":15}}}
+
+data: {"type":"text-start","id":"aaf0ae80e5094567aa67ca4890df352c"}
+
+data: {"type":"text-delta","id":"aaf0ae80e5094567aa67ca4890df352c","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"aaf0ae80e5094567aa67ca4890df352c"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/about-the-user-authorization-callback-url","title":"About the user authorization callback URL - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":29}}}
+
+data: {"type":"text-start","id":"919eebc35e494b1c90adc8b72501e5d7"}
+
+data: {"type":"text-delta","id":"919eebc35e494b1c90adc8b72501e5d7","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"919eebc35e494b1c90adc8b72501e5d7"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps","title":"Scopes for OAuth apps - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":43}}}
+
+data: {"type":"text-start","id":"e236272901b54aceac1eb58e3809c9ef"}
+
+data: {"type":"text-delta","id":"e236272901b54aceac1eb58e3809c9ef","delta":"docs.github.com: 15 of 15 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"e236272901b54aceac1eb58e3809c9ef"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps","title":"Authorizing OAuth apps - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":58}}}
+
+data: {"type":"text-start","id":"6fd51155d6294d7f8a765081f94fc750"}
+
+data: {"type":"text-delta","id":"6fd51155d6294d7f8a765081f94fc750","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"6fd51155d6294d7f8a765081f94fc750"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app","title":"Authenticating to the REST API with an OAuth app - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":72}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":5,"claims":72}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://github.com/settings/applications/new"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://github.com/settings/applications/new","final_url":"https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew","redirect_chain":["https://github.com/settings/applications/new","https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"],"outcome":"login_wall","wall_host":"github.com","asks_for":"Sign-in page at github.com","bot_check":false,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"ed4c3b24bd7144b38d57ff5cc1ca2e90"}
+
+data: {"type":"text-delta","id":"ed4c3b24bd7144b38d57ff5cc1ca2e90","delta":"Developer console probe: login wall at github.com. Sign-in page at github.com"}
+
+data: {"type":"text-end","id":"ed4c3b24bd7144b38d57ff5cc1ca2e90"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"login_wall"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+: ping
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","counts":{"llm_calls":6}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":26}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":19,"docs_verified":17,"hidden":0,"downgraded":2,"total":26}}
+
+data: {"type":"text-start","id":"c89172b07d424c86a840e7b0f44f65b6"}
+
+data: {"type":"text-delta","id":"c89172b07d424c86a840e7b0f44f65b6","delta":"Verified 17 of 19 quotes on the live pages; downgraded 2 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"c89172b07d424c86a840e7b0f44f65b6"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":19,"downgraded":2}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/github","counts":{"llm_calls":6}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"github","permalink":"/guides/github","guide":{"verdict":{"tier":"instant","summary":"Composio supplies the managed GitHub OAuth app, so you do not register or submit a separate GitHub OAuth app. Configure the managed connection, obtain user authorization, and test the required read or write operations.","effort_hours":{"min":0.5,"max":1.5},"calendar":{"min_days":0.0,"max_days":0.0,"label":"Same session; user authorization may be required"},"calendar_basis":"estimate","confidence":"low"},"situations":{"questions":[{"id":"q1","text":"Who will connect the GitHub account?","options":[{"id":"own_org","label":"Users in my organization"},{"id":"outside","label":"Users outside my organization"}]},{"id":"q2","text":"What must the agent do?","options":[{"id":"read","label":"Read public or accessible data"},{"id":"write","label":"Write repository data"}]}],"variants":[{"when":{"q1":"own_org","q2":"read"},"tier":"instant","summary":"Use Composio's managed GitHub connection with read-only scopes.","calendar_label":"Same session","notes":[]},{"when":{"q1":"own_org","q2":"write"},"tier":"instant","summary":"Use the managed connection and authorize the minimum repository write scope.","calendar_label":"Same session","notes":[]},{"when":{"q1":"outside","q2":"read"},"tier":"instant","summary":"Each outside user authorizes the managed GitHub connection for read access.","calendar_label":"User authorization required","notes":[]},{"when":{"q1":"outside","q2":"write"},"tier":"instant","summary":"Each outside user authorizes the managed GitHub connection for the required write access.","calendar_label":"User authorization required","notes":[]}]},"byo_advice":"Composio's managed app is enough for normal GitHub connections. Bring your own OAuth app only if you need client control or a GitHub OAuth registration that Composio does not provide.","before_you_start":[{"text":"The developer console needs a signed-in account: Sign-in page at github.com.","evidence":{"label":"TESTED","source_id":"s6","quote":null,"found_in":null,"note":"Our read-only probe on 2026-10-22 loaded https://github.com/settings/applications/new and ended at https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew (login wall)."}},{"text":"Use Composio's managed GitHub OAuth app instead of registering a separate provider app.","evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Based on the supplied Composio status; the supplied evidence does not describe the managed-app configuration UI."}},{"text":"GitHub OAuth apps use OAuth 2.0 and act on behalf of an authorizing user.","evidence":{"label":"DOCS","source_id":"s1","quote":"OAuth apps can only act on behalf of a user while GitHub Apps can either act on behalf of a user or independently of a user.","found_in":"visible","note":null}},{"text":"Request only the scopes needed for the agent's operations.","evidence":{"label":"DOCS","source_id":"s5","quote":"Scopes let you specify exactly what type of access you need. Scopes limit access for OAuth tokens.","found_in":"visible","note":null}}],"limits":[{"what":"OAuth apps owned","value":100.0,"unit":"OAuth apps","scope":"Per user or organization owner","evidence":{"label":"DOCS","source_id":"s1","quote":"A user or organization can own up to 100 OAuth apps.","found_in":"visible","note":null}},{"what":"Callback URLs","value":10.0,"unit":"callback URLs","scope":"Per OAuth app","evidence":{"label":"DOCS","source_id":"s1","quote":"You can enter up to 10 callback URLs.","found_in":"visible","note":null}},{"what":"OAuth access token lifetime","value":8.0,"unit":"hours","scope":"OAuth access token","evidence":{"label":"DOCS","source_id":"s4","quote":"The access token expires after eight hours, and the refresh token expires after six months without use.","found_in":"visible","note":null}},{"what":"Refresh token inactivity lifetime","value":6.0,"unit":"months","scope":"Refresh token","evidence":{"label":"DOCS","source_id":"s4","quote":"The access token expires after eight hours, and the refresh token expires after six months without use.","found_in":"visible","note":null}},{"what":"Issued tokens","value":10.0,"unit":"tokens","scope":"Per user, application, and scope combination","evidence":{"label":"DOCS","source_id":"s4","quote":"There is a limit of ten tokens that are issued per user/application/scope combination, and a rate limit of ten tokens created per hour.","found_in":"visible","note":null}},{"what":"Device-flow code validity","value":15.0,"unit":"minutes","scope":"Device-flow user verification code","evidence":{"label":"DOCS","source_id":"s4","quote":"The user must enter a valid code within 15 minutes (or 900 seconds).","found_in":"visible","note":null}}],"steps":[{"n":1,"title":"Choose the managed GitHub app","detail":"Configure a GitHub connection in Composio using the managed OAuth app; do not create a separate OAuth app for this integration.","actor":"agent","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The managed status is supplied, but the exact Composio controls are not documented in the claims."}},{"n":2,"title":"Set the authorization callback","detail":"Enter Composio's callback URL wherever the managed connection's authorization callback is configured.","actor":"agent","human_reason":null,"irreversible":false,"values":[{"label":"Authorization callback URL","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The supplied callback must be used, but the Composio UI location is not covered by the claims."}},{"n":3,"title":"Open the GitHub authorization flow","detail":"Start the Composio GitHub connection and send the user to GitHub for sign-in and authorization.","actor":"human","human_reason":"credential","irreversible":false,"values":[],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The sign-in observation confirms that GitHub can require authentication, while the managed Composio flow itself is not described."}},{"n":4,"title":"Authorize the required access","detail":"Have the user approve only the scopes required for read-only or repository-write operations. Handle the case where the user grants less access than requested.","actor":"human","human_reason":"credential","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s5","quote":"It's important to handle error cases where a user chooses to grant you less access than you originally requested.","found_in":"visible","note":null}},{"n":5,"title":"Test the connected account","detail":"Use Composio to perform a least-privilege read operation, then a write test only if write access was requested.","actor":"agent","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s3","quote":"When you use the web application flow to generate a user access token in order to act on behalf of a user","found_in":"visible","note":null}}],"review":{"required":"conditional","trigger":"A provider review is only potentially relevant if Composio later requires a BYO OAuth app or its managed GitHub policy changes.","submit":[],"reviewer":null,"wait_official":null,"wait_community":null,"cost":null,"evidence":[{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The supplied claims do not state whether GitHub reviews OAuth apps or identify any review wait for Composio's managed app."}]},"customer_gates":[{"text":"Each user must complete GitHub sign-in and authorization before the agent can act on that user's behalf.","evidence":{"label":"DOCS","source_id":"s3","quote":"When you use the web application flow to generate a user access token in order to act on behalf of a user","found_in":"visible","note":null}},{"text":"GitHub may return a 404 after authorization if the callback route is missing.","evidence":{"label":"DOCS","source_id":"s2","quote":"We didn't provide a route for it, so GitHub doesn't know where to drop the user after they authorize the app.","found_in":"visible","note":null}}],"gotchas":[{"text":"Do not enable wildcard callback matching unless required; it can expose authorization codes to unintended subdomains or subdirectories.","evidence":{"label":"DOCS","source_id":"s3","quote":"Enabling wildcard matching can expose your app to security risks, because it allows an attacker to send authorization codes to any subdomain or subdirectory of the callback URL.","found_in":"visible","note":null}},{"text":"The application must tolerate users granting fewer scopes than requested.","evidence":{"label":"DOCS","source_id":"s5","quote":"It's important to handle error cases where a user chooses to grant you less access than you originally requested.","found_in":"visible","note":null}},{"text":"An invalid or expired refresh token requires repeating the web or device authorization flow.","evidence":{"label":"UNCERTAIN","source_id":"s3","quote":null,"found_in":null,"note":"Downgraded from DOCS: quote not found on the source page. Original quote: \"To resolve this error, send the user through the web application flow or device flow again to get a new access token and refresh token.\"."}},{"text":"Do not expose the client secret in a web application.","evidence":{"label":"DOCS","source_id":"s2","quote":"You must include the client secret in your native application, however web applications should not leak this value.","found_in":"visible","note":null}},{"text":"Token expiration may be enabled by default until the authentication code supports short-lived tokens.","evidence":{"label":"DOCS","source_id":"s1","quote":"Expire user access tokens is enabled by default. If your app's authentication code hasn't been updated to support short-lived tokens, uncheck the box until support is added.","found_in":"visible","note":null}}],"blockers":[{"symptom":"GitHub registration opens a sign-in wall.","cause":"GitHub authentication is required before accessing OAuth app settings.","fix":"Sign in to GitHub and retry the intended setup flow.","evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The sign-in wall observation records the redirect to https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew."}},{"symptom":"Authorization succeeds but GitHub returns a 404.","cause":"The callback route is missing or the authorization callback is misconfigured.","fix":"Verify the route and configured authorization callback URL.","evidence":{"label":"DOCS","source_id":"s2","quote":"We didn't provide a route for it, so GitHub doesn't know where to drop the user after they authorize the app.","found_in":"visible","note":null}},{"symptom":"Token refresh stops working.","cause":"The refresh token is invalid or expired.","fix":"Send the user through the web or device authorization flow again.","evidence":{"label":"UNCERTAIN","source_id":"s3","quote":null,"found_in":null,"note":"Downgraded from DOCS: quote not found on the source page. Original quote: \"To resolve this error, send the user through the web application flow or device flow again to get a new access token and refresh token.\"."}}],"prepared":{"scopes":[{"scope":"no-scope","why":"Minimum read-only access to public profile, repository, and gist information when broader access is unnecessary.","review_class":"none"},{"scope":"public_repo","why":"Use when the agent must write public-repository data without requesting full private-repository access.","review_class":"sensitive"},{"scope":"repo","why":"Use only when the agent requires read and write access to public and private repositories.","review_class":"sensitive"}],"privacy_policy_outline":["State that the agent acts on behalf of the authorized GitHub user.","List the requested repository scopes and whether private repositories are accessed.","Explain token handling, connection removal, and data retention."],"consent_screen":{"connection":"GitHub","requested_scopes":"Show the exact read and write scopes selected for this agent.","authorization_effect":"Explain that the connection can act on behalf of the authorizing user.","revocation":"Provide a way for the user to disconnect or remove the GitHub connection."},"review_text":null},"open_questions":["The exact Composio controls for enabling the managed GitHub app and configuring its callback were not provided.","Whether GitHub or Composio performs any review for the managed app was not stated.","Whether GitHub requires additional approval for outside users or sensitive repository scopes was not stated.","The evidence does not confirm whether Composio's managed app currently uses expiring or long-lived user tokens."],"schema_version":"1","slug":"github","app_name":"GitHub","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"github","status":"managed","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":{"console_url":"https://github.com/settings/applications/new","final_url":"https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew","redirect_chain":["https://github.com/settings/applications/new","https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"],"outcome":"login_wall","wall_host":"github.com","asks_for":"Sign-in page at github.com","bot_check":false,"method":"http","observed_at":"2026-10-22"},"conflicts":[],"sources":[{"id":"s1","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app","title":"Creating an OAuth app - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s2","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app","title":"Authenticating to the REST API with an OAuth app - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s3","url":"https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/about-the-user-authorization-callback-url","title":"About the user authorization callback URL - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s4","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps","title":"Authorizing OAuth apps - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s5","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps","title":"Scopes for OAuth apps - GitHub Docs","accessed":"2026-10-22","kind":"official_docs"},{"id":"s6","url":"https://github.com/settings/applications/new","title":"Developer console sign-in wall probe","accessed":"2026-10-22","kind":"observation"}],"verification_summary":{"total":26,"tested":1,"docs_verified":17,"docs_hidden":0,"community":0,"uncertain":8}}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+

@@ -48,13 +48,24 @@ def _check(ev: Evidence, pages: dict[str, PageText]) -> str | None:
     return None
 
 
-def apply_verification(content: GuideContent, pages: dict[str, PageText]) -> list[Downgrade]:
-    """Verify DOCS (and quoted COMMUNITY) evidence in place; downgrade what can't be verified to UNCERTAIN."""
+OFFICIAL_KINDS = ("official_docs", "composio_docs")
+
+
+def apply_verification(content: GuideContent, pages: dict[str, PageText],
+                       source_kinds: dict[str, str] | None = None) -> list[Downgrade]:
+    """Verify DOCS (and quoted COMMUNITY) evidence in place; downgrade what can't be verified to UNCERTAIN.
+
+    With `source_kinds` (source_id -> kind), DOCS is reserved for official sources: a verified quote from a
+    third-party page is relabeled COMMUNITY, whatever the model wrote. The quote check still applies.
+    """
     downgrades: list[Downgrade] = []
     for location, ev in _located(content):
         if ev.label == "DOCS" or (ev.label == "COMMUNITY" and ev.quote):
             reason = _check(ev, pages)
             if reason is None:
+                if ev.label == "DOCS" and source_kinds is not None and source_kinds.get(ev.source_id or "") not in OFFICIAL_KINDS:
+                    ev.label = "COMMUNITY"
+                    ev.note = "Third-party page, not the provider's own docs. " + (ev.note or "")
                 continue
             downgrades.append(Downgrade(location, ev.source_id, ev.quote, reason))
             old_note = f" {ev.note}" if ev.note else ""

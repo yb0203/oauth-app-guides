@@ -165,3 +165,11 @@ async def test_probe_console_network_error_is_error(monkeypatch):
     monkeypatch.setattr(fetch, "fetch_with_browser", broken_browser)
     r = await probe.probe_console(url)
     assert r.outcome == "error" and "couldn't reach the console" in r.asks_for.lower()
+
+
+def test_js_shell_console_is_not_reported_as_open_without_a_caveat():
+    from app.probe import classify
+
+    r = classify("https://app.todoist.com/app/settings/integrations/app-management",
+                 "https://app.todoist.com/app/settings/integrations/app-management", 200, [], "Todoist")
+    assert r.outcome == "console_reachable" and "JavaScript" in r.asks_for and "could not be observed" in r.asks_for

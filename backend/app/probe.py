@@ -44,6 +44,9 @@ def classify(
         outcome, wall_host, asks = "login_wall", host, f"Sign-in page at {host}{bot_note}"
     elif _DENIED_TEXT.search(visible_text):
         outcome, asks = "blocked", f"Blocked by {host} (access denied){bot_note}"
+    elif len(visible_text.strip()) < 300:
+        outcome, asks = ("console_reachable", f"Page at {host} loaded but shows no readable content over plain HTTP "
+                         f"(a JavaScript app), so a sign-in prompt could not be observed{bot_note}")
     else:
         outcome, asks = "console_reachable", f"Console page at {host} loaded without a sign-in prompt{bot_note}"
 

@@ -138,3 +138,36 @@ def test_summary_recomputed_for_every_curated_guide():
         s = verification_summary(g, g.conflicts)
         assert s.model_dump() == raw["verification_summary"], f
         assert s.tested + s.docs_verified + s.community + s.uncertain == s.total
+
+
+def test_docs_from_third_party_sources_are_relabeled_community(github_guide_dict):
+    g = Guide.model_validate(github_guide_dict)
+    docs = [e for e in iter_evidence(g) if e.label == "DOCS"]
+    ids = {e.source_id for e in docs}
+    assert len(ids) >= 2
+    third_party = sorted(ids)[0]
+    text = {sid: " ".join(e.quote for e in docs if e.source_id == sid) for sid in ids}
+    pages = {sid: PageText(visible=t, hidden=t) for sid, t in text.items()}
+    kinds = {sid: ("community" if sid == third_party else "official_docs") for sid in ids}
+    expected = sum(1 for e in docs if e.source_id == third_party)
+    assert apply_verification(g, pages, kinds) == []
+    relabeled = [e for e in iter_evidence(g) if e.source_id == third_party]
+    assert all(e.label == "COMMUNITY" and e.found_in and e.quote for e in relabeled) and len(relabeled) >= expected
+    assert all(e.label == "DOCS" for e in iter_evidence(g) if e.source_id not in (third_party, None) and e.label != "TESTED")
+    s = verification_summary(g)
+    assert s.community == len(relabeled) and s.tested + s.docs_verified + s.community + s.uncertain == s.total
+
+
+def test_failed_quote_on_third_party_source_is_still_uncertain(github_guide_dict):
+    g = Guide.model_validate(github_guide_dict)
+    sid = next(e.source_id for e in iter_evidence(g) if e.label == "DOCS")
+    downgrades = apply_verification(g, {sid: PageText("nothing relevant here", "nothing relevant here")}, {sid: "community"})
+    assert downgrades and all(e.label != "DOCS" for e in iter_evidence(g) if e.source_id == sid)
+
+
+def test_no_source_kinds_keeps_old_behaviour(github_guide_dict):
+    g = Guide.model_validate(github_guide_dict)
+    quotes = [e for e in iter_evidence(g) if e.label == "DOCS"]
+    text = {e.source_id: " ".join(q.quote for q in quotes if q.source_id == e.source_id) for e in quotes}
+    apply_verification(g, {sid: PageText(t, t) for sid, t in text.items()})
+    assert any(e.label == "DOCS" for e in iter_evidence(g))
