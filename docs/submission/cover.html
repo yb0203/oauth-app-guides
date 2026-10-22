@@ -4,174 +4,373 @@
 <meta charset="utf-8">
 <title>OAuth App Guides · Composio APM take-home · Yashvi Bansal</title>
 <style>
-  @page { size: A4; margin: 0 0 12mm 0; }
+  @page { size: A4; margin: 0 0 14mm 0; }
   * { box-sizing: border-box; }
-  :root { --ink: #16161d; --muted: #5b5b6b; --line: #e6e6ee; --accent: #4f46e5; --accent-soft: #eef0ff; --ok: #0f7b4f; --warn: #a15c00; }
-  body { font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); font-size: 9pt; line-height: 1.38; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { padding: 0 14mm; }
+  :root { --ink: #17171f; --body: #33333f; --muted: #6b6b7b; --line: #e5e5ee; --accent: #4f46e5; --accent-soft: #eef0ff; --ok: #0f7b4f; --warn: #9a5800; --dark: #14122b; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--body); font-size: 11pt; line-height: 1.55; margin: 0; }
   a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  b, strong { color: var(--ink); }
 
-  /* header band */
-  .band { background: #14122b; color: #fff; padding: 10mm 14mm 13mm; margin-bottom: 6mm; position: relative; }
-  .band .eyebrow { font-size: 8pt; letter-spacing: 1.4px; text-transform: uppercase; color: #a5a8ff; font-weight: 700; }
-  .band h1 { font-size: 23pt; margin: 3px 0 4px; letter-spacing: -0.5px; }
-  .band .tagline { font-size: 10pt; color: #d9daf7; max-width: 150mm; }
-  .band .meta { position: absolute; right: 14mm; top: 10mm; text-align: right; font-size: 8.5pt; color: #c7c8ee; line-height: 1.5; }
-  .band .meta b { color: #fff; font-size: 10pt; }
+  .page { padding: 16mm 18mm 0; break-before: page; }
+  .page:first-child { break-before: auto; }
+  .kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  h2 { font-size: 21pt; line-height: 1.2; color: var(--ink); margin: 0 0 6px; letter-spacing: -0.3px; }
+  .lead { font-size: 12pt; color: var(--muted); margin: 0 0 9mm; max-width: 155mm; }
+  h3 { font-size: 12.5pt; color: var(--ink); margin: 0 0 4px; }
+  p { margin: 0 0 3mm; }
 
-  .links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: -12mm 0 6mm; position: relative; }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; box-shadow: 0 2px 6px rgba(20,18,43,.08); }
-  .card .k { font-size: 7.4pt; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); font-weight: 700; }
-  .card a { display: block; font-size: 9.6pt; margin-top: 2px; }
-  .card .h { font-size: 7.6pt; color: var(--muted); margin-top: 1px; }
+  /* cover */
+  .cover { background: var(--dark); color: #fff; padding: 30mm 18mm 18mm; min-height: 150mm; position: relative; }
+  .cover .eyebrow { font-size: 9pt; letter-spacing: 2px; text-transform: uppercase; color: #a9abff; font-weight: 700; }
+  .cover h1 { font-size: 40pt; margin: 6mm 0 5mm; letter-spacing: -1px; line-height: 1.05; color: #fff; }
+  .cover .tag { font-size: 15pt; line-height: 1.45; color: #d7d8f6; max-width: 150mm; }
+  .cover .who { position: absolute; left: 18mm; bottom: 16mm; font-size: 10.5pt; color: #c3c4ec; }
+  .cover .who b { color: #fff; font-size: 12pt; display: block; }
+  .covbody { padding: 12mm 18mm 0; }
+  .links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-bottom: 10mm; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 4mm 4.5mm; background: #fff; }
+  .card .k { font-size: 8pt; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .card a { display: block; font-size: 11pt; margin: 1.5mm 0 1mm; word-break: break-word; }
+  .card .h { font-size: 9pt; color: var(--muted); line-height: 1.4; }
+  .glance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .kpi { border-top: 3px solid var(--accent); background: #fafaff; border-radius: 0 0 10px 10px; padding: 4mm 4mm 4.5mm; }
+  .kpi .v { font-size: 22pt; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; line-height: 1.1; }
+  .kpi .l { font-size: 9pt; color: var(--muted); line-height: 1.4; margin-top: 1.5mm; }
+  .section-label { font-size: 9pt; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3mm; }
 
-  h2 { font-size: 11.5pt; margin: 0 0 6px; display: flex; align-items: center; gap: 7px; }
-  h2 .n { display: inline-flex; width: 18px; height: 18px; border-radius: 5px; background: var(--accent); color: #fff; font-size: 8.5pt; align-items: center; justify-content: center; }
-  section { margin-bottom: 5mm; }
+  /* blocks */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .box { border: 1px solid var(--line); border-radius: 10px; padding: 5mm 5.5mm; background: #fff; }
+  .box.soft { background: #fafafd; }
+  .box p:last-child { margin-bottom: 0; }
+  .qs { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .q { border-left: 3px solid var(--accent); padding: 1mm 0 1mm 4mm; }
+  .q b { display: block; font-size: 11.5pt; }
+  .q span { font-size: 10pt; color: var(--muted); }
+  .callout { background: var(--accent-soft); border-radius: 10px; padding: 5mm 6mm; color: #2a2a66; font-size: 11pt; }
+  .callout b { color: #1e1b6b; }
+
+  /* steps with screenshots */
+  .step { display: grid; grid-template-columns: 9mm 1fr; gap: 4mm; margin-bottom: 7mm; }
+  .num { width: 9mm; height: 9mm; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 12pt; display: flex; align-items: center; justify-content: center; }
+  .shot { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 3mm; }
+  .shot img { width: 100%; display: block; object-fit: cover; object-position: top; }
+  .cap { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 
   /* pipeline */
-  .pipe { display: flex; align-items: stretch; gap: 0; }
-  .stage { flex: 1; border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px; background: #fafaff; }
-  .stage b { display: block; font-size: 8.4pt; }
-  .stage span { font-size: 7.3pt; color: var(--muted); }
-  .stage.code { border-color: #cfe9dd; background: #f3fbf7; }
-  .stage.llm { border-color: #d9d6ff; background: #f5f4ff; }
-  .arrow { width: 12px; display: flex; align-items: center; justify-content: center; color: #9a9ab0; font-size: 9pt; }
-  .legend { display: flex; gap: 12px; font-size: 7.6pt; color: var(--muted); margin-top: 4px; }
-  .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; margin-right: 3px; }
+  .pipe { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2.2mm; margin: 2mm 0 2mm; }
+  .stage { border-radius: 9px; padding: 3.5mm 2.5mm; text-align: center; border: 1px solid; }
+  .stage b { display: block; font-size: 10.5pt; }
+  .stage span { font-size: 8.5pt; color: var(--muted); line-height: 1.35; display: block; margin-top: 1mm; }
+  .code { background: #f2fbf6; border-color: #cbe8d9; }
+  .llm { background: #f4f3ff; border-color: #d8d4ff; }
+  .legend { font-size: 9.5pt; color: var(--muted); margin-bottom: 8mm; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin: 0 4px 0 10px; }
+  .labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; }
+  .lab { border: 1px solid var(--line); border-radius: 10px; padding: 3.5mm 4mm; }
+  .pill { display: inline-block; font-size: 8.5pt; font-weight: 800; letter-spacing: .4px; padding: 1px 6px; border-radius: 4px; margin-bottom: 1.5mm; }
+  .p-t { background: #e2f5ea; color: var(--ok); } .p-d { background: #e6e9ff; color: #3730a3; }
+  .p-c { background: #fcefd9; color: var(--warn); } .p-u { background: #ececf2; color: #555; }
+  .lab span { display: block; font-size: 9.5pt; line-height: 1.45; }
 
-  ol.path { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-  ol.path li { counter-increment: s; border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px 6px; position: relative; background: #fff; }
-  ol.path li::before { content: counter(s); position: absolute; top: -7px; left: 9px; background: var(--accent); color: #fff; font-weight: 700; font-size: 7.6pt; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  ol.path li b.t { display: block; margin: 3px 0 2px; font-size: 9.2pt; }
-
-  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8.1pt; line-height: 1.33; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-  th, td { padding: 3px 7px; vertical-align: top; text-align: left; }
-  th { background: #f3f3f9; font-weight: 700; font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  /* tables */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 10pt; line-height: 1.45; }
+  th, td { padding: 3mm 4mm; text-align: left; vertical-align: top; }
+  th { background: #f3f3f9; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+  td { border-top: 1px solid #efeff5; }
   tr:nth-child(even) td { background: #fbfbfe; }
-  td { border-top: 1px solid #f0f0f5; }
-  td:first-child { width: 30%; font-weight: 650; }
-  .tag { display: inline-block; font-size: 7pt; font-weight: 800; padding: 0 4px; border-radius: 3px; letter-spacing: .3px; }
-  .t-tested { background: #e3f6ec; color: var(--ok); } .t-docs { background: #e8ebff; color: #3730a3; }
-  .t-comm { background: #fdf0dc; color: var(--warn); } .t-unc { background: #ececf1; color: #555; }
+  .brief td:first-child { width: 36%; font-weight: 700; color: var(--ink); }
+  .ok { color: var(--ok); font-weight: 700; }
 
-  .break { break-before: page; padding-top: 9mm; }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .dec { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
-  .dec b { display: block; font-size: 9.2pt; margin-bottom: 1px; }
-  .dec span { color: #3c3c48; font-size: 8.2pt; }
+  .decisions { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm; }
+  .dec { border: 1px solid var(--line); border-radius: 10px; padding: 4.5mm 5mm; }
+  .dec h3 { font-size: 11.5pt; }
+  .dec p { font-size: 10pt; margin: 0; }
+  ul.clean { margin: 0; padding-left: 5mm; } ul.clean li { margin: 1.6mm 0; }
 
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
-  .kpi { border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 8px; padding: 7px 9px; }
-  .kpi .v { font-size: 15pt; font-weight: 800; letter-spacing: -0.4px; }
-  .kpi .l { font-size: 7.7pt; color: var(--muted); line-height: 1.3; }
-  .also { font-size: 8pt; color: var(--muted); margin-top: 5px; }
-
-  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-  figure { margin: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
-  figure img { width: 100%; height: 172px; display: block; object-fit: cover; }
-  figcaption { font-size: 7.9pt; padding: 4px 8px; border-top: 1px solid var(--line); background: #fafafd; }
-  figcaption b { color: var(--ink); }
-  .lim { font-size: 7.9pt; color: #44444f; background: #fafafd; border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+  /* understanding page */
+  .layers { display: grid; grid-template-columns: 1fr 9mm 1fr 9mm 1fr; align-items: stretch; margin-bottom: 7mm; }
+  .layer { border: 1px solid var(--line); border-radius: 10px; padding: 4mm 4.5mm; background: #fff; }
+  .layer .t { font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+  .layer h3 { margin: 1mm 0 1.5mm; font-size: 12pt; }
+  .layer p { font-size: 9.6pt; margin: 0; line-height: 1.45; }
+  .layer.gate { border: 2px solid #f0b46b; background: #fffaf2; }
+  .layer.gate .t { color: var(--warn); }
+  .arr { display: flex; align-items: center; justify-content: center; color: #9a9ab0; font-size: 16pt; }
+  .ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-bottom: 7mm; }
+  .rung { border-radius: 10px; padding: 3.5mm 4mm; border: 1px solid var(--line); }
+  .rung b { display: block; font-size: 11pt; }
+  .rung .ex { font-size: 9pt; color: var(--muted); }
+  .rung .tm { font-size: 9.5pt; font-weight: 700; margin-top: 1mm; }
+  .r1 { background: #f2fbf6; border-color: #cbe8d9; } .r2 { background: #f5fbf0; border-color: #d6eac6; }
+  .r3 { background: #fff7ec; border-color: #f3d6ac; } .r4 { background: #fdf1ef; border-color: #f2c9c1; }
+  .ideas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4.5mm; }
+  .idea-col h3 { font-size: 11.5pt; margin-bottom: 2.5mm; padding-bottom: 1.5mm; border-bottom: 2px solid var(--accent); }
+  .idea { border: 1px solid var(--line); border-radius: 9px; padding: 3mm 3.5mm; margin-bottom: 3mm; }
+  .idea b { display: block; font-size: 10pt; margin-bottom: .5mm; }
+  .idea span { font-size: 9pt; color: var(--body); line-height: 1.45; display: block; }
 </style>
 </head>
 <body>
 
-<div class="band">
-  <div class="eyebrow">Composio · APM (toolkits) take-home</div>
-  <h1>OAuth App Guides</h1>
-  <div class="tagline">Verified setup and approval paths for the provider OAuth apps an AI agent depends on, with a live agent that researches any app and re-checks every claim against the provider's own docs.</div>
-  <div class="meta"><b>Yashvi Bansal</b><br>22 Oct 2026</div>
+<!-- 1. COVER -->
+<div class="page" style="padding:0">
+  <div class="cover">
+    <div class="eyebrow">Composio · APM (toolkits) · take-home assignment</div>
+    <h1>OAuth App Guides</h1>
+    <div class="tag">Verified, shareable guides for creating and getting approval for the OAuth app behind every user connection, plus a live agent that researches any app on demand.</div>
+    <div class="who"><b>Yashvi Bansal</b>Submitted 22 October 2026</div>
+  </div>
+  <div class="covbody">
+    <div class="links">
+      <div class="card"><div class="k">Live app</div><a href="https://oauth-guides-web.vercel.app">oauth-guides-web.vercel.app</a><div class="h">Try a curated guide, or type any app to generate one live.</div></div>
+      <div class="card"><div class="k">Source code</div><a href="https://github.com/yb0203/oauth-app-guides">github.com/yb0203/<br>oauth-app-guides</a><div class="h">The README is the full assessment document.</div></div>
+      <div class="card"><div class="k">Verification report</div><a href="https://github.com/yb0203/oauth-app-guides/blob/main/docs/VERIFICATION.md">docs/VERIFICATION.md</a><div class="h">What we checked, corrected and couldn't verify.</div></div>
+    </div>
+    <div class="section-label">At a glance</div>
+    <div class="glance">
+      <div class="kpi"><div class="v">5 + any</div><div class="l">Curated guides across all 4 difficulty tiers, plus live generation for any app</div></div>
+      <div class="kpi"><div class="v">3 / 3</div><div class="l">Difficulty tiers correct against our researched answer key</div></div>
+      <div class="kpi"><div class="v">~1 min</div><div class="l">To research and write a new guide (66 s on average in production)</div></div>
+      <div class="kpi"><div class="v">$0</div><div class="l">Spent: free models only, about 33k tokens per guide</div></div>
+    </div>
+  </div>
 </div>
 
+
+<!-- 2. OUR UNDERSTANDING -->
 <div class="page">
-  <div class="links">
-    <div class="card"><div class="k">Live app</div><a href="https://oauth-guides-web.vercel.app">oauth-guides-web.vercel.app</a><div class="h">Curated guides · live generation</div></div>
-    <div class="card"><div class="k">Source code</div><a href="https://github.com/yb0203/oauth-app-guides">github.com/yb0203/oauth-app-guides</a><div class="h">The README is the assessment doc</div></div>
-    <div class="card"><div class="k">Verification report</div><a href="https://github.com/yb0203/oauth-app-guides/blob/main/docs/VERIFICATION.md">docs/VERIFICATION.md</a><div class="h">What we checked, fixed, couldn't verify</div></div>
+  <div class="kicker">Our understanding</div>
+  <h2>How OAuth apps, Composio and user connections fit together</h2>
+  <p class="lead">OAuth lets a user grant an app limited, revocable access without sharing their password. But before any user can click "Allow", the developer needs an approved OAuth app at the provider.</p>
+
+  <div class="layers">
+    <div class="layer gate"><div class="t">1 · Provider OAuth app</div><h3>The gate</h3><p>The developer's client registration at Google, Xero or Shopify: client ID and secret, redirect URI, scopes, consent screen. <b>Often needs the provider's approval.</b></p></div>
+    <div class="arr">→</div>
+    <div class="layer"><div class="t">2 · Composio auth config</div><h3>The integration</h3><p>Which OAuth app and scopes to use for a toolkit. Composio's own managed app (123 toolkits) or the developer's own (required for 211).</p></div>
+    <div class="arr">→</div>
+    <div class="layer"><div class="t">3 · Connected accounts</div><h3>The users</h3><p>One per end user, holding that user's tokens. One OAuth app serves thousands of them, so if layer 1 isn't approved, nobody can connect.</p></div>
   </div>
 
-  <section>
-    <h2><span class="n">1</span>Five-minute review path</h2>
-    <ol class="path">
-      <li><b class="t">See a verdict change</b>Open the <a href="https://oauth-guides-web.vercel.app/guides/google-gmail">Gmail guide</a> and toggle <i>Your situation</i>. Internal-only goes from <b>Review required</b> to <b>Instant</b>. Hover any citation number for the exact quote and source.</li>
-      <li><b class="t">Ask the guide</b><i>"Can I avoid Google review?"</i> The answer cites only this guide's verified evidence, and <b>Apply</b> sets your situation for you.</li>
-      <li><b class="t">Generate a new guide live</b>On the <a href="https://oauth-guides-web.vercel.app">home page</a>, type an app we never researched (<i>Zoom</i>, <i>Dropbox</i>, <i>Asana</i>). It takes about a minute on free models.</li>
-    </ol>
-  </section>
+  <div class="section-label">Approval varies enormously by provider</div>
+  <div class="ladder">
+    <div class="rung r1"><b>Instant</b><div class="ex">GitHub, Notion</div><div class="tm">Minutes</div></div>
+    <div class="rung r2"><b>Verify to scale</b><div class="ex">Xero, Microsoft</div><div class="tm">Days, or a plan upgrade</div></div>
+    <div class="rung r3"><b>Review required</b><div class="ex">Gmail, Shopify, Slack, HubSpot</div><div class="tm">Days to weeks</div></div>
+    <div class="rung r4"><b>Partner only</b><div class="ex">Spotify</div><div class="tm">Months, or not at all</div></div>
+  </div>
 
-  <section>
-    <h2><span class="n">2</span>How a guide is made</h2>
-    <div class="pipe">
-      <div class="stage code"><b>Resolve</b><span>Composio catalog</span></div><div class="arrow">›</div>
-      <div class="stage code"><b>Find docs</b><span>Provider's official pages</span></div><div class="arrow">›</div>
-      <div class="stage llm"><b>Extract</b><span>Claims with exact quotes</span></div><div class="arrow">›</div>
-      <div class="stage code"><b>Probe</b><span>Sign-in wall</span></div><div class="arrow">›</div>
-      <div class="stage llm"><b>Write</b><span>Schema-checked</span></div><div class="arrow">›</div>
-      <div class="stage code"><b>Verify</b><span>Every quote, live</span></div><div class="arrow">›</div>
-      <div class="stage code"><b>Publish</b><span>Permalink, export</span></div>
-    </div>
-    <div class="legend">
-      <span style="white-space:nowrap"><i class="sw" style="background:#cfe9dd"></i>Code</span>
-      <span style="white-space:nowrap"><i class="sw" style="background:#d9d6ff"></i>Free LLM</span>
-      <span style="white-space:nowrap">Every fact is labeled <span class="tag t-tested">TESTED</span> <span class="tag t-docs">DOCS</span> <span class="tag t-comm">COMMUNITY</span> <span class="tag t-unc">UNCERTAIN</span> (DOCS = quote re-found live, by code)</span>
-    </div>
-  </section>
-
-  <section>
-    <h2><span class="n">3</span>How this meets the brief</h2>
-    <table>
-      <tr><th>The brief asks</th><th>Where it's answered</th></tr>
-      <tr><td>How easy or difficult the OAuth app is to get ready</td><td>A verdict with one of 4 tiers (Instant · Verify to scale · Review required · Partner only) on a ladder, with confidence, re-rendered from <i>Your situation</i>.</td></tr>
-      <tr><td>Time and effort, including the approval wait</td><td>Separate <b>Your work</b> and <b>Waiting on the provider</b> tiles; the official vs. community-reported wait; cost.</td></tr>
-      <tr><td>Requirements and nuances</td><td>Before you start · Limits (value, unit, scope) · Customer-side gates · Gotchas · Conflicts where the provider's docs disagree.</td></tr>
-      <tr><td>What the agent does vs. where you take over</td><td>Every step is tagged <b>You</b> (with the reason), <b>Agent</b> or <b>Either</b>; <i>Prepared for you</i> holds drafted scopes, justifications and consent-screen values.</td></tr>
-      <tr><td>Use agents to investigate and attempt setup</td><td>The live pipeline above, run for every new app. A setup-attempt experiment (5 apps) found every console stops at sign-in, which shaped the design.</td></tr>
-      <tr><td>Be clear about what was tested, sourced or uncertain</td><td>Four evidence labels on every fact, an evidence summary per guide, citation hover cards, and conflicts shown, never hidden.</td></tr>
-      <tr><td>A library of guides; a few varied apps</td><td>5 curated guides covering all 4 tiers (GitHub, Xero, Gmail, Shopify, Spotify) plus a 100-app catalog from Composio's toolkits.</td></tr>
-      <tr><td>Live, shareable guide for any app</td><td>Streamed progress → a permanent link, Markdown export and print. Tested on Todoist, Zoom, Dropbox, Asana, Calendly and Notion.</td></tr>
-      <tr><td>What to do when blocked</td><td><i>When you're blocked</i> (symptom → cause → fix), plus grounded <b>Ask this guide</b> with Apply actions.</td></tr>
-      <tr><td>Check a sample; show corrections</td><td>VERIFICATION.md: about 75 research quotes re-checked, the setup experiment, 247 live quote checks, 3 eval rounds, performance and cost.</td></tr>
-    </table>
-  </section>
+  <div class="two">
+    <div class="box"><h3>Scopes are the biggest lever</h3><p style="font-size:10pt">The same app can be easy or hard depending on the permissions requested. For Gmail, internal-only apps need no review, sending email is a sensitive scope (a review lasting days), and reading email is a restricted scope (review plus a paid yearly security assessment). A good guide shows what each permission costs.</p></div>
+    <div class="box"><h3>Gatekeepers on both sides</h3><p style="font-size:10pt">Passing the provider's review isn't the end. Customers' own admins can still block an app: Microsoft tenants often need admin consent, GitHub organizations restrict OAuth apps by default, and Slack workspaces can require approved apps. Guides cover both sides.</p></div>
+  </div>
 </div>
 
-<div class="page break">
-  <section>
-    <h2><span class="n">4</span>Key decisions</h2>
-    <div class="two">
-      <div class="dec"><b>A verification process, not a prompt</b><span>Answers from memory were wrong or stale (Spotify's user cap, GitHub's token default, the difficulty tiers). Checking against live docs is the product.</span></div>
-      <div class="dec"><b>No pretend automation</b><span>Agents can't create OAuth apps: all 5 consoles stopped at sign-in. So the agent probes, researches and drafts, and hands off cleanly.</span></div>
-      <div class="dec"><b>Code verifies, models write</b><span>Search, the probe, quote checks, labels and tier rules are deterministic. The LLM only extracts and writes, and its output is schema-validated.</span></div>
-      <div class="dec"><b>Bring-your-own first, free models only</b><span>Guides always cover registering your own app. Runtime uses free OpenRouter models behind a server allow-list; Claude Code was used to build and test only.</span></div>
+<!-- 2. PROBLEM -->
+<div class="page">
+  <div class="kicker">The problem</div>
+  <h2>Every user connection depends on an OAuth app someone has to get approved</h2>
+  <p class="lead">When an AI agent connects to a user's Gmail, Xero or Shopify, it does so through a provider OAuth app: a client registration the developer creates at the provider.</p>
+  <div class="two" style="margin-bottom:8mm">
+    <div class="box">
+      <h3>Where developers get stuck</h3>
+      <p>Composio supplies a managed app for 123 toolkits. For the other 211, and whenever a developer wants their own branding, rate limits or scopes, they must register their own app and often get it approved.</p>
+      <p>Setup can take five minutes (GitHub) or weeks with a paid security audit (reading Gmail). Sometimes only established companies are accepted (Spotify). Nobody can tell in advance which it'll be.</p>
     </div>
-  </section>
-
-  <section>
-    <h2><span class="n">5</span>Results</h2>
-    <div class="kpis">
-      <div class="kpi"><div class="v">3 / 3</div><div class="l">Tier accuracy on our answer key<br>(round 1: 1.5 / 3)</div></div>
-      <div class="kpi"><div class="v">0</div><div class="l">Inflated evidence labels<br>in every eval round</div></div>
-      <div class="kpi"><div class="v">≈ 66 s</div><div class="l">Per guide, default free model<br>(8 production runs)</div></div>
-      <div class="kpi"><div class="v">$0</div><div class="l">Actual spend · ≈ 33k tokens per guide<br>(≈ $0.03 on a paid model)</div></div>
+    <div class="box soft">
+      <h3>Why this isn't "ask a chatbot"</h3>
+      <p>Asked from memory, a model was wrong on several of these points: Spotify's user cap, GitHub's token default, which tier each app falls in. Providers changed their rules several times in 2026, and their own docs sometimes contradict each other.</p>
+      <p><b>So the product is a research-and-verification process. The guide is its output.</b></p>
     </div>
-    <div class="also">Also: 247 live quote checks on curated guides · about 75 research quotes re-checked (1 citation fixed) · a quote-checker bug found and fixed (hidden page sections) · 420 backend tests.</div>
-  </section>
+  </div>
+  <div class="section-label">Every guide answers four questions</div>
+  <div class="qs">
+    <div class="q"><b>How hard is it?</b><span>One of four tiers: Instant, Verify to scale, Review required, or Partner only, with confidence.</span></div>
+    <div class="q"><b>How long will it take?</b><span>Your hands-on hours and the provider's waiting time, shown separately.</span></div>
+    <div class="q"><b>What do I need?</b><span>Accounts, limits, review requirements, customer-side gates and gotchas.</span></div>
+    <div class="q"><b>Who does what?</b><span>Which steps the agent can do, and exactly where you have to take over.</span></div>
+  </div>
+</div>
 
-  <section>
-    <h2><span class="n">6</span>Product screenshots</h2>
-    <div class="shots">
-      <figure><img src="../screenshots/guide-gmail-internal.png" style="object-position: 0 18%"><figcaption><b>Your situation</b> → the verdict flips to Instant, with work vs. wait</figcaption></figure>
-      <figure><img src="../screenshots/citation-hover.png" style="object-position: 0 0"><figcaption><b>Citation</b> → exact quote, found in a collapsed section, with source</figcaption></figure>
-      <figure><img src="../screenshots/steps.png" style="object-position: 0 0"><figcaption><b>Steps</b> → who does it, the Composio callback, copyable values</figcaption></figure>
-      <figure><img src="../screenshots/generate-running.png" style="object-position: 0 0"><figcaption><b>Live generation</b> → a never-researched app (Dropbox), streaming</figcaption></figure>
+<!-- 3. TRY IT -->
+<div class="page">
+  <div class="kicker">Try it in five minutes</div>
+  <h2>Three things to do in the live app</h2>
+  <p class="lead">Everything below works at <a href="https://oauth-guides-web.vercel.app">oauth-guides-web.vercel.app</a>. No sign-in needed.</p>
+
+  <div class="step"><div class="num">1</div><div>
+    <h3>Watch the verdict change with your situation</h3>
+    <p>Open the <a href="https://oauth-guides-web.vercel.app/guides/google-gmail">Gmail guide</a>. Choose "Only people inside our own Google Workspace" and the verdict changes from <b>Review required</b> to <b>Instant</b>. Choose outside users who need to read email, and it becomes review plus a paid security assessment.</p>
+    <div class="shot"><img src="../screenshots/guide-gmail-internal.png" style="height:72mm; object-position: 0 14%"></div>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div>
+    <h3>Ask the guide a question</h3>
+    <p>Type <i>"Can I avoid Google review?"</i>. The answer uses only this guide's verified evidence, with citations, and an <b>Apply</b> button sets your situation for you.</p>
+  </div></div>
+
+  <div class="step" style="margin-bottom:0"><div class="num">3</div><div>
+    <h3>Generate a guide for an app we never researched</h3>
+    <p>On the home page, type something like <i>Zoom</i>, <i>Dropbox</i> or <i>Asana</i>. You'll watch the agent find the provider's official docs, probe its developer console, write the guide and re-check every quote on the live pages. It takes about a minute.</p>
+  </div></div>
+</div>
+
+<!-- 4. LIVE GENERATION + ASK -->
+<div class="page">
+  <div class="kicker">Live generation</div>
+  <h2>Any app, researched in about a minute</h2>
+  <p class="lead">Progress streams as the agent works, and the result is a shareable guide with a permanent link and Markdown export.</p>
+  <div class="shot"><img src="../screenshots/generate-running.png" style="height:96mm; object-position: 0 0"></div>
+  <div class="cap">Dropbox, which we never researched: pipeline stages, the agent's narration, and sources labeled official vs. community.</div>
+  <div style="height:8mm"></div>
+  <div class="two">
+    <div><div class="shot"><img src="../screenshots/ask-this-guide.png" style="height:62mm; object-position: 100% 0"></div><div class="cap"><b>Ask this guide:</b> answers come only from the guide's evidence, with Apply buttons.</div></div>
+    <div><div class="shot"><img src="../screenshots/home.png" style="height:62mm; object-position: 0 0"></div><div class="cap"><b>Home and catalog:</b> 100 apps, with verified tiers where a guide exists.</div></div>
+  </div>
+</div>
+
+<!-- 5. WHAT A GUIDE CONTAINS -->
+<div class="page">
+  <div class="kicker">Inside a guide</div>
+  <h2>Every fact shows its evidence, and every step shows who does it</h2>
+  <p class="lead">Guides are built to act on: copy the exact values, know which steps are yours, and check any claim yourself.</p>
+  <div class="shot"><img src="../screenshots/citation-hover.png" style="height:82mm; object-position: 0 0"></div>
+  <div class="cap"><b>Citations:</b> hover any number to see the exact quote, whether it was found in a collapsed section of the page, and the source.</div>
+  <div style="height:7mm"></div>
+  <div class="shot"><img src="../screenshots/steps.png" style="height:82mm; object-position: 0 0"></div>
+  <div class="cap"><b>Steps:</b> each says who does it and why (here, sign-in needs a real account), with copy buttons for the Composio callback and form values.</div>
+</div>
+
+<!-- 6. HOW IT WORKS -->
+<div class="page">
+  <div class="kicker">How it works</div>
+  <h2>Code verifies, models write</h2>
+  <p class="lead">Each new app goes through a seven-stage pipeline. Everything that can be deterministic is plain code. Free LLMs do only two narrow jobs, and their output is checked against a schema.</p>
+  <div class="pipe">
+    <div class="stage code"><b>Resolve</b><span>Composio catalog</span></div>
+    <div class="stage code"><b>Find docs</b><span>Official pages only</span></div>
+    <div class="stage llm"><b>Extract</b><span>Claims + exact quotes</span></div>
+    <div class="stage code"><b>Probe</b><span>Console sign-in wall</span></div>
+    <div class="stage llm"><b>Write</b><span>The guide</span></div>
+    <div class="stage code"><b>Verify</b><span>Every quote, live</span></div>
+    <div class="stage code"><b>Publish</b><span>Link + export</span></div>
+  </div>
+  <div class="legend"><span class="sw" style="background:#cbe8d9;margin-left:0"></span>Deterministic code <span class="sw" style="background:#d8d4ff"></span>Free LLM via OpenRouter (narrow job, validated)</div>
+
+  <div class="section-label">Four evidence labels on every fact</div>
+  <div class="labels" style="margin-bottom:9mm">
+    <div class="lab"><div class="pill p-t">TESTED</div><span>Observed by our own tooling during the run, for example the console's sign-in wall.</span></div>
+    <div class="lab"><div class="pill p-d">DOCS</div><span>From the provider's official docs, with the exact quote re-found on the live page by code.</span></div>
+    <div class="lab"><div class="pill p-c">COMMUNITY</div><span>From third-party pages such as forums, blogs and integration vendors.</span></div>
+    <div class="lab"><div class="pill p-u">UNCERTAIN</div><span>Couldn't be verified. Shown openly, never quietly dropped.</span></div>
+  </div>
+
+  <div class="callout"><b>Why an agent can't simply create the OAuth app:</b> we tested it. On five providers, an agent with a real browser hit a sign-in page after one redirect every time. Everything past that (terms, Register, payment, review) needs a human. So the agent probes the console, does the research and drafts the materials (minimum scopes, justifications, consent-screen values), then hands off clearly.</div>
+</div>
+
+<!-- 7. BRIEF MAPPING -->
+<div class="page">
+  <div class="kicker">The brief</div>
+  <h2>How this meets the brief</h2>
+  <p class="lead">Each ask from the assignment, and where the answer is in the product or the repo.</p>
+  <table class="brief">
+    <tr><th>The brief asks</th><th>Where it's answered</th></tr>
+    <tr><td>How easy or difficult it is to get the OAuth app ready</td><td>A verdict with one of four tiers on a difficulty ladder, with confidence. It re-renders when you change "Your situation".</td></tr>
+    <tr><td>Time and effort, including the approval wait</td><td>"Your work" and "Waiting on the provider" shown separately; official vs. community-reported waits; cost.</td></tr>
+    <tr><td>Requirements and nuances</td><td>Before you start, limits (value, unit, scope), customer-side gates, gotchas, and conflicts where the provider's own docs disagree.</td></tr>
+    <tr><td>What the agent can do, and where you take over</td><td>Every step is marked You (with the reason), Agent or Either. "Prepared for you" holds drafted scopes and consent-screen values.</td></tr>
+    <tr><td>Use agents to investigate and attempt setup</td><td>The live pipeline runs for every new app. The setup-attempt experiment shaped the design.</td></tr>
+    <tr><td>Be clear about what was tested, sourced or uncertain</td><td>Four evidence labels, an evidence summary on every guide, citation cards, and conflicts shown openly.</td></tr>
+    <tr><td>A library of guides; a few varied apps</td><td>5 curated guides covering all four tiers (GitHub, Xero, Gmail, Shopify, Spotify), plus a 100-app catalog.</td></tr>
+    <tr><td>Generate a shareable guide live, for any app</td><td>Streamed progress, then a permanent link and Markdown export. Tested on six apps we never researched.</td></tr>
+    <tr><td>How to proceed when blocked</td><td>"When you're blocked" (symptom → cause → fix), plus Ask this guide.</td></tr>
+    <tr><td>Check a sample against sources; show corrections</td><td>The verification report: research re-check, setup experiment, 247 live quote checks, 3 eval rounds, performance and cost.</td></tr>
+  </table>
+</div>
+
+<!-- 8. DECISIONS -->
+<div class="page">
+  <div class="kicker">Key decisions</div>
+  <h2>Six choices that shaped the product</h2>
+  <p class="lead">Each one came from something we tested or measured, not from assumptions.</p>
+  <div class="decisions">
+    <div class="dec"><h3>A verification process, not a prompt</h3><p>Answers from memory were wrong or stale, so checking against live docs is the product.</p></div>
+    <div class="dec"><h3>No pretend automation</h3><p>All 5 consoles stopped at sign-in. The agent probes, researches and drafts, then hands off.</p></div>
+    <div class="dec"><h3>Code verifies, models write</h3><p>Search, probing, quote checks, labels and tier rules are deterministic. Models extract claims and write, and their output is validated.</p></div>
+    <div class="dec"><h3>Bring-your-own first</h3><p>Even for Composio-managed apps, guides cover registering your own app, and say when the managed one is enough.</p></div>
+    <div class="dec"><h3>Free models only</h3><p>Runtime uses free OpenRouter models behind a server allow-list. Claude Code was used only to build and test.</p></div>
+    <div class="dec"><h3>Depth over breadth</h3><p>5 varied apps done well, plus live generation for any app, instead of 100 shallow guides.</p></div>
+  </div>
+</div>
+
+<!-- 9. RESULTS -->
+<div class="page">
+  <div class="kicker">Results</div>
+  <h2>What we measured on production</h2>
+  <p class="lead">The live agent was scored against an answer key built from our verified research, then timed and costed.</p>
+  <table style="margin-bottom:8mm">
+    <tr><th>Eval round</th><th>Tier accuracy</th><th>Fallback drafts</th><th>Inflated labels</th><th>What we changed after</th></tr>
+    <tr><td><b>Round 1</b></td><td>1.5 / 3</td><td>1</td><td class="ok">0</td><td>Split and time-boxed the writer; added tier rules; restricted to official domains</td></tr>
+    <tr><td><b>Round 2</b></td><td>2 / 3</td><td class="ok">0</td><td class="ok">0</td><td>Instant tier when the docs show no review; filtered off-topic pages</td></tr>
+    <tr><td><b>Round 3</b></td><td class="ok">3 / 3</td><td class="ok">0</td><td class="ok">0</td><td>Final version</td></tr>
+  </table>
+  <div class="two" style="margin-bottom:8mm">
+    <div class="box">
+      <h3>Performance and cost</h3>
+      <ul class="clean">
+        <li><b>~66 seconds</b> per guide on the default free model (8 runs, 51–96 s).</li>
+        <li><b>~33,000 tokens</b> per guide over about 7 model calls.</li>
+        <li><b>$0 actual spend</b>; the same tokens on a paid model would cost about $0.03 per guide.</li>
+        <li>Most of the time goes to the model writing (about half) and reading pages.</li>
+      </ul>
     </div>
-  </section>
+    <div class="box">
+      <h3>Verification</h3>
+      <ul class="clean">
+        <li><b>~75 research quotes</b> re-checked independently; 1 citation fixed.</li>
+        <li><b>247 live quote checks</b> on the curated guides.</li>
+        <li>A quote-checker bug found and fixed: limits hidden in collapsed sections.</li>
+        <li><b>420 backend tests</b>, plus live-network tests.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box soft">
+    <h3>Known limitations</h3>
+    <p style="font-size:10pt">Anything behind a console login can't be verified and is marked UNCERTAIN. Links to generated guides can expire when the server restarts; curated guides are permanent. Production has no headless browser, so pages that render only with JavaScript may show as UNCERTAIN there. Free models sometimes miss numeric caps. Full detail is in the README and the verification report.</p>
+  </div>
+</div>
 
-  <section>
-    <h2><span class="n">7</span>Limitations</h2>
-    <div class="lim">Anything behind a console login is unverified and marked UNCERTAIN. Generated guides take about 1–1.5 minutes, and their permalinks can expire on a cold start; curated guides are permanent. Production has no headless browser, so docs that render only with JavaScript may be UNCERTAIN there. Free models sometimes miss numeric caps. A production stream once went silent while the run continued; the page now recovers via a run-status check. Full detail is in the README and VERIFICATION.md.</div>
-  </section>
+
+<!-- 10. FUTURE -->
+<div class="page">
+  <div class="kicker">What's next</div>
+  <h2>Where this could go next</h2>
+  <p class="lead">Options we identified while building, roughly in order of value. Several are already partly designed or prototyped in the repo.</p>
+  <div class="ideas">
+    <div class="idea-col">
+      <h3>For developers</h3>
+      <div class="idea"><b>Inside Composio's dashboard</b><span>Show the guide right where a developer creates a bring-your-own auth config: callback prefilled, scopes suggested, a redirect-mismatch checker.</span></div>
+      <div class="idea"><b>Submission pack</b><span>One-click download of the drafted privacy-policy outline, scope justifications, consent-screen values and a demo-video script for the provider's review.</span></div>
+      <div class="idea"><b>Checklist and comparison</b><span>Track setup progress in the shareable link, and compare two or three apps side by side before committing to one.</span></div>
+    </div>
+    <div class="idea-col">
+      <h3>Better evidence</h3>
+      <div class="idea"><b>Signed-in human pass</b><span>Capture real console forms once, using test accounts (for example with Browser Use), to turn "check on first sign-in" into tested steps.</span></div>
+      <div class="idea"><b>Continuous re-verification</b><span>Re-check every guide's quotes on a schedule, and flag guides whose source pages changed. Providers changed their rules several times in 2026.</span></div>
+      <div class="idea"><b>Real wait-time data</b><span>Let developers report how long their review actually took, replacing anecdotal community estimates.</span></div>
+    </div>
+    <div class="idea-col">
+      <h3>Platform and scale</h3>
+      <div class="idea"><b>Permanent generated guides</b><span>Store generated guides durably (for example in Vercel Blob), so shared links never expire, and promote reviewed ones into the curated library.</span></div>
+      <div class="idea"><b>Grow to the full catalog</b><span>Generate guides for all 211 bring-your-own toolkits in the background, with human review before they're marked curated.</span></div>
+      <div class="idea"><b>Stronger runtime</b><span>A browser in production for JavaScript-rendered docs, Claude Managed Agents for long or scheduled runs (already prototyped), and an optional paid model for higher recall (about $0.03 a guide).</span></div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:9mm">
+    <b>Thanks for reviewing.</b> The fastest way in is the live app: <a href="https://oauth-guides-web.vercel.app">oauth-guides-web.vercel.app</a>. The README at <a href="https://github.com/yb0203/oauth-app-guides">github.com/yb0203/oauth-app-guides</a> has setup instructions, every decision and the full verification report. Happy to walk through any of it live.
+  </div>
 </div>
 
 </body>

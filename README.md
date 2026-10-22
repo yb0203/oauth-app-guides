@@ -139,6 +139,13 @@ Full details are in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 - Free-model rate limits apply (about 20 requests per minute shared), and generations are limited to 30 per IP per 10 minutes.
 - The free models sometimes miss numeric caps (Gmail's 100-user limits); curated guides include them. Every guide is true only as of its "last verified" date.
 
+## Where this could go next
+
+- **Inside Composio's dashboard:** show the guide where a developer creates a bring-your-own auth config, with the callback prefilled, scopes suggested and a redirect-mismatch checker.
+- **Submission pack:** a one-click download of the drafted privacy-policy outline, scope justifications, consent-screen values and a demo-video script.
+- **Better evidence:** a one-time signed-in pass with test accounts to capture real console forms; scheduled re-verification that flags guides whose source pages changed; real review times reported by developers.
+- **Scale:** durable storage for generated guides (permanent links), background generation for all 211 bring-your-own toolkits with human promotion to curated, a production browser for JavaScript-rendered docs, Managed Agents for long or scheduled runs (prototyped in `experiments/`), and an optional paid model for higher recall (about $0.03 a guide).
+
 ## Run it locally
 
 ```bash
