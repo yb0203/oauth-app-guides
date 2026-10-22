@@ -1,44 +1,45 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { RotateCcwIcon, SquareIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { GuideView } from "@/components/guide/GuideView";
-import { Chip } from "@/components/guide/shared";
-import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { GENERATE_URL } from "@/lib/api";
 import { deriveRun, type GenerateMessage } from "@/lib/chat-types";
 import { cn } from "@/lib/utils";
-import { STAGE_ORDER, type StageData, type StageId } from "@/types/guide";
+import { STAGE_ORDER, type StageData, type StageId, type VerificationProgress } from "@/types/guide";
 import { GuideReadyBanner } from "./GuideReadyBanner";
+import { ReplayBanner } from "./ReplayBanner";
 import { NarrationLog } from "./NarrationLog";
 import { Panel } from "./Panel";
 import { RunErrorPanel } from "./RunErrorPanel";
+import { RunSummary, type RunState } from "./RunSummary";
+import { formatDuration, verifiedClaims } from "./run-info";
 import { SourcesPanel } from "./SourcesPanel";
 import { StageStepper, type StageTiming } from "./StageStepper";
 import { VerificationCard } from "./VerificationCard";
 import { WallProbeCard } from "./WallProbeCard";
 
-type RunState = "running" | "done" | "failed" | "stopped";
-
-const CHIP: Record<RunState, { label: string; classes: string; dot: string }> = {
-  running: { label: "Running", classes: "border-info-border bg-info-soft text-info", dot: "bg-info animate-pulse motion-reduce:animate-none" },
-  done: { label: "Done", classes: "border-success-border bg-success-soft text-success", dot: "bg-success" },
-  failed: { label: "Failed", classes: "border-danger-border bg-danger-soft text-danger", dot: "bg-danger" },
-  stopped: { label: "Stopped", classes: "border-border bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
-};
-
 function useNow(active: boolean) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!active) return;
-    const t = setInterval(() => setNow(Date.now()), 200);
+    const t = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(t);
   }, [active]);
   return now;
+}
+
+/** 0 to 1. Finished stages count fully; the stage in flight counts half, or its real fraction while verifying. */
+function runProgress(stages: Partial<Record<StageId, StageData>>, v: VerificationProgress | null): number {
+  let sum = 0;
+  for (const id of STAGE_ORDER) {
+    const st = stages[id]?.status;
+    if (st === "done" || st === "skipped") sum += 1;
+    else if (st === "running") sum += id === "verify" && v && v.total > 0 ? Math.min(1, v.checked / v.total) * 0.9 : 0.5;
+  }
+  return sum / STAGE_ORDER.length;
 }
 
 /** One run of the generation. Remount (new key) to start a fresh run. */
@@ -56,9 +57,14 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
   // and when it first reaches a terminal status.
   const [timings, setTimings] = useState<Partial<Record<StageId, StageTiming>>>({});
   const [stopped, setStopped] = useState(false);
+  const [startedAt] = useState(() => Date.now());
+  const [endedAt, setEndedAt] = useState<number | null>(null);
+  const markEnded = () => setEndedAt((t) => t ?? Date.now());
 
   const { messages, sendMessage, status, error, stop } = useChat<GenerateMessage>({
     transport,
+    onFinish: markEnded,
+    onError: markEnded,
     onData: (part) => {
       if (part.type !== "data-stage" || !part.data) return;
       const { stage, status: st } = part.data;
@@ -94,6 +100,7 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
   const state: RunState = run.guide ? "done" : running ? "running" : stopped ? "stopped" : "failed";
 
   const now = useNow(running);
+  const elapsedMs = (endedAt ?? now) - startedAt;
 
   // A stage still marked running after the stream has ended was interrupted.
   const viewStages = useMemo(() => {
@@ -107,24 +114,41 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
           ? {
               ...s,
               status: "error",
-              detail: stopped ? "Stopped before this finished" : "The stream ended before this finished",
+              detail: stopped
+                ? "Stopped before this finished"
+                : error
+                  ? "Failed here"
+                  : "The connection ended before this finished",
             }
           : s;
     }
     return out;
-  }, [run.stages, running, stopped]);
+  }, [run.stages, running, stopped, error]);
 
-  const guideRef = useRef<HTMLDivElement>(null);
-  const scrolled = useRef(false);
   const hasGuide = Boolean(run.guide);
+
+  // Hand-off: let the finished pipeline sit for a beat, fold the run log away, then bring the guide into view.
+  const [logOpen, setLogOpen] = useState(true);
+  const guideRef = useRef<HTMLDivElement>(null);
+  const handedOff = useRef(false);
   useEffect(() => {
-    if (!hasGuide || scrolled.current) return;
-    scrolled.current = true;
+    if (!hasGuide || handedOff.current) return;
+    handedOff.current = true;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Wait a frame so the inline guide has laid out before measuring.
-    requestAnimationFrame(() =>
-      guideRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }),
+    const fold = setTimeout(() => setLogOpen(false), reduce ? 0 : 1100);
+    const reveal = setTimeout(
+      () => {
+        const el = guideRef.current;
+        if (!el) return;
+        el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        el.focus({ preventScroll: true });
+      },
+      reduce ? 50 : 1500,
     );
+    return () => {
+      clearTimeout(fold);
+      clearTimeout(reveal);
+    };
   }, [hasGuide]);
 
   const stageError = STAGE_ORDER.map((id) => viewStages[id]).find((s) => s?.status === "error");
@@ -133,113 +157,128 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
     (stageError ? `${stageError.label}${stageError.detail ? `: ${stageError.detail}` : ""}` : "") ||
     "The run ended without producing a guide.";
 
-  const name = run.guide?.guide.app_name ?? app;
-  const chip = CHIP[state];
+  const replay = run.replay;
+  // A replay is always the recorded GitHub run; keep the heading on what the user asked for.
+  const name = replay ? app : (run.guide?.guide.app_name ?? app);
+  const currentStage =
+    STAGE_ORDER.find((id) => viewStages[id]?.status === "running") ??
+    [...STAGE_ORDER].reverse().find((id) => viewStages[id]) ??
+    null;
+  const progress = state === "done" ? 1 : runProgress(viewStages, run.verification);
+  const latest = run.narration[run.narration.length - 1]?.text;
+  const sourcesSeen = run.sources.length;
+  const claims = run.guide ? verifiedClaims(run.guide.guide) : null;
+  const logId = "run-log";
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6">
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h1 className="min-w-0 text-2xl leading-tight font-semibold tracking-tight break-words">{name}</h1>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <span role="status">
-              <Chip className={cn("px-2.5 py-1 text-xs", chip.classes)}>
-                <span className={cn("size-1.5 rounded-full", chip.dot)} aria-hidden />
-                {chip.label}
-              </Chip>
-            </span>
-            {(state === "running" || state === "done") && (
-              <Chip className="border-dashed border-muted-foreground/60 text-muted-foreground">
-                <Sparkles className="size-3" aria-hidden /> Agent-generated
-              </Chip>
-            )}
-          </div>
-          <div className="ml-auto flex items-center gap-3">
-            <Link
-              href="/"
-              className="rounded text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
-            >
-              All apps
-            </Link>
-            {running ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setStopped(true);
-                  stop();
-                }}
-              >
-                <SquareIcon aria-hidden /> Stop
-              </Button>
-            ) : (
-              state !== "failed" && (
-                <Button variant="outline" size="sm" onClick={onRestart}>
-                  <RotateCcwIcon aria-hidden /> Run again
-                </Button>
-              )
-            )}
-          </div>
-        </div>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          {state === "done"
-            ? "Done. The guide is below the run log, which stays here so you can see how it was built."
-            : state === "failed"
-              ? "The run stopped before a guide was produced. Everything it gathered is kept below."
-              : state === "stopped"
-                ? "You stopped the run. Everything gathered so far is kept below."
-                : "An agent is finding the official docs, probing the developer console and re-checking every claim against the live pages. Each step shows up below as it happens."}
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
+      <RunSummary
+        app={name}
+        state={state}
+        currentStage={currentStage}
+        progress={progress}
+        elapsedMs={elapsedMs}
+        latest={latest}
+        replay={replay}
+        stageElapsedMs={currentStage && viewStages[currentStage]?.status === "running" && timings[currentStage] ? now - timings[currentStage]!.start : 0}
+        onStop={() => {
+          setStopped(true);
+          markEnded();
+          stop();
+        }}
+        onRestart={onRestart}
+      />
 
-      {state === "failed" && (
+      {replay && <ReplayBanner app={name} />}
+
+      {(state === "failed" || state === "stopped") && (
         <div className="mt-6">
           <RunErrorPanel
+            app={name}
             message={errorMessage}
+            stopped={state === "stopped"}
             stages={viewStages}
-            sourcesCount={run.sources.length}
+            sourcesCount={sourcesSeen}
             hasWall={Boolean(run.wall)}
             hasVerification={Boolean(run.verification)}
             onRetry={onRestart}
           />
         </div>
       )}
-      {/* One column on small screens (pipeline, narration, sources, probe, verification); two columns from lg.
-          `contents` lets the order utilities interleave the two columns' panels on small screens. */}
-      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start print:hidden">
-        <div className="contents lg:block lg:space-y-6">
-          <div className="order-1">
-            <Panel title="Pipeline">
-              <StageStepper stages={viewStages} timings={timings} now={now} />
-            </Panel>
-          </div>
-          <div className="order-4">
-            <WallProbeCard wall={run.wall} probeStatus={viewStages.probe?.status ?? "pending"} finished={!running} />
-          </div>
-          <div className="order-5">
-            <VerificationCard
-              v={run.verification}
-              verifyStatus={viewStages.verify?.status ?? "pending"}
-              finished={!running}
-            />
-          </div>
-        </div>
-        <div className="contents lg:block lg:space-y-6">
-          <div className="order-2">
-            <Panel title="Agent narration">
-              <NarrationLog lines={run.narration} active={running} />
-            </Panel>
-          </div>
-          <div className="order-3">
-            <SourcesPanel sources={run.sources} active={running} />
+
+      {state === "done" && (
+        <button
+          type="button"
+          aria-expanded={logOpen}
+          aria-controls={logId}
+          onClick={() => setLogOpen((o) => !o)}
+          className="mt-4 flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border bg-card px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none print:hidden"
+        >
+          <span className="min-w-0">
+            <span className="font-medium text-foreground">How the agent built this</span>
+            <span className="text-muted-foreground">
+              {" "}
+              · {formatDuration(elapsedMs)} · {sourcesSeen} {sourcesSeen === 1 ? "source" : "sources"}
+              {claims ? ` · ${claims.n} of ${claims.total} claims verified` : ""}
+            </span>
+          </span>
+          <ChevronDownIcon
+            className={cn("size-4 shrink-0 text-muted-foreground transition-transform duration-300 motion-reduce:transition-none", logOpen && "rotate-180")}
+            aria-hidden
+          />
+        </button>
+      )}
+
+      {/* The run log folds away (grid-rows 1fr to 0fr) once the guide arrives. One column on small screens
+          (pipeline, narration, sources, probe, verification); two columns from lg. `contents` lets the order
+          utilities interleave the two columns' panels on small screens. */}
+      <div
+        id={logId}
+        inert={!logOpen}
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none print:hidden",
+          logOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 pt-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start">
+            <div className="contents lg:block lg:space-y-6">
+              <div className="order-1">
+                <Panel title="Pipeline" aside={`${currentStage ? STAGE_ORDER.indexOf(currentStage) + 1 : 0} of ${STAGE_ORDER.length}`}>
+                  <StageStepper stages={viewStages} timings={timings} now={now} />
+                </Panel>
+              </div>
+              {run.wall && (
+                <div className="order-4">
+                  <WallProbeCard wall={run.wall} />
+                </div>
+              )}
+            </div>
+            <div className="contents lg:block lg:space-y-6">
+              <div className="order-2">
+                <Panel title="What the agent is saying" aside="newest first">
+                  <NarrationLog lines={run.narration} active={running} className="h-52" />
+                </Panel>
+              </div>
+              {(running || sourcesSeen > 0) && (
+                <div className="order-3">
+                  <SourcesPanel sources={run.sources} active={running} />
+                </div>
+              )}
+              {run.verification && (
+                <div className="order-5">
+                  <VerificationCard v={run.verification} running={running} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {run.guide && (
-        <div ref={guideRef} className="mt-12 max-w-[760px] scroll-mt-20 space-y-6">
-          <GuideReadyBanner permalink={run.guide.permalink} appName={run.guide.guide.app_name} />
-          <GuideView guide={run.guide.guide} variant="inline" />
+        <div ref={guideRef} tabIndex={-1} aria-label={`${name} guide`} className="mt-8 max-w-[760px] scroll-mt-14 space-y-6 outline-none">
+          <GuideReadyBanner permalink={run.guide.permalink} guide={run.guide.guide} replay={replay} />
+          <GuideView guide={run.guide.guide} variant="inline" replay={replay} />
         </div>
       )}
     </div>

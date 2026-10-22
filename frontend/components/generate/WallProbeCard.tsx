@@ -1,87 +1,77 @@
 "use client";
 
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, LockKeyholeIcon, ShieldCheckIcon, ShieldAlertIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Chip } from "@/components/guide/shared";
+import { Chip, fmtDate } from "@/components/guide/shared";
 import type { WallProbe } from "@/types/guide";
-import { Panel, PanelEmpty } from "./Panel";
+import { Panel } from "./Panel";
+import { hostOf } from "./run-info";
 
-const OUTCOME: Record<WallProbe["outcome"], { label: string; classes: string }> = {
-  login_wall: { label: "Login wall", classes: "bg-warning-soft text-warning border-warning-border" },
-  console_reachable: { label: "Console reachable", classes: "bg-success-soft text-success border-success-border" },
-  blocked: { label: "Blocked", classes: "bg-danger-soft text-danger border-danger-border" },
-  error: { label: "Probe error", classes: "bg-muted text-muted-foreground border-border" },
-};
+const OUTCOME = {
+  login_wall: { label: "Sign-in wall", Icon: LockKeyholeIcon, classes: "border-warning-border bg-warning-soft text-warning" },
+  console_reachable: { label: "Console open", Icon: ShieldCheckIcon, classes: "border-success-border bg-success-soft text-success" },
+  blocked: { label: "Blocked", Icon: ShieldAlertIcon, classes: "border-danger-border bg-danger-soft text-danger" },
+  error: { label: "Probe error", Icon: ShieldAlertIcon, classes: "border-border bg-muted text-muted-foreground" },
+} as const;
 
 function shortUrl(url: string) {
   try {
     const u = new URL(url);
-    const path = u.pathname === "/" ? "" : u.pathname;
-    return `${u.hostname.replace(/^www\./, "")}${path}`;
+    return `${u.hostname.replace(/^www\./, "")}${u.pathname === "/" ? "" : u.pathname}`;
   } catch {
     return url;
   }
 }
 
-function formatWhen(iso: string) {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+/** First clause of "GitHub account: username or email and password, Google" is the account the console needs. */
+function headline(w: WallProbe): string {
+  const host = w.wall_host ? hostOf(`https://${w.wall_host}`) : hostOf(w.console_url);
+  const who = w.asks_for.split(":")[0]?.trim();
+  switch (w.outcome) {
+    case "login_wall":
+      return who ? `Console needs a ${who.replace(/^an? /i, "")}` : `Console needs a sign-in at ${host}`;
+    case "console_reachable":
+      return "Console opens without signing in";
+    case "blocked":
+      return `Console blocked the probe at ${host}`;
+    default:
+      return "The console could not be probed";
+  }
 }
 
-export function WallProbeCard({
-  wall,
-  probeStatus,
-  finished,
-}: {
-  wall: WallProbe | null;
-  probeStatus: "pending" | "running" | "done" | "error" | "skipped";
-  finished: boolean;
-}) {
-  const outcome = wall ? (OUTCOME[wall.outcome] ?? OUTCOME.error) : null;
+/** The sign-in wall observation as one compact card. Hidden until the probe has something to show. */
+export function WallProbeCard({ wall }: { wall: WallProbe }) {
+  const o = OUTCOME[wall.outcome] ?? OUTCOME.error;
+  const seen = fmtDate(wall.observed_at);
+  const chain = wall.redirect_chain.length ? wall.redirect_chain : [wall.console_url];
   return (
-    <Panel title="Console probe" bodyClassName="min-h-56">
-      {!wall || !outcome ? (
-        <PanelEmpty>
-          {(probeStatus === "pending" || probeStatus === "running") && !finished
-            ? "Waiting for the console probe."
-            : "The console was not probed."}
-        </PanelEmpty>
-      ) : (
-        <div className="animate-in fade-in space-y-3 duration-300 motion-reduce:animate-none">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <Chip className={cn("px-2.5 py-1 text-xs", outcome.classes)}>{outcome.label}</Chip>
-            {wall.bot_check && (
-              <Chip className="border-danger-border bg-danger-soft px-2.5 py-1 text-xs text-danger">Bot check</Chip>
-            )}          </div>
-
-          <ol aria-label="Redirect path" className="flex flex-wrap items-center gap-1 text-xs">
-            {(wall.redirect_chain.length ? wall.redirect_chain : [wall.console_url]).map((u, i, arr) => (
-              <li key={`${u}-${i}`} className="flex min-w-0 items-center gap-1">
-                <span
-                  title={u}
-                  className="max-w-[16rem] truncate rounded-md border bg-muted/50 px-1.5 py-0.5 font-mono text-xs text-foreground"
-                >
-                  {shortUrl(u)}
-                </span>
-                {i < arr.length - 1 && (
-                  <ChevronRightIcon className="size-3 shrink-0 text-muted-foreground" aria-label="redirects to" />
-                )}
-              </li>
-            ))}
-          </ol>
-
-          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
-            <dt className="text-muted-foreground">Asks for</dt>
-            <dd className="min-w-0 break-words text-foreground">{wall.asks_for || "Nothing recorded"}</dd>
-            <dt className="text-muted-foreground">Bot check</dt>
-            <dd className="text-foreground">{wall.bot_check ? "Yes" : "None seen"}</dd>
-            <dt className="text-muted-foreground">Method</dt>
-            <dd className="text-foreground">{wall.method === "browser" ? "Headless browser" : "Plain HTTP request"}</dd>
-            <dt className="text-muted-foreground">Observed</dt>
-            <dd className="text-foreground">{formatWhen(wall.observed_at)}</dd>
-          </dl>
+    <Panel title="Console probe">
+      <div className="animate-in fade-in space-y-3 duration-300 motion-reduce:animate-none">
+        <div className="flex items-start gap-3">
+          <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg border", o.classes)}>
+            <o.Icon className="size-4" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm leading-snug font-medium text-foreground">{headline(wall)}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Seen {seen} · {wall.method === "browser" ? "headless browser" : "plain request"} ·{" "}
+              {wall.bot_check ? "bot check present" : "no bot check"}
+            </p>
+          </div>
+          <Chip className={cn("ml-auto hidden sm:inline-flex", o.classes)}>{o.label}</Chip>
         </div>
-      )}
+        {wall.asks_for && <p className="text-sm break-words text-muted-foreground">Asks for: {wall.asks_for}</p>}
+        <ol aria-label="Redirect path" className="flex flex-wrap items-center gap-1 text-xs">
+          {chain.map((u, i) => (
+            <li key={`${u}-${i}`} className="flex min-w-0 items-center gap-1">
+              <span title={u} className="max-w-[14rem] truncate rounded-md border bg-muted/50 px-1.5 py-0.5 font-mono text-foreground">
+                {shortUrl(u)}
+              </span>
+              {i < chain.length - 1 && <ChevronRightIcon className="size-3 shrink-0 text-muted-foreground" aria-label="redirects to" />}
+            </li>
+          ))}
+        </ol>
+      </div>
     </Panel>
   );
 }

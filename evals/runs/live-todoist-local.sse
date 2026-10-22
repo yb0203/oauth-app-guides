@@ -1,0 +1,112 @@
+data: {"type":"start","messageId":"2722973f-16ec-4735-88cf-ad7e9aab4c46"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"ca0a09ec52274e09b690645e0c86fdf3"}
+
+data: {"type":"text-delta","id":"ca0a09ec52274e09b690645e0c86fdf3","delta":"Resolved Todoist to Composio toolkit todoist (MANAGED)."}
+
+data: {"type":"text-end","id":"ca0a09ec52274e09b690645e0c86fdf3"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"Todoist -> todoist","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+: ping
+
+data: {"type":"text-start","id":"4f2e172c9771489e9beb3956be9bc212"}
+
+data: {"type":"text-delta","id":"4f2e172c9771489e9beb3956be9bc212","delta":"Found 5 docs pages (automatisch.io, developer.todoist.com, developer.transmitsecurity.com, docs.n8n.io, doist.github.io); rejected 3 that don't cover the topic."}
+
+data: {"type":"text-end","id":"4f2e172c9771489e9beb3956be9bc212"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":3}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"390cbee36d064b8c9f70724091637fe1"}
+
+data: {"type":"text-delta","id":"390cbee36d064b8c9f70724091637fe1","delta":"doist.github.io: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"390cbee36d064b8c9f70724091637fe1"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://doist.github.io/todoist-sdk-typescript/authorization/","title":"Authorization | Todoist SDK"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":14}}}
+
+data: {"type":"text-start","id":"7a757f10c8864ff9aaa7344be3513b04"}
+
+data: {"type":"text-delta","id":"7a757f10c8864ff9aaa7344be3513b04","delta":"automatisch.io: 7 of 7 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"7a757f10c8864ff9aaa7344be3513b04"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://automatisch.io/docs/apps/todoist/connection","title":"Todoist | Automatisch Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":21}}}
+
+data: {"type":"text-start","id":"334f2fec717e4713a2cc4751dc6078ad"}
+
+data: {"type":"text-delta","id":"334f2fec717e4713a2cc4751dc6078ad","delta":"docs.n8n.io: 10 of 10 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"334f2fec717e4713a2cc4751dc6078ad"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://docs.n8n.io/integrations/builtin/credentials/todoist","title":"Todoist credentials | Nodes | n8n Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":31}}}
+
+data: {"type":"text-start","id":"54bb7d89c8144d38b06e33de160c8cdd"}
+
+data: {"type":"text-delta","id":"54bb7d89c8144d38b06e33de160c8cdd","delta":"developer.todoist.com: 12 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"54bb7d89c8144d38b06e33de160c8cdd"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://developer.todoist.com/api/v1/","title":"Todoist API"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":43}}}
+
+data: {"type":"text-start","id":"11d647a8db844df8b99cc7cf3e539195"}
+
+data: {"type":"text-delta","id":"11d647a8db844df8b99cc7cf3e539195","delta":"developer.transmitsecurity.com: 9 of 9 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"11d647a8db844df8b99cc7cf3e539195"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://developer.transmitsecurity.com/guides/automated-workflows/integrations/builtin/credentials/todoist","title":"Todoist credentials"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":52}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":5,"claims":52}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"skipped","label":"Probe the developer console","detail":"no developer console URL found"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","counts":{"llm_calls":6}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":27}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":25,"docs_verified":25,"hidden":0,"downgraded":0,"total":27}}
+
+data: {"type":"text-start","id":"aee362e6cd85484691304c706996db7c"}
+
+data: {"type":"text-delta","id":"aee362e6cd85484691304c706996db7c","delta":"Verified 25 of 25 quotes on the live pages; downgraded 0 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"aee362e6cd85484691304c706996db7c"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":25,"downgraded":0}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/todoist","counts":{"llm_calls":6}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"todoist","permalink":"/guides/todoist","guide":{"verdict":{"tier":"instant","summary":"Composio supplies the managed Todoist OAuth app, so normal connections do not require developer registration or provider review. Developers only need a Todoist account and must grant the agent the minimum requested access.","effort_hours":{"min":0.1,"max":0.5},"calendar":{"min_days":0.0,"max_days":0.0,"label":"Connect and authorize immediately"},"calendar_basis":"estimate","confidence":"medium"},"situations":{"questions":[{"id":"audience","text":"Who will connect their Todoist account?","options":[{"id":"own_org","label":"Only my organization"},{"id":"outside_users","label":"Outside users"}]},{"id":"access","text":"What must the agent access?","options":[{"id":"read","label":"Read tasks and data"},{"id":"write","label":"Read and modify data"},{"id":"create_tasks","label":"Create tasks only"}]}],"variants":[{"when":{"audience":"own_org","access":"read"},"tier":"instant","summary":"Use Composio's managed app and request read-only access.","calendar_label":"Immediate connection","notes":[]},{"when":{"audience":"outside_users","access":"read"},"tier":"instant","summary":"Each outside user authorizes the managed app with read-only access.","calendar_label":"Per-user authorization","notes":[]},{"when":{"audience":"outside_users","access":"write"},"tier":"instant","summary":"Each outside user authorizes the managed app with the required write access.","calendar_label":"Per-user authorization","notes":[]}]},"byo_advice":"Composio's managed app is enough for normal connections and avoids registering a Todoist OAuth application yourself. Bring your own app only if you need provider-side client ownership or branding that the managed app cannot provide.","before_you_start":[{"text":"A Todoist account is required.","evidence":{"label":"DOCS","source_id":"s4","quote":"Create a Todoist account.","found_in":"visible","note":null}},{"text":"Todoist supports OAuth2 authentication, which Composio's managed integration uses.","evidence":{"label":"DOCS","source_id":"s5","quote":"The Todoist API uses OAuth2 for authentication.","found_in":"visible","note":null}}],"limits":[{"what":"Read-only access","value":null,"unit":"scope","scope":"data:read","evidence":{"label":"DOCS","source_id":"s5","quote":"data:read - Read-only access","found_in":"visible","note":null}},{"what":"Read and write access","value":null,"unit":"scope","scope":"data:read_write","evidence":{"label":"DOCS","source_id":"s5","quote":"data:read_write - Read and write access","found_in":"visible","note":null}},{"what":"Task creation only","value":null,"unit":"scope","scope":"task:add","evidence":{"label":"DOCS","source_id":"s5","quote":"task:add - Only create new tasks","found_in":"visible","note":null}},{"what":"Full access including deletion","value":null,"unit":"scope","scope":"data:delete","evidence":{"label":"DOCS","source_id":"s5","quote":"data:delete - Full access including delete","found_in":"visible","note":null}},{"what":"Default scope when omitted","value":null,"unit":"scope","scope":"data:read_write","evidence":{"label":"DOCS","source_id":"s1","quote":"Space-separated scopes the client will request. Restricted scopes are rejected. Defaults to data:read_write when omitted.","found_in":"visible","note":null}},{"what":"Access-token lifetime for dynamically registered applications","value":1.0,"unit":"hour","scope":"Access tokens for dynamically registered applications","evidence":{"label":"DOCS","source_id":"s1","quote":"tokens issued to these applications expire one hour after they are issued","found_in":"visible","note":null}}],"steps":[{"n":1,"title":"Use the managed Todoist app","detail":"Select Todoist in Composio and keep the managed app; do not create a separate Todoist OAuth application for the normal path.","actor":"agent","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The supplied Composio status says managed; the exact Composio setup screen and current selection controls were not verified."}},{"n":2,"title":"Prepare the Todoist account","detail":"Create or sign in to the Todoist account that the agent will connect.","actor":"human","human_reason":"credential","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s4","quote":"Create a Todoist account.","found_in":"visible","note":null}},{"n":3,"title":"Choose least-privilege access","detail":"Choose read-only access for reading, task creation for creating tasks, or read/write access when modifications are required.","actor":"agent","human_reason":null,"irreversible":false,"values":[{"label":"Read-only scope","value":"data:read"},{"label":"Task creation scope","value":"task:add"},{"label":"Read/write scope","value":"data:read_write"}],"evidence":{"label":"DOCS","source_id":"s5","quote":"const url = getAuthorizationUrl('YOUR_CLIENT_ID', ['data:read', 'task:add'], state)","found_in":"visible","note":null}},{"n":4,"title":"Start the Todoist connection","detail":"Open the Composio Todoist connection flow and send the user to the Todoist authorization page.","actor":"agent","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s5","quote":"// 3. Redirect user to the authorization URL","found_in":"visible","note":null}},{"n":5,"title":"Authorize Todoist","detail":"Sign in to Todoist, review the requested permissions, and approve or deny authorization.","actor":"human","human_reason":"legal_acceptance","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s1","quote":"When the user denies your authorization request, Todoist will redirect the user to the configured redirect URI with the error parameter: http://example.com?error=access_denied.","found_in":"visible","note":null}},{"n":6,"title":"Optional: register a BYO Todoist app","detail":"Only if managed ownership is unsuitable, create an OAuth application from Todoist account App Management and save its configuration.","actor":"human","human_reason":"submit","irreversible":false,"values":[{"label":"App name","value":"Your AI agent integration"},{"label":"App service URL","value":"https://your-company.example"},{"label":"OAuth redirect URL","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s3","quote":"Go to the account App Management page to register a new OAuth application on Todoist.","found_in":"visible","note":null}},{"n":7,"title":"Optional: store BYO credentials","detail":"Copy the BYO client ID and client secret into Composio's Todoist credential fields, then complete the connection.","actor":"human","human_reason":"credential","irreversible":false,"values":[{"label":"Client ID","value":"PASTE_TODOIST_CLIENT_ID"},{"label":"Client secret","value":"PASTE_TODOIST_CLIENT_SECRET"}],"evidence":{"label":"DOCS","source_id":"s3","quote":"Copy the Client ID and Client secret values from the Todoist page to the corresponding fields on Automatisch.","found_in":"visible","note":null}}],"review":{"required":"no","trigger":null,"submit":[],"reviewer":null,"wait_official":null,"wait_community":null,"cost":null,"evidence":[{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"No managed-app review requirement was stated in the supplied claims; BYO review requirements were not verified."}]},"customer_gates":[{"text":"The connecting user needs a Todoist account.","evidence":{"label":"DOCS","source_id":"s4","quote":"Create a Todoist account.","found_in":"visible","note":null}},{"text":"The user must approve or deny Todoist's authorization request.","evidence":{"label":"DOCS","source_id":"s1","quote":"When the user denies your authorization request, Todoist will redirect the user to the configured redirect URI with the error parameter: http://example.com?error=access_denied.","found_in":"visible","note":null}}],"gotchas":[{"text":"Omitting the scope can request broader read/write access than intended.","evidence":{"label":"DOCS","source_id":"s1","quote":"Space-separated scopes the client will request. Restricted scopes are rejected. Defaults to data:read_write when omitted.","found_in":"visible","note":null}},{"text":"The data:delete scope includes deletion and therefore needs careful justification.","evidence":{"label":"DOCS","source_id":"s5","quote":"data:delete - Full access including delete","found_in":"visible","note":null}},{"text":"A denied authorization returns access_denied to the configured redirect URI.","evidence":{"label":"DOCS","source_id":"s1","quote":"When the user denies your authorization request, Todoist will redirect the user to the configured redirect URI with the error parameter: http://example.com?error=access_denied.","found_in":"visible","note":null}},{"text":"An invalid scope returns invalid_scope to the configured redirect URI.","evidence":{"label":"DOCS","source_id":"s1","quote":"When the scope parameter is invalid, Todoist will redirect the user to the configured redirect URI with error parameter: http://example.com?error=invalid_scope.","found_in":"visible","note":null}},{"text":"An invalid client ID or secret causes incorrect_application_credentials.","evidence":{"label":"DOCS","source_id":"s1","quote":"Occurs when the client_id or client_secret parameters are incorrect: {\"error\": \"incorrect_application_credentials\"}","found_in":"visible","note":null}},{"text":"Refresh-token support requires the authorization_code grant and inclusion of refresh_token.","evidence":{"label":"DOCS","source_id":"s1","quote":"Array of supported grant types. Must include authorization_code. Include refresh_token to use token refresh. Defaults to [\"authorization_code\"].","found_in":"visible","note":null}}],"blockers":[{"symptom":"The callback contains error=access_denied.","cause":"The user denied Todoist authorization.","fix":"Ask the user to restart the connection and approve the requested access.","evidence":{"label":"DOCS","source_id":"s1","quote":"When the user denies your authorization request, Todoist will redirect the user to the configured redirect URI with the error parameter: http://example.com?error=access_denied.","found_in":"visible","note":null}},{"symptom":"The callback contains error=invalid_scope.","cause":"A requested scope is invalid.","fix":"Use a documented scope such as data:read, task:add, or data:read_write and reconnect.","evidence":{"label":"DOCS","source_id":"s1","quote":"When the scope parameter is invalid, Todoist will redirect the user to the configured redirect URI with error parameter: http://example.com?error=invalid_scope.","found_in":"visible","note":null}},{"symptom":"The token exchange returns incorrect_application_credentials.","cause":"The client ID or client secret is incorrect.","fix":"Copy the current client ID and secret from the Todoist app and retry the connection.","evidence":{"label":"DOCS","source_id":"s1","quote":"Occurs when the client_id or client_secret parameters are incorrect: {\"error\": \"incorrect_application_credentials\"}","found_in":"visible","note":null}}],"prepared":{"scopes":[{"scope":"data:read","why":"Allows the agent to read Todoist data without write access.","review_class":"none"},{"scope":"task:add","why":"Allows the agent to create new tasks only.","review_class":"sensitive"},{"scope":"data:read_write","why":"Allows the agent to read and modify Todoist data.","review_class":"sensitive"},{"scope":"data:delete","why":"Allows full access including deletion; use only when deletion is required.","review_class":"restricted"}],"privacy_policy_outline":["State that Todoist account data is accessed through Composio to provide the requested agent functionality.","List the selected Todoist scopes and explain that task:add creates tasks while data:read_write permits modification.","Explain the retention, deletion, and user-disconnect process for connected account data.","Provide a contact or support channel for privacy and access requests."],"consent_screen":{"provider":"Todoist","agent_purpose":"Describe the specific tasks the AI agent will perform with the Todoist account.","requested_scopes":"List the minimum scopes selected for this connection.","read_access":"Explain which Todoist data may be read.","write_access":"Explain which data may be changed, including task creation when selected.","deletion_access":"Explain deletion behavior if data:delete is selected.","revocation":"Explain that the user can deny access and that token revocation is supported."},"review_text":null},"open_questions":["What exact screen and controls should a developer use to select scopes and connect Todoist in the current Composio interface?","Does Todoist require an application review or impose a publication policy for BYO OAuth applications?","Do Composio's managed Todoist tokens use the same one-hour expiry and refresh-token behavior documented for dynamically registered applications?","Which Todoist scopes are classified as restricted by the provider?","Is a service URL other than the example placeholder required for Composio's BYO flow?"],"schema_version":"1","slug":"todoist","app_name":"Todoist","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"todoist","status":"managed","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":null,"conflicts":[],"sources":[{"id":"s1","url":"https://developer.todoist.com/api/v1/","title":"Todoist API","accessed":"2026-10-22","kind":"official_docs"},{"id":"s3","url":"https://automatisch.io/docs/apps/todoist/connection","title":"Todoist | Automatisch Docs","accessed":"2026-10-22","kind":"community"},{"id":"s4","url":"https://developer.transmitsecurity.com/guides/automated-workflows/integrations/builtin/credentials/todoist","title":"Todoist credentials","accessed":"2026-10-22","kind":"community"},{"id":"s5","url":"https://doist.github.io/todoist-sdk-typescript/authorization/","title":"Authorization | Todoist SDK","accessed":"2026-10-22","kind":"community"}],"verification_summary":{"total":27,"tested":0,"docs_verified":25,"docs_hidden":0,"community":0,"uncertain":2}}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+

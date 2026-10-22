@@ -1,48 +1,53 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { NarrationLine } from "@/lib/chat-types";
 
-export function NarrationLog({ lines, active }: { lines: NarrationLine[]; active: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const lastText = lines[lines.length - 1]?.text;
-
-  // Scroll the log itself (not the page) to the newest line.
-  useEffect(() => {
-    const el = ref.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [lines.length, lastText]);
-
+/**
+ * The agent's own commentary, newest first. The newest line always sits at the top of the box, so a
+ * viewer never has to chase a scrolling log; older lines fade as they move down.
+ */
+export function NarrationLog({
+  lines,
+  active,
+  className,
+}: {
+  lines: NarrationLine[];
+  active: boolean;
+  className?: string;
+}) {
+  const newestFirst = [...lines].reverse();
   return (
     <div
-      ref={ref}
       role="log"
-      aria-live="polite"
-      aria-label="Agent narration"
-      className="h-52 overflow-y-auto pr-1"
+      aria-label="Agent narration, newest first"
+      tabIndex={0}
+      className={cn(
+        "overflow-y-auto rounded-sm pr-1 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
+        className,
+      )}
     >
       {lines.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {active ? "The agent has not said anything yet." : "No narration was recorded for this run."}
+          {active ? "Waiting for the agent's first note." : "No narration was recorded for this run."}
         </p>
       ) : (
-        <ul className="space-y-1.5">
-          {lines.map((l, i) => {
-            const latest = i === lines.length - 1;
+        <ul className="space-y-2">
+          {newestFirst.map((l, i) => {
+            const latest = i === 0 && active;
             return (
               <li
                 key={l.id}
                 className={cn(
-                  "animate-in fade-in flex gap-2.5 text-sm leading-snug duration-300 motion-reduce:animate-none",
-                  latest && active ? "text-foreground" : "text-muted-foreground",
+                  "animate-in fade-in slide-in-from-top-1 flex gap-2.5 text-sm leading-snug duration-300 motion-reduce:animate-none",
+                  latest ? "font-medium text-foreground" : i < 3 ? "text-foreground/80" : "text-muted-foreground",
                 )}
               >
                 <span
                   aria-hidden
                   className={cn(
-                    "mt-2 size-1.5 shrink-0 rounded-full",
-                    latest && active ? "bg-brand" : "bg-muted-foreground/40",
+                    "mt-[7px] size-1.5 shrink-0 rounded-full",
+                    latest ? "animate-pulse bg-info motion-reduce:animate-none" : "bg-muted-foreground/40",
                   )}
                 />
                 <span className="min-w-0 break-words">{l.text}</span>

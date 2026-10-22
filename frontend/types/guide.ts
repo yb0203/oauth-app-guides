@@ -206,6 +206,8 @@ export interface StageData {
   label: string;
   detail?: string;
   counts?: Record<string, number>;
+  /** true when the backend is replaying a recorded run (fake mode), not researching this app */
+  replay?: boolean;
 }
 
 export interface VerificationProgress {
@@ -220,4 +222,5 @@ export interface GuideDataPart {
   slug: string;
   permalink: string;
   guide: Guide;
+  replay?: boolean;
 }

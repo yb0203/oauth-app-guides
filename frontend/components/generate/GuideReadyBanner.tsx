@@ -2,52 +2,83 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { BadgeCheckIcon, CheckIcon, FileTextIcon, FlaskConicalIcon, LinkIcon, SparklesIcon } from "lucide-react";
+import { Chip, copyText } from "@/components/guide/shared";
+import { buttonVariants } from "@/components/ui/button";
+import { markdownUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { Guide } from "@/types/guide";
+import { verifiedClaims } from "./run-info";
 
-export function GuideReadyBanner({ permalink }: { permalink: string; appName?: string }) {
+/**
+ * Sticks under the site header while the guide is read, so the way to the permanent page, a shareable link
+ * and the Markdown export stay one click away. The badge is the honest label: this guide was written by
+ * the agent a moment ago, and the number is how many of its claims were checked.
+ */
+export function GuideReadyBanner({ permalink, guide, replay = false }: { permalink: string; guide: Guide; replay?: boolean }) {
   const [copied, setCopied] = useState(false);
+  const { n, total } = verifiedClaims(guide);
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}${permalink}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard can be unavailable (insecure context); the link itself is still shown.
-    }
+    await copyText(`${window.location.origin}${permalink}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
   }
 
   return (
     <section
-      aria-labelledby="guide-ready-title"
-      className="animate-in fade-in flex flex-wrap items-center justify-between gap-3 rounded-xl border border-success-border bg-success-soft px-4 py-3 duration-300 motion-reduce:animate-none"
+      aria-label="Guide actions"
+      className={cn("animate-in fade-in slide-in-from-top-2 z-20 -mx-4 sm:sticky sm:top-12 border-y px-4 py-2.5 backdrop-blur duration-500 motion-reduce:animate-none sm:mx-0 sm:rounded-xl sm:border", replay ? "border-warning-border bg-warning-soft/95" : "border-success-border bg-success-soft/95")}
     >
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-success text-background">
-          <CheckIcon className="size-3.5" strokeWidth={3} aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 id="guide-ready-title" className="text-sm font-semibold text-success">
-            Guide ready
-          </h2>
-          <p className="truncate text-xs text-muted-foreground">
-            Published at{" "}
-            <Link href={permalink} className="font-mono underline underline-offset-2">
-              {permalink}
-            </Link>
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        {replay ? (
+          <Chip
+            className="border-warning-border bg-background/70 px-2.5 py-1 text-xs text-warning"
+            title="A recording of the GitHub run, shown for any input in demo mode. It is not research for the app you typed."
+          >
+            <FlaskConicalIcon className="size-3" aria-hidden />
+            Demo replay
+            <span aria-hidden className="text-warning/50">
+              ·
+            </span>
+            Recorded GitHub run
+          </Chip>
+        ) : (
+          <Chip
+            className="border-success-border bg-background/70 px-2.5 py-1 text-xs text-success"
+            title="Written by the agent a moment ago. The count is how many of the guide's claims carry checked evidence."
+          >
+            <SparklesIcon className="size-3" aria-hidden />
+            Agent-generated
+            <span aria-hidden className="text-success/50">
+              ·
+            </span>
+            <BadgeCheckIcon className="size-3" aria-hidden />
+            Verified {n} of {total} claims
+          </Chip>
+        )}
+        <div className="flex flex-wrap items-center gap-1.5 print:hidden">
+          <Link href={permalink} className={cn(buttonVariants({ size: "sm" }))}>
+            <LinkIcon aria-hidden /> {replay ? "Open the GitHub guide" : "Open permanent link"}
+          </Link>
+          <button
+            type="button"
+            onClick={copy}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "cursor-pointer bg-background")}
+          >
+            {copied ? <CheckIcon aria-hidden /> : null}
+            <span aria-live="polite">{copied ? "Link copied" : "Copy link"}</span>
+          </button>
+          <a
+            href={markdownUrl(guide.slug)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "bg-background")}
+          >
+            <FileTextIcon aria-hidden /> Export Markdown
+            <span className="sr-only">(opens in a new tab)</span>
+          </a>
         </div>
-      </div>
-      <div className="flex items-center gap-2 print:hidden">
-        <Button variant="outline" size="sm" onClick={copy} className="bg-background">
-          {copied ? <CheckIcon aria-hidden /> : <CopyIcon aria-hidden />}
-          {copied ? "Copied" : "Copy link"}
-        </Button>
-        <Link href={permalink} className={cn(buttonVariants({ size: "sm" }))}>
-          Open guide page
-        </Link>
       </div>
     </section>
   );

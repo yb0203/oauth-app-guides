@@ -116,3 +116,33 @@ def test_parse_sse_ignores_blank_chunks():
 def test_stage_statuses_pass_through(status):
     [ev] = _events(stream.stage("probe", status))
     assert ev["data"]["status"] == status
+
+
+# --- keep-alive pings ------------------------------------------------------------------------------
+
+async def test_heartbeat_pings_while_source_is_silent_and_passes_everything_through():
+    import asyncio
+
+    async def slow():
+        yield stream.start("m")
+        await asyncio.sleep(0.35)
+        yield stream.finish()
+        yield stream.DONE
+
+    out = [c async for c in stream.with_heartbeat(slow(), interval=0.1)]
+    assert out.count(stream.PING) >= 2
+    assert [c for c in out if c != stream.PING] == [stream.start("m"), stream.finish(), stream.DONE]
+    # the parser (like the AI SDK's) ignores comment lines
+    assert stream.parse_sse("".join(out)) == [{"type": "start", "messageId": "m"}, {"type": "finish"}, "[DONE]"]
+
+
+async def test_heartbeat_propagates_source_errors():
+    async def boom():
+        yield stream.start("m")
+        raise RuntimeError("x")
+
+    got = []
+    with pytest.raises(RuntimeError):
+        async for c in stream.with_heartbeat(boom(), interval=0.05):
+            got.append(c)
+    assert got == [stream.start("m")]

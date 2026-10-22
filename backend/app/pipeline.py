@@ -9,18 +9,25 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import logging
+import os
+import time
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from urllib.parse import urlparse
 
 from . import catalog, config, docsearch, evidence, probe, research, store, stream, synthesize
 from .fetch import Page, fetch_page
+from pydantic import ValidationError
+
 from .llm import LLM, LLMError, has_key
 from .models import Composio, Evidence, Fact, Guide, Source, WallProbe, iter_evidence
 from .research import VerifiedClaim
 
 log = logging.getLogger("pipeline")
-RUN_TIMEOUT_S = 600
+# A run must fit a 300 s serverless limit: LLM work stops by LLM_BUDGET_S, and the run as a whole by RUN_TIMEOUT_S.
+RUN_TIMEOUT_S = float(os.getenv("RUN_TIMEOUT_S", "285"))
+LLM_BUDGET_S = float(os.getenv("LLM_BUDGET_S", "240"))
+RESEARCH_BUDGET_S = float(os.getenv("RESEARCH_BUDGET_S", "110"))
 
 
 class PipelineError(Exception):
@@ -66,7 +73,7 @@ async def run_pipeline(
         yield stream.error(f"The language model could not produce a valid result: {exc}")
         yield stream.stage(current, "error", detail=str(exc))
     except TimeoutError:
-        yield stream.error("The run took longer than 10 minutes and was stopped.")
+        yield stream.error(f"The run took longer than {RUN_TIMEOUT_S:.0f} seconds and was stopped.")
         yield stream.stage(current, "error", detail="timed out")
     except Exception as exc:  # never leave the client hanging
         log.exception("pipeline failed")
@@ -79,6 +86,7 @@ async def run_pipeline(
 async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple]:
     """Yields SSE strings, plus ("stage", name) markers so failures are attributed to the right stage."""
     today = dt.date.today().isoformat()
+    started = time.monotonic()
     if llm is None:
         if not has_key():
             raise PipelineError("resolve", "OPENROUTER_API_KEY is not set; set it or use LLM_MODE=fake.")
@@ -133,7 +141,8 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
 
     async def extract(sid: str) -> tuple[str, research.PageClaims | None]:
         try:
-            return sid, await research.extract_page(llm, name, sid, page_by_id[sid])
+            return sid, await research.extract_page(llm, name, sid, page_by_id[sid],
+                                                             started + RESEARCH_BUDGET_S)
         except LLMError as exc:
             log.warning("extract %s failed: %s", sid, exc)
             return sid, None
@@ -186,7 +195,16 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     yield ("stage", "synthesize")
     yield stream.stage("synthesize", "running")
     src_titles = {s.id: s.title for s in sources}
-    content = await synthesize.synthesize(llm, name, res.status, claims, src_titles, wall)
+    deadline = started + LLM_BUDGET_S
+    try:
+        if deadline - time.monotonic() < 20:
+            raise LLMError("not enough time left for the writer model")
+        content = await synthesize.synthesize(llm, name, res.status, claims, src_titles, wall, deadline=deadline)
+    except (LLMError, ValidationError) as exc:  # the writer failed or timed out: publish a plain, honest draft
+        log.warning("synthesize failed (%s); publishing a degraded guide", exc)
+        yield stream.text("The guide writer didn't finish in time, so this is a plain draft built only from the "
+                          "quotes verified on the docs pages. Tier and timeline are marked as not assessed.")
+        content = synthesize.degraded_content(claims, reason=str(exc)[:160])
     if wall:
         sid = f"s{len(sources) + 1}"
         sources.append(Source(id=sid, url=wall.console_url, title="Developer console sign-in wall probe",
@@ -196,7 +214,8 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
             evidence=Evidence(label="TESTED", source_id=sid, note=(
                 f"Our read-only probe on {wall.observed_at} loaded {wall.console_url} and ended at {wall.final_url} "
                 f"({wall.outcome.replace('_', ' ')})."))))
-    yield stream.stage("synthesize", "done", counts={"llm_calls": llm.calls})
+    yield stream.stage("synthesize", "done", counts={"llm_calls": llm.calls},
+                       detail="plain draft (writer unavailable)" if content.verdict.tier == "unknown" else None)
 
     # 6. verify (independent re-check of every DOCS quote against the live page text) ---------------
     yield ("stage", "verify")

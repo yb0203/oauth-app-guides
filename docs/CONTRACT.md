@@ -78,7 +78,7 @@ Order of events:
 
 On failure, send `{"type":"error","errorText":"..."}`, then mark the failed stage with `status: error`, then `finish` and `[DONE]`. Partial results that are already useful (sources, wall) stay visible.
 
-**Fake mode:** with `LLM_MODE=fake`, the backend replays a realistic recorded run for any input, with short delays (about 10 to 20 seconds in total) and no network or LLM calls. The frontend develops against this.
+**Fake mode:** with `LLM_MODE=fake`, the backend replays a recorded **GitHub** run for any input. Every fake event must say so: the first narration line is "Demo replay: recorded GitHub run, not research for <app>", every `data-stage` carries `"replay": true`, and `data-guide.data` carries `"replay": true`. The frontend must show a clear "Demo replay" banner and must never present replay content as research for the requested app. `LLM_MODE=live` is the default everywhere now that live calls are approved. The backend replays a realistic recorded run for any input, with short delays (about 10 to 20 seconds in total) and no network or LLM calls. The frontend develops against this.
 
 ## 5. Environment variables
 

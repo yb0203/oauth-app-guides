@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
-import { ArrowUpIcon, MessageSquareTextIcon, RotateCcwIcon, SquareIcon, TriangleAlertIcon } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { ArrowUpIcon, Loader2Icon, MessageSquareTextIcon, RotateCcwIcon, SquareIcon, TriangleAlertIcon } from "lucide-react";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Button } from "@/components/ui/button";
 import { messageText } from "@/lib/ask-types";
@@ -10,12 +10,34 @@ import { AnswerBody } from "./AnswerBody";
 import { starterQuestions } from "./starters";
 import type { AskState } from "./useAsk";
 
-function Thinking() {
+/** Honest wait: live answers take 10 to 40 s on the free models, so say so and show time passing. */
+function Thinking({ onStop }: { onStop: () => void }) {
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    const t0 = Date.now();
+    const t = setInterval(() => setSecs(Math.floor((Date.now() - t0) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const slow = secs >= 45;
   return (
-    <div role="status" aria-label="Reading the guide" className="space-y-2 py-1">
-      <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
-      <div className="h-3 w-4/5 animate-pulse rounded bg-muted [animation-delay:150ms]" />
-      <div className="h-3 w-3/5 animate-pulse rounded bg-muted [animation-delay:300ms]" />
+    <div role="status" className="flex items-start gap-2.5 py-1 text-sm text-muted-foreground">
+      <Loader2Icon className="mt-0.5 size-4 shrink-0 animate-spin text-brand motion-reduce:animate-none" aria-hidden />
+      <div className="min-w-0">
+        <p>
+          <span className="font-medium text-foreground">{slow ? "Still working" : "Reading the guide"}</span>
+          <span className="font-mono tabular-nums"> · {secs}s</span>
+        </p>
+        <p className="mt-0.5 text-xs">
+          {slow
+            ? "This is slower than usual. Free models can be slow; you can wait, or stop and ask again."
+            : "Thinking, usually 10–30 s. The answer appears all at once."}
+        </p>
+        {slow && (
+          <Button variant="outline" size="xs" className="mt-2 bg-background" onClick={onStop}>
+            Stop
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
@@ -171,7 +193,7 @@ export function AskPanel({ ask, inSheet = false }: { ask: AskState; inSheet?: bo
                 />
               ),
             )}
-            {waiting && <Thinking />}
+            {waiting && <Thinking onStop={() => ask.stop()} />}
             {status === "error" && error && <ErrorNotice ask={ask} />}
           </ConversationContent>
           <ConversationScrollButton />

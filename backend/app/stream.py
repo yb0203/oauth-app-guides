@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+import os
 import uuid
+from collections.abc import AsyncIterator
 
 STAGES = ["resolve", "find_docs", "research", "probe", "synthesize", "verify", "publish"]
 STAGE_LABELS = {
@@ -40,8 +43,11 @@ def stage(
     label: str | None = None,
     detail: str | None = None,
     counts: dict | None = None,
+    replay: bool = False,
 ) -> str:
     data: dict = {"stage": stage, "status": status, "label": label or STAGE_LABELS[stage]}
+    if replay:  # fake mode: this is a recorded demo run, not research for the requested app
+        data["replay"] = True
     if detail is not None:
         data["detail"] = detail
     if counts is not None:
@@ -77,8 +83,10 @@ def verification(checked: int, docs_verified: int, hidden: int, downgraded: int,
     return sse({"type": "data-verification", "id": "verification", "data": data})
 
 
-def guide_part(slug: str, guide: dict) -> str:
+def guide_part(slug: str, guide: dict, replay: bool = False) -> str:
     data = {"slug": slug, "permalink": f"/guides/{slug}", "guide": guide}
+    if replay:
+        data["replay"] = True
     return sse({"type": "data-guide", "id": "guide", "data": data})
 
 
@@ -95,7 +103,7 @@ def parse_sse(body: str) -> list[dict | str]:
     events: list[dict | str] = []
     for block in body.split("\n\n"):
         block = block.strip()
-        if not block:
+        if not block or block.startswith(":"):  # blank, or an SSE comment such as the keep-alive ping
             continue
         payload = block.removeprefix("data:").strip()
         events.append(payload if payload == "[DONE]" else json.loads(payload))
@@ -125,3 +133,30 @@ def action(n: int, data: dict) -> str:
 
 def answer_meta(covered: bool, suggest: str | None) -> str:
     return sse({"type": "data-answer-meta", "id": "meta", "data": {"covered": covered, "suggest": suggest}})
+
+
+# --- keep-alive --------------------------------------------------------------------------------------
+
+PING = ": ping\n\n"  # an SSE comment: parsers (eventsource-parser, used by the AI SDK) ignore it
+
+
+async def with_heartbeat(source: AsyncIterator[str], interval: float | None = None) -> AsyncIterator[str]:
+    """Pass `source` through, adding a ping whenever it has been silent for `interval` seconds, so idle
+    proxies and serverless gateways don't drop a slow stage. Errors from `source` propagate unchanged."""
+    interval = float(os.getenv("HEARTBEAT_SECONDS", "10")) if interval is None else interval
+    it = source.__aiter__()
+    pending = asyncio.ensure_future(it.__anext__())
+    try:
+        while True:
+            done, _ = await asyncio.wait({pending}, timeout=interval) if interval > 0 else ({pending}, set())
+            if not done:
+                yield PING
+                continue
+            try:
+                chunk = pending.result()
+            except StopAsyncIteration:
+                return
+            yield chunk
+            pending = asyncio.ensure_future(it.__anext__())
+    finally:
+        pending.cancel()

@@ -18,3 +18,4 @@ node_modules/
 
 # local Claude Code settings
 .claude/settings.local.json
+.deploy/

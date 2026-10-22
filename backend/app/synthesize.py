@@ -6,8 +6,11 @@ import json
 
 from . import config
 from .llm import LLM
-from .models import GuideContent, WallProbe
+from .models import (Calendar, EffortHours, Evidence, Fact, GuideContent, Limit, Review, Situations, Step,
+                     Verdict, WallProbe)
 from .research import VerifiedClaim
+
+SYNTH_TIMEOUT_S = 90.0
 
 SYNTH_INSTRUCTIONS = """You write a setup guide for a developer who must create a provider OAuth app (the client \
 registration every user connection depends on) and get it approved, so their AI agent can connect to the provider \
@@ -38,6 +41,8 @@ Drafting values (names, scopes, privacy text) is agent or either. Mark irreversi
 - prepared.scopes: minimum scopes with why and review_class (none, sensitive, restricted, unknown). Short \
 privacy_policy_outline, consent_screen fields, and review_text (null if no review).
 - open_questions: what you could not verify.
+- Be brief: every text field at most two short sentences; at most 7 steps, 6 limits, 6 gotchas, 3 blockers; no \
+padding. A short, complete answer beats a long one.
 - byo_advice: when Composio's managed app is enough vs when to bring your own app (null if Composio has no managed \
 app for it). Plain, short sentences."""
 
@@ -62,13 +67,81 @@ def build_prompt(
     return "\n".join(lines)
 
 
+MAX_CLAIMS = 40
+PER_CATEGORY = 8
+CATEGORY_ORDER = ["registration", "review", "limits", "wait_time", "redirect", "tokens", "eligibility",
+                  "customer_gate", "scopes", "blocker", "other"]
+
+
+def trim_claims(claims: list[VerifiedClaim], cap: int = MAX_CLAIMS) -> list[VerifiedClaim]:
+    """Dedupe by quote, drop very long quotes, and cap the total, balanced across categories, so the writer's
+    prompt stays small (a smaller prompt means a faster, more reliable call)."""
+    seen: set[str] = set()
+    by_cat: dict[str, list[VerifiedClaim]] = {c: [] for c in CATEGORY_ORDER}
+    for vc in claims:
+        key = " ".join(vc.claim.quote.lower().split())
+        if key in seen or len(vc.claim.quote) > 260:
+            continue
+        seen.add(key)
+        vc.claim.text = vc.claim.text[:220]
+        by_cat.setdefault(vc.claim.category, []).append(vc)
+    out: list[VerifiedClaim] = []
+    for rank in range(PER_CATEGORY):  # round-robin so no category crowds out the others
+        for cat in by_cat:
+            if rank < len(by_cat[cat]) and len(out) < cap:
+                out.append(by_cat[cat][rank])
+    return out
+
+
 async def synthesize(
     llm: LLM, app_name: str, composio_status: str, claims: list[VerifiedClaim], sources: dict[str, str],
-    wall: WallProbe | None,
+    wall: WallProbe | None, *, deadline: float | None = None,
 ) -> GuideContent:
-    prompt = build_prompt(app_name, composio_status, claims, sources, wall)
-    content = await llm.run(GuideContent, SYNTH_INSTRUCTIONS, prompt, label="synthesize")
+    prompt = build_prompt(app_name, composio_status, trim_claims(claims), sources, wall)
+    content = await llm.run(GuideContent, SYNTH_INSTRUCTIONS, prompt, label="synthesize",
+                            timeout=SYNTH_TIMEOUT_S, deadline=deadline)
     return postprocess(content)
+
+
+def _ev(vc: VerifiedClaim) -> Evidence:
+    return Evidence(label="DOCS", source_id=vc.source_id, quote=vc.claim.quote, found_in=vc.found_in)  # type: ignore[arg-type]
+
+
+def degraded_content(claims: list[VerifiedClaim], reason: str = "") -> GuideContent:
+    """A valid but plain guide built only from quote-verified claims, for when the writer model fails or times out.
+    Everything is labeled: tier unknown, confidence low, and the summary says it is an automatic draft."""
+    claims = trim_claims(claims)
+    of = lambda *cats: [vc for vc in claims if vc.claim.category in cats]  # noqa: E731
+    steps = [Step(n=i, title="From the docs: " + vc.claim.text[:90], detail=vc.claim.text, actor="either",
+                  evidence=_ev(vc)) for i, vc in enumerate(of("registration")[:6], start=1)]
+    if not steps:
+        steps = [Step(n=1, title="Read the cited docs pages and register an OAuth app", actor="either",
+                      detail="No registration steps could be extracted automatically. Follow the linked docs pages.",
+                      evidence=Evidence(label="UNCERTAIN", note="No verified registration claim was found."))]
+    fact = lambda vc: Fact(text=vc.claim.text, evidence=_ev(vc))  # noqa: E731
+    review_claims = of("review", "wait_time")
+    wait = next((vc.claim.text for vc in of("wait_time")), None)
+    return GuideContent(
+        verdict=Verdict(
+            tier="unknown", confidence="low", calendar_basis="estimate",
+            summary=("Automatic draft: the guide writer didn't finish, so this page only lists facts whose quotes "
+                     "were verified on the provider's docs. Tier, effort and timeline were not assessed."),
+            effort_hours=EffortHours(min=0, max=0), calendar=Calendar(min_days=0, max_days=None, label="Not assessed")),
+        situations=Situations(),
+        byo_advice=None,
+        before_you_start=[fact(vc) for vc in of("eligibility")[:6]],
+        limits=[Limit(what=vc.claim.text, value=vc.claim.value, unit=vc.claim.unit or "", scope=vc.claim.scope or "",
+                      evidence=_ev(vc)) for vc in of("limits")[:8]],
+        steps=steps,
+        review=Review(required="conditional", trigger=next((vc.claim.text for vc in of("review")), None),
+                      wait_official=wait, evidence=[_ev(vc) for vc in review_claims[:4]]),
+        customer_gates=[fact(vc) for vc in of("customer_gate")[:5]],
+        gotchas=[fact(vc) for vc in of("redirect", "tokens", "blocker", "other", "scopes")[:8]],
+        open_questions=[
+            "Tier, effort and calendar time were not assessed. Treat this as a list of verified facts, not a plan.",
+            "Regenerate this guide to get the full version." + (f" (Reason: {reason})" if reason else ""),
+        ],
+    )
 
 
 def postprocess(content: GuideContent) -> GuideContent:

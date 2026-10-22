@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -132,6 +133,9 @@ def signin_tokens(url: str) -> set[str]:
 
 
 def needs_browser(page: Page, *, console: bool = False) -> bool:
+    # BROWSER_FALLBACK=off on hosts without Chromium (e.g. Vercel's Python runtime): stay HTTP-only.
+    if os.getenv("BROWSER_FALLBACK", "on").lower() == "off":
+        return False
     if page.error or page.status is None or 400 <= page.status < 500:
         return True
     if len(page.visible_text) < MIN_VISIBLE_CHARS:

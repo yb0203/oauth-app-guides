@@ -1,10 +1,11 @@
 "use client";
 
 import { CheckIcon, MinusIcon, XIcon } from "lucide-react";
-import { Eyebrow } from "@/components/guide/shared";
 import { cn } from "@/lib/utils";
-import { STAGE_DEFAULT_LABEL, STAGE_SHORT_NAME } from "@/lib/chat-types";
+import { STAGE_DEFAULT_LABEL } from "@/lib/chat-types";
 import { STAGE_ORDER, type StageData, type StageId } from "@/types/guide";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { formatDuration, STAGE_WHY } from "./run-info";
 
 export interface StageTiming {
   start: number;
@@ -14,29 +15,22 @@ export interface StageTiming {
 type RowStatus = StageData["status"] | "pending";
 
 const STATUS_TEXT: Record<RowStatus, string> = {
-  pending: "Pending",
-  running: "Running",
+  pending: "Waiting",
+  running: "In progress",
   done: "Done",
   error: "Failed",
   skipped: "Skipped",
 };
 
-export function formatElapsed(ms: number): string {
-  const s = Math.max(0, ms) / 1000;
-  if (s < 10) return `${s.toFixed(1)}s`;
-  if (s < 60) return `${Math.round(s)}s`;
-  return `${Math.floor(s / 60)}m ${String(Math.round(s % 60)).padStart(2, "0")}s`;
-}
-
 function StatusIcon({ status }: { status: RowStatus }) {
   return (
     <span
       className={cn(
-        "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full border bg-background",
+        "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full border bg-background transition-colors duration-300",
         status === "done" && "border-success bg-success text-background",
         status === "error" && "border-danger bg-danger text-background",
-        status === "running" && "border-foreground",
-        status === "skipped" && "border-border text-muted-foreground",
+        status === "running" && "border-info",
+        status === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
         status === "pending" && "border-border",
       )}
     >
@@ -44,20 +38,24 @@ function StatusIcon({ status }: { status: RowStatus }) {
       {status === "error" && <XIcon className="size-3" strokeWidth={3} aria-hidden />}
       {status === "skipped" && <MinusIcon className="size-3" aria-hidden />}
       {status === "running" && (
-        <span
-          className="size-3 animate-spin rounded-full border-2 border-border border-t-foreground"
-          aria-hidden
-        />
+        <span className="size-3 animate-spin rounded-full border-2 border-info-border border-t-info motion-reduce:animate-none" aria-hidden />
       )}
       {status === "pending" && <span className="size-1.5 rounded-full bg-muted-foreground/40" aria-hidden />}
-      <span className="sr-only">{STATUS_TEXT[status]}</span>
     </span>
   );
 }
 
-function countLabel(key: string, value: number) {
-  return `${value} ${key.replace(/_/g, " ")}`;
-}
+const COUNT_LABEL: Record<string, string> = {
+  candidates: "candidates",
+  kept: "kept",
+  pages: "pages",
+  claims: "claims noted",
+  steps: "steps",
+  limits: "limits",
+  checked: "quotes checked",
+  downgraded: "downgraded",
+};
+const countLabel = (k: string) => COUNT_LABEL[k] ?? k.replace(/_/g, " ");
 
 export function StageStepper({
   stages,
@@ -77,56 +75,71 @@ export function StageStepper({
         const elapsed = t && status !== "skipped" ? (t.end ?? now) - t.start : null;
         const last = idx === STAGE_ORDER.length - 1;
         const counts = s?.counts ? Object.entries(s.counts) : [];
+        const active = status === "running";
         return (
-          <li
-            key={id}
-            className={cn("relative flex gap-3", !last && "pb-6")}
-            data-stage={id}
-            data-status={status}
-          >
+          <li key={id} className="relative flex gap-3" data-stage={id} data-status={status}>
             {!last && (
               <span
                 aria-hidden
                 className={cn(
-                  "absolute top-5 bottom-0 left-2.5 -ml-px w-px",
+                  "absolute top-6 -bottom-1 left-2.5 -ml-px w-px transition-colors duration-500",
                   status === "done" ? "bg-success-border" : "bg-border",
                 )}
               />
             )}
             <StatusIcon status={status} />
-            <div className="min-w-0 flex-1 pt-px">
-              <div className="flex items-center justify-between gap-3">
-                <Eyebrow>{STAGE_SHORT_NAME[id]}</Eyebrow>
-                {elapsed !== null && (
-                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                    {formatElapsed(elapsed)}
-                  </span>
-                )}
+            <div
+              className={cn(
+                "-mt-1 min-w-0 flex-1 rounded-lg px-2.5 py-1.5 transition-colors duration-300",
+                !last && "mb-1",
+                active && "bg-info-soft",
+                status === "error" && "bg-danger-soft",
+              )}
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <p
+                  className={cn(
+                    "text-sm leading-snug font-medium",
+                    status === "pending" && "text-muted-foreground",
+                    status === "skipped" && "text-muted-foreground line-through decoration-muted-foreground/40",
+                    status === "error" && "text-danger",
+                  )}
+                >
+                  {s?.label || STAGE_DEFAULT_LABEL[id]}
+                  <span className="sr-only">, {STATUS_TEXT[status]}</span>
+                </p>
+                <span className="font-mono text-xs tabular-nums text-muted-foreground" aria-hidden={elapsed === null}>
+                  {elapsed !== null ? formatDuration(elapsed) : status === "skipped" ? "skipped" : ""}
+                </span>
               </div>
               <p
                 className={cn(
-                  "text-sm leading-snug",
-                  status === "pending" || status === "skipped"
-                    ? "text-muted-foreground"
-                    : "font-medium text-foreground",
-                  status === "error" && "text-danger",
+                  "mt-0.5 text-xs leading-snug text-muted-foreground",
+                  // On small screens only the live row explains itself; the full list would be a wall of text.
+                  !active && status !== "error" && "max-sm:hidden",
                 )}
               >
-                {s?.label || STAGE_DEFAULT_LABEL[id]}
+                {STAGE_WHY[id]}
               </p>
-              {s?.detail && <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{s.detail}</p>}
-              {counts.length > 0 && (
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {/* Reserved even while empty, so details and counts arriving never push the stages below. */}
+              <div className="mt-1.5 flex min-h-6 flex-wrap items-center gap-1.5">
+                  {s?.detail && (
+                    <span className={cn("text-xs first-letter:uppercase", status === "error" ? "text-danger" : "text-foreground")}>
+                      {s.detail}
+                    </span>
+                  )}
+                  {active && !s?.detail && counts.length === 0 && (
+                    <span className="text-xs text-info">Working…</span>
+                  )}
                   {counts.map(([k, v]) => (
                     <span
                       key={k}
-                      className="rounded-md border bg-muted/50 px-1.5 py-0.5 font-mono text-xs tabular-nums text-foreground"
+                      className="animate-in fade-in rounded-md border bg-background px-1.5 py-0.5 font-mono text-xs tabular-nums text-foreground duration-300 motion-reduce:animate-none"
                     >
-                      {countLabel(k, v)}
+                      <AnimatedNumber value={v} /> {countLabel(k)}
                     </span>
                   ))}
-                </div>
-              )}
+              </div>
             </div>
           </li>
         );

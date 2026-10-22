@@ -23,7 +23,7 @@ const stage = (
   counts?: Record<string, number>,
 ): FixtureEvent => ({
   delay,
-  event: { type: "data-stage", id: s, data: { stage: s, status, label, detail, counts } },
+  event: { type: "data-stage", id: s, data: { stage: s, status, label, detail, counts, replay: true } },
 });
 const src = (delay: number, id: string, url: string, title: string): FixtureEvent => ({
   delay,
@@ -36,7 +36,7 @@ export function buildFixture(app: string): FixtureEvent[] {
   return [
     { delay: 100, event: { type: "start", messageId: "run-dev-1" } },
     stage(100, "resolve", "running", "Resolving the app"),
-    ...text(500, `Resolving "${app}" to a provider and developer console.`),
+    ...text(500, `Demo replay: recorded GitHub run, not research for ${app}`),
     stage(400, "resolve", "done", "Resolved to GitHub (github.com)", "Composio toolkit: github (managed)"),
     stage(200, "find_docs", "running", "Finding official docs"),
     src(600, "s1", "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app", "Creating an OAuth app"),
@@ -89,7 +89,7 @@ export function buildFixture(app: string): FixtureEvent[] {
     stage(400, "publish", "done", "Published"),
     {
       delay: 200,
-      event: { type: "data-guide", id: "guide", data: { slug: g.slug, permalink: `/guides/${g.slug}`, guide: g } },
+      event: { type: "data-guide", id: "guide", data: { slug: g.slug, permalink: `/guides/${g.slug}`, guide: g, replay: true } },
     },
     { delay: 50, event: { type: "finish" } },
     { delay: 10, event: "[DONE]" },

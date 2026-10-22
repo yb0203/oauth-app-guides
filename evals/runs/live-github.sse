@@ -1,0 +1,82 @@
+data: {"type":"start","messageId":"0d9da8c7-8840-4968-9313-2aac10ffcb99"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"4df3faeb4aad4577bb5e4247cb3e0836"}
+
+data: {"type":"text-delta","id":"4df3faeb4aad4577bb5e4247cb3e0836","delta":"Resolved GitHub to Composio toolkit github (MANAGED)."}
+
+data: {"type":"text-end","id":"4df3faeb4aad4577bb5e4247cb3e0836"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"GitHub -> github","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+data: {"type":"text-start","id":"bd96d8a27c874bcc8d34574c8e3f8fa5"}
+
+data: {"type":"text-delta","id":"bd96d8a27c874bcc8d34574c8e3f8fa5","delta":"Found 5 docs pages (docs.github.com); rejected 1 that don't cover the topic."}
+
+data: {"type":"text-end","id":"bd96d8a27c874bcc8d34574c8e3f8fa5"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":1}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"016fc29de5fb46df9267969e61a00f68"}
+
+data: {"type":"text-delta","id":"016fc29de5fb46df9267969e61a00f68","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"016fc29de5fb46df9267969e61a00f68"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/about-the-user-authorization-callback-url","title":"About the user authorization callback URL - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":14}}}
+
+data: {"type":"text-start","id":"32facf6f596b46adae61fc7c1717a89b"}
+
+data: {"type":"text-delta","id":"32facf6f596b46adae61fc7c1717a89b","delta":"Couldn't read docs.github.com (model error); skipping it."}
+
+data: {"type":"text-end","id":"32facf6f596b46adae61fc7c1717a89b"}
+
+data: {"type":"text-start","id":"cfc3866b09b5444295caf2e9fc18632e"}
+
+data: {"type":"text-delta","id":"cfc3866b09b5444295caf2e9fc18632e","delta":"docs.github.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"cfc3866b09b5444295caf2e9fc18632e"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps","title":"Authorizing OAuth apps - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":28}}}
+
+data: {"type":"text-start","id":"0a390f570cc94644a2efd4b0e3f004f3"}
+
+data: {"type":"text-delta","id":"0a390f570cc94644a2efd4b0e3f004f3","delta":"docs.github.com: 13 of 13 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"0a390f570cc94644a2efd4b0e3f004f3"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://docs.github.com/en/apps/oauth-apps/building-oauth-apps","title":"Building OAuth apps - GitHub Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":41}}}
+
+data: {"type":"text-start","id":"bf61470829724241936835070dd77f43"}
+
+data: {"type":"text-delta","id":"bf61470829724241936835070dd77f43","delta":"Couldn't read docs.github.com (model error); skipping it."}
+
+data: {"type":"text-end","id":"bf61470829724241936835070dd77f43"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":3,"claims":41}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://github.com/settings/applications/new"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://github.com/settings/applications/new","final_url":"https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew","redirect_chain":["https://github.com/settings/applications/new","https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"],"outcome":"login_wall","wall_host":"github.com","asks_for":"Sign-in page at github.com","bot_check":false,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"fb1899d5a58c49e9b532ff08073a5a76"}
+
+data: {"type":"text-delta","id":"fb1899d5a58c49e9b532ff08073a5a76","delta":"Developer console probe: login wall at github.com. Sign-in page at github.com"}
+
+data: {"type":"text-end","id":"fb1899d5a58c49e9b532ff08073a5a76"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"login_wall"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+

@@ -221,3 +221,29 @@ async def test_speed_defaults_to_env(monkeypatch):
     monkeypatch.setenv("FAKE_SPEED", "0")
     await run("xero", speed=None)
     assert sum(slept) == 0
+
+
+async def test_fake_run_is_labelled_as_a_replay_everywhere():
+    from app import fake, stream
+
+    events = stream.parse_sse("".join([c async for c in fake.fake_run("xero", speed=0)]))
+    first_text = next(e for e in events if isinstance(e, dict) and e["type"] == "text-delta")
+    assert first_text["delta"] == "Demo replay: recorded GitHub run, not research for Xero"
+    assert events.index(first_text) < next(i for i, e in enumerate(events) if isinstance(e, dict) and e["type"] == "data-stage")
+    stages = [e for e in events if isinstance(e, dict) and e["type"] == "data-stage"]
+    assert stages and all(e["data"]["replay"] is True for e in stages)
+    guide = next(e for e in events if isinstance(e, dict) and e["type"] == "data-guide")
+    assert guide["data"]["replay"] is True
+
+
+async def test_fake_error_replay_stages_are_labelled_too():
+    from app import fake, stream
+
+    events = stream.parse_sse("".join([c async for c in fake.fake_run("!error", speed=0)]))
+    assert all(e["data"].get("replay") is True for e in events if isinstance(e, dict) and e["type"] == "data-stage")
+
+
+def test_live_pipeline_stages_are_not_labelled_as_replay():
+    from app import stream
+
+    assert "replay" not in stream.parse_sse(stream.stage("resolve", "running"))[0]["data"]

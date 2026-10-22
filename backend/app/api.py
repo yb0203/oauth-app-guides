@@ -187,7 +187,7 @@ def create_app() -> FastAPI:
                 status_code=429,
                 headers={"retry-after": str(retry_after)},
             )
-        return StreamingResponse(_guarded(_source(app_input)), headers=stream.STREAM_HEADERS)
+        return StreamingResponse(stream.with_heartbeat(_guarded(_source(app_input))), headers=stream.STREAM_HEADERS)
 
     @app.post("/api/guides/{slug}/ask")
     async def ask_guide(slug: str, request: Request):
@@ -199,7 +199,8 @@ def create_app() -> FastAPI:
         except ValueError:
             raise HTTPException(422, "Request body must be JSON.") from None
         req = ask.parse_ask_body(body)
-        return StreamingResponse(ask.ask_stream(guide, req, mode=config.llm_mode()), headers=stream.STREAM_HEADERS)
+        return StreamingResponse(stream.with_heartbeat(ask.ask_stream(guide, req, mode=config.llm_mode())),
+                                 headers=stream.STREAM_HEADERS)
 
     return app
 

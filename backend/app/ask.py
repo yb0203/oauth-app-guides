@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import re
+import time
 import uuid
 from collections import Counter
 from collections.abc import AsyncIterator
@@ -22,6 +24,10 @@ from . import stream
 from .llm import LLM, has_key
 
 log = logging.getLogger("ask")
+# Measured 2026-10-22 on a Gmail question: nemotron-3-ultra 1.5 s, minimax 5 s. On timeout or any error the
+# deterministic retrieval answer is used instead.
+DEFAULT_ASK_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
+ASK_TIMEOUT_S = 20.0
 MAX_QUESTION_CHARS = 500
 MAX_HISTORY = 6
 NOT_COVERED = ("This guide doesn't cover that. It only contains what was researched and verified for {app}. "
@@ -216,12 +222,26 @@ def _citation(marker: str, fact: Fact, guide: dict) -> dict:
             "fact": fact.text}
 
 
+def _attach_markers(text: str, resolved: dict[str, Fact]) -> str:
+    """The model cited facts but wrote no [n] markers: put each marker after the sentence that best matches
+    its fact, or at the end of the answer when no sentence shares words with it."""
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip()) or [text]
+    for marker, fact in resolved.items():
+        want = set(tokens(_index_text(fact)))
+        overlaps = [len(set(tokens(sent)) & want) for sent in sentences]
+        best = max(range(len(sentences)), key=lambda i: overlaps[i]) if max(overlaps) else len(sentences) - 1
+        sentences[best] += f" [{marker}]"
+    return " ".join(sentences)
+
+
 def post_check(guide: dict, raw: RawAnswer, facts: list[Fact] | None = None) -> Answer:
     facts = facts if facts is not None else build_facts(guide)
     if not raw.covered:
         return Answer(raw.text, False)
     by_ref = {f.ref: f for f in facts if f.evidence is not None}
     resolved = {m: by_ref[ref] for m, ref in raw.citations if ref in by_ref}
+    if resolved and not set(re.findall(r"\[(\d+)\]", raw.text)) & set(resolved):
+        raw = RawAnswer(_attach_markers(raw.text, resolved), raw.citations, raw.actions, raw.covered)
     order: list[str] = []
     for m in re.findall(r"\[(\d+)\]", raw.text):  # numbering follows first appearance in the text
         if m in resolved and m not in order:
@@ -396,10 +416,11 @@ async def answer_question(guide: dict, question: str, situation: dict[str, str],
         if llm is None:
             if not has_key():
                 return keyword_answer(guide, question, situation)
-            llm = LLM(max_calls=3, max_attempts_per_model=2)
+            llm = LLM(max_calls=1, max_attempts_per_model=1)
+            llm.model_names = [os.getenv("LLM_MODEL_ASK", DEFAULT_ASK_MODEL)]  # one fast model, no fallback model
         facts = build_facts(guide)
         out = await llm.run(LLMAnswer, ASK_INSTRUCTIONS, build_llm_prompt(guide, facts, question, situation, history),
-                            label="ask")
+                            label="ask", timeout=ASK_TIMEOUT_S, deadline=time.monotonic() + ASK_TIMEOUT_S)
         if not out.answer_text.strip():
             raise ValueError("empty answer")
         raw = RawAnswer(out.answer_text, [(c.marker, c.ref) for c in out.citations],

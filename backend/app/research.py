@@ -37,6 +37,7 @@ keys or has no third-party OAuth, null if unclear.
 - console_url: the https URL where developers create the app, only if the page gives it, else null.
 - Return at most 14 claims, the most useful for someone setting this up."""
 
+EXTRACT_TIMEOUT_S = 45.0
 KEYWORDS = re.compile(
     r"oauth|redirect|callback|scope|review|verif|approv|limit|quota|client|secret|token|user|install|"
     r"expire|refresh|consent|admin|publish|submit|register|create|credential|permission|restrict|"
@@ -83,12 +84,13 @@ def select_relevant(text: str, budget: int = 12000) -> str:
     return "\n".join(lines[i] for i in sorted(keep))
 
 
-async def extract_page(llm: LLM, app_name: str, source_id: str, page: Page) -> PageClaims:
+async def extract_page(llm: LLM, app_name: str, source_id: str, page: Page, deadline: float | None = None) -> PageClaims:
     prompt = (
         f"App: {app_name}\nPage URL: {page.final_url}\nPage title: {page.title}\n\n"
         f"<page_text>\n{select_relevant(page.visible_text or page.hidden_text)}\n</page_text>"
     )
-    return await llm.run(PageClaims, EXTRACT_INSTRUCTIONS, prompt, label=f"extract:{source_id}")
+    return await llm.run(PageClaims, EXTRACT_INSTRUCTIONS, prompt, label=f"extract:{source_id}", timeout=EXTRACT_TIMEOUT_S,
+                         deadline=deadline)
 
 
 def verify_claims(source_id: str, page: Page, extracted: PageClaims, start: int = 1) -> list[VerifiedClaim]:

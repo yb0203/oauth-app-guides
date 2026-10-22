@@ -39,6 +39,8 @@ export interface RunSnapshot {
   wall: WallProbe | null;
   verification: VerificationProgress | null;
   guide: GuideDataPart | null;
+  /** the run is a recorded demo replay (any stage or the guide says so); never present it as real research */
+  replay: boolean;
 }
 
 const isStageId = (s: string): s is StageId => (STAGE_ORDER as readonly string[]).includes(s);
@@ -56,6 +58,7 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
     wall: null,
     verification: null,
     guide: null,
+    replay: false,
   };
   const seenSources = new Set<string>();
 
@@ -64,7 +67,10 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
     m.parts.forEach((p, i) => {
       switch (p.type) {
         case "data-stage":
-          if (p.data && isStageId(p.data.stage)) snap.stages[p.data.stage] = p.data;
+          if (p.data && isStageId(p.data.stage)) {
+            snap.stages[p.data.stage] = p.data;
+            if (p.data.replay) snap.replay = true;
+          }
           break;
         case "data-wall":
           snap.wall = p.data;
@@ -73,7 +79,10 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
           snap.verification = p.data;
           break;
         case "data-guide":
-          if (p.data?.guide) snap.guide = p.data;
+          if (p.data?.guide) {
+            snap.guide = p.data;
+            if (p.data.replay) snap.replay = true;
+          }
           break;
         case "source-url":
           if (!seenSources.has(p.sourceId)) {
@@ -84,6 +93,8 @@ export function deriveRun(messages: GenerateMessage[]): RunSnapshot {
         case "text": {
           const text = p.text.trim();
           if (text) snap.narration.push({ id: `${m.id}:${i}`, text, streaming: p.state === "streaming" });
+          // Belt and braces: CONTRACT section 4 also makes the first narration line say it is a demo replay.
+          if (/^demo replay\b/i.test(text)) snap.replay = true;
           break;
         }
       }

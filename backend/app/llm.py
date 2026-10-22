@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import time
 from collections.abc import Callable
 from typing import TypeVar
 
@@ -18,10 +19,18 @@ from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedMode
 from pydantic_ai.models import Model
 
 log = logging.getLogger("llm")
+if not log.handlers:  # per-call timing lines (never the key) show up in uvicorn's console
+    _h = logging.StreamHandler()
+    _h.setFormatter(logging.Formatter("%(asctime)s %(name)s %(message)s", "%H:%M:%S"))
+    log.addHandler(_h)
+    log.setLevel(logging.INFO)
+    log.propagate = False
 T = TypeVar("T")
 
-DEFAULT_PRIMARY = "nvidia/nemotron-3-super-120b-a12b:free"
-DEFAULT_FALLBACK = "minimax/minimax-m3.1-flash:free"
+# Measured 2026-10-22: nemotron-3-super is gone for our account (HTTP 404). minimax answers an extraction call in ~6 s
+# with reasoning=low; nemotron-3-ultra in ~6 s with reasoning off. Both need reasoning curbed (30 s otherwise).
+DEFAULT_PRIMARY = "minimax/minimax-m3.1-flash:free"
+DEFAULT_FALLBACK = "nvidia/nemotron-3-ultra-550b-a55b:free"
 
 
 class LLMError(Exception):
@@ -67,44 +76,80 @@ class LLM:
         self._sem = asyncio.Semaphore(concurrency)
         self._sleep = sleep
         self.calls = 0
+        self.call_log: list[dict] = []  # one entry per request: label, model, seconds, outcome, tokens
         # "prompted" asks for JSON in plain text, which free models handle more reliably than tool calls.
         self.output_mode = os.getenv("LLM_OUTPUT_MODE", "prompted")
 
-    def _agent(self, model_name: str, output_type: type[T], instructions: str) -> Agent:
+    def _agent(self, model_name: str, output_type: type[T], instructions: str, timeout: float = 90.0) -> Agent:
         spec = PromptedOutput(output_type) if self.output_mode == "prompted" else output_type
         return Agent(
             self._factory(model_name),
             output_type=spec,
             instructions=instructions,
             retries={"output": 2, "tools": 1},
-            model_settings={"temperature": 0.2, "max_tokens": 8000, "timeout": 150},
+            model_settings={"temperature": 0.2, "max_tokens": 8000, "timeout": timeout, **_reasoning_settings(model_name)},
         )
 
-    async def run(self, output_type: type[T], instructions: str, prompt: str, *, label: str = "") -> T:
+    async def run(self, output_type: type[T], instructions: str, prompt: str, *, label: str = "",
+                  timeout: float = 90.0, deadline: float | None = None) -> T:
+        """`timeout` caps each request; `deadline` (a time.monotonic() value) caps the whole call, so a
+        slow primary model leaves time for the fallback or for the caller's own fallback."""
         errors: list[str] = []
         for model_name in self.model_names:
             for attempt in range(self.max_attempts):
                 if self.calls >= self.max_calls:
                     raise LLMBudgetExceeded(f"LLM request budget of {self.max_calls} reached")
+                budget = timeout if deadline is None else min(timeout, deadline - time.monotonic())
+                if budget < 5:
+                    raise LLMError(f"out of time for {label or 'call'}: " + "; ".join(errors))
                 self.calls += 1
+                started = time.monotonic()
+                outcome, tokens = "ok", None
                 try:
                     async with self._sem:
-                        result = await self._agent(model_name, output_type, instructions).run(prompt)
-                    log.info("llm ok label=%s model=%s calls=%d", label, model_name, self.calls)
+                        result = await asyncio.wait_for(
+                            self._agent(model_name, output_type, instructions, budget).run(prompt), budget)
+                    usage = result.usage
+                    tokens = f"{usage.input_tokens}+{usage.output_tokens}"
                     return result.output
+                except TimeoutError:
+                    outcome = f"timeout after {budget:.0f}s"
+                    errors.append(f"{model_name}: timeout")
+                    break  # a model that is this slow won't be faster on retry: try the next one
                 except ModelHTTPError as exc:
+                    outcome = f"http {exc.status_code}"
                     errors.append(f"{model_name}: HTTP {exc.status_code}")
                     if exc.status_code in (429, 502, 503, 504) and attempt + 1 < self.max_attempts:
                         await self._sleep(_backoff(exc, attempt))
                         continue
                     break  # 4xx other than 429: this model won't work, try the next one
                 except (UnexpectedModelBehavior, ValidationError) as exc:
+                    outcome = f"invalid output ({type(exc).__name__})"
                     errors.append(f"{model_name}: invalid output ({type(exc).__name__})")
                     break
                 except ModelAPIError as exc:
+                    outcome = type(exc).__name__
                     errors.append(f"{model_name}: {type(exc).__name__}")
                     break
+                finally:
+                    secs = time.monotonic() - started
+                    self.call_log.append({"label": label, "model": model_name, "seconds": round(secs, 1),
+                                          "outcome": outcome, "tokens": tokens})
+                    log.info("label=%s model=%s secs=%.1f outcome=%s tokens=%s calls=%d", label, model_name,
+                             secs, outcome, tokens, self.calls)
         raise LLMError(f"all models failed for {label or 'call'}: " + "; ".join(errors))
+
+
+def _reasoning_settings(model_name: str = "") -> dict:
+    """Free models are reasoning models and spend most of their time thinking, which extraction and drafting
+    don't need. LLM_REASONING overrides for every model: off, minimal/low/medium/high, or default (model's own).
+    Otherwise per model: minimax can't switch reasoning off (HTTP 400), so it gets effort=low; others get off."""
+    mode = os.getenv("LLM_REASONING", "").lower()
+    if mode == "default":
+        return {}
+    if not mode:
+        mode = "low" if model_name.startswith("minimax/") else "off"
+    return {"openrouter_reasoning": {"enabled": False} if mode == "off" else {"effort": mode}}
 
 
 def _backoff(exc: ModelHTTPError, attempt: int) -> float:

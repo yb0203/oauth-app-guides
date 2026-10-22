@@ -15,6 +15,7 @@ import uuid
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import date
+from functools import partial
 from functools import lru_cache
 from urllib.parse import urlparse
 
@@ -80,6 +81,9 @@ def _wall_line(wall: dict) -> str:
     }.get(wall["outcome"], f"Couldn't reach the console at {host}")
 
 
+_stage = partial(stream.stage, replay=True)  # every fake stage event is labelled as a replay
+
+
 async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str]:
     speed = _default_speed() if speed is None else speed
 
@@ -88,9 +92,10 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
 
     res = _resolve(app)
     yield stream.start(f"fake-{uuid.uuid4().hex[:12]}")
+    yield stream.text(f"Demo replay: recorded GitHub run, not research for {res.name}")
 
     # 1. resolve
-    yield stream.stage("resolve", "running")
+    yield _stage("resolve", "running")
     await pause(0.6)
     yield stream.text(f"Looking up {res.name} in the Composio catalog")
     await pause(1.0)
@@ -100,15 +105,15 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
     else:
         yield stream.text(f"Resolved {res.name} to Composio toolkit {res.toolkit_slug} ({res.status.upper()})")
         detail = f"Composio toolkit {res.toolkit_slug} ({res.status})"
-    yield stream.stage("resolve", "done", detail=detail)
+    yield _stage("resolve", "done", detail=detail)
 
     if app.strip().lower() == ERROR_INPUT:
-        yield stream.stage("find_docs", "running")
+        yield _stage("find_docs", "running")
         await pause(1.2)
         yield stream.text("Searching for the developer docs")
         await pause(1.0)
         yield stream.error("Couldn't find any developer docs for this app (fake-mode error replay)")
-        yield stream.stage("find_docs", "error", detail="No developer docs found")
+        yield _stage("find_docs", "error", detail="No developer docs found")
         yield stream.finish()
         yield stream.DONE
         return
@@ -121,26 +126,26 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
 
     # 2. find_docs
     candidates = len(docs) + 1
-    yield stream.stage("find_docs", "running")
+    yield _stage("find_docs", "running")
     await pause(1.0)
     yield stream.text(f"Found {candidates} candidate docs pages on {_host(docs[0]['url'])}")
     await pause(0.6)
     yield stream.text(f"Keeping {len(docs)} that cover app registration, scopes and review")
-    yield stream.stage("find_docs", "done", counts={"candidates": candidates, "kept": len(docs)})
+    yield _stage("find_docs", "done", counts={"candidates": candidates, "kept": len(docs)})
 
     # 3. research
-    yield stream.stage("research", "running")
+    yield _stage("research", "running")
     for src in docs:
         await pause(0.5)
         yield stream.source_url(src["id"], src["url"], src["title"])
         await pause(0.7)
         n = claims.count(src["id"])
         yield stream.text(f"Read {src['title']}: noted {_plural(n, 'claim')} to check later")
-    yield stream.stage("research", "done", counts={"pages": len(docs), "claims": len(claims)})
+    yield _stage("research", "done", counts={"pages": len(docs), "claims": len(claims)})
 
     # 4. probe
     wall = raw["wall_probe"]
-    yield stream.stage("probe", "running")
+    yield _stage("probe", "running")
     yield stream.text("Opening the developer console without signing in")
     await pause(1.2)
     if observation:
@@ -148,24 +153,24 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
     yield stream.wall(wall)
     yield stream.text(_wall_line(wall))
     await pause(0.6)
-    yield stream.stage("probe", "done", detail=wall["outcome"].replace("_", " "))
+    yield _stage("probe", "done", detail=wall["outcome"].replace("_", " "))
 
     # 5. synthesize
-    yield stream.stage("synthesize", "running")
+    yield _stage("synthesize", "running")
     await pause(1.2)
     yield stream.text(f"Drafting the guide from {len(docs)} pages and the console probe")
     await pause(1.8)
     n_steps, n_limits = len(guide.steps), len(guide.limits)
     gotchas = _plural(len(guide.gotchas), "gotcha")
     yield stream.text(f"Drafted {_plural(n_steps, 'step')}, {_plural(n_limits, 'limit')} and {gotchas}")
-    yield stream.stage("synthesize", "done", counts={"steps": n_steps, "limits": n_limits})
+    yield _stage("synthesize", "done", counts={"steps": n_steps, "limits": n_limits})
 
     # 6. verify
     summary = guide.verification_summary
     hidden, downgraded = summary.docs_hidden, summary.uncertain
     verified = summary.docs_verified - hidden  # docs_verified counts hidden too (CONTRACT §2)
     sequence = _check_sequence(verified, hidden, downgraded)
-    yield stream.stage("verify", "running")
+    yield _stage("verify", "running")
     yield stream.text(f"Checking {len(sequence)} quotes against the live pages")
     tally = {"verified": 0, "hidden": 0, "downgraded": 0}
     for outcome in sequence:
@@ -174,7 +179,7 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
         checked = sum(tally.values())
         yield stream.verification(checked, tally["verified"], tally["hidden"], tally["downgraded"], summary.total)
     yield stream.text(f"Verified {verified + hidden} of {len(sequence)} quotes; downgraded {downgraded}")
-    yield stream.stage("verify", "done", counts={"checked": len(sequence), "downgraded": downgraded})
+    yield _stage("verify", "done", counts={"checked": len(sequence), "downgraded": downgraded})
 
     # 7. publish
     raw["slug"] = res.slug
@@ -183,12 +188,12 @@ async def fake_run(app: str, *, speed: float | None = None) -> AsyncIterator[str
     raw["last_verified"] = date.today().isoformat()
     raw["composio"] = {**copy.deepcopy(raw["composio"]), "toolkit_slug": res.toolkit_slug, "status": res.status}
     final = Guide.model_validate(raw).model_dump(mode="json")
-    yield stream.stage("publish", "running")
+    yield _stage("publish", "running")
     await pause(0.4)
     store.remember(final)  # in memory only, so the permalink works without polluting the guide list
-    yield stream.guide_part(res.slug, final)
+    yield stream.guide_part(res.slug, final, replay=True)
     yield stream.text(f"Guide ready for {res.name} at /guides/{res.slug}")
     await pause(0.3)
-    yield stream.stage("publish", "done", detail=f"/guides/{res.slug}")
+    yield _stage("publish", "done", detail=f"/guides/{res.slug}")
     yield stream.finish()
     yield stream.DONE

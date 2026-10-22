@@ -6,6 +6,7 @@ import pytest
 
 from app import config, stream
 from app.fetch import Page
+from app.llm import LLMError
 from app.models import Guide, GuideContent, WallProbe, iter_evidence
 from app.pipeline import run_pipeline
 from app.research import Claim, PageClaims
@@ -21,7 +22,7 @@ class FakeLLM:
         self.github, self.extracted = github, extracted or PageClaims(
             claims=[Claim(category="limits", text="10 callback URLs", quote=REAL, value=10, unit="callback URLs")])
 
-    async def run(self, output_type, instructions, prompt, *, label=""):
+    async def run(self, output_type, instructions, prompt, *, label="", **kw):
         self.calls += 1
         if output_type is PageClaims:
             return self.extracted
@@ -122,6 +123,51 @@ def test_default_llm_targets_free_openrouter_models(monkeypatch):
     monkeypatch.delenv("LLM_MODEL_PRIMARY", raising=False)
     monkeypatch.delenv("LLM_MODEL_FALLBACK", raising=False)
     llm = LLM()
-    assert llm.model_names == ["nvidia/nemotron-3-super-120b-a12b:free", "minimax/minimax-m3.1-flash:free"]
+    assert llm.model_names == ["minimax/minimax-m3.1-flash:free", "nvidia/nemotron-3-ultra-550b-a55b:free"]
     model = llm._factory(llm.model_names[0])  # constructs the OpenRouter model; makes no request
     assert type(model).__name__ == "OpenRouterModel" and model.model_name == llm.model_names[0]
+
+
+class SlowSynthLLM(FakeLLM):
+    """Extraction works; the guide writer fails the way a timed-out model does."""
+
+    async def run(self, output_type, instructions, prompt, *, label="", **kw):
+        if output_type is GuideContent:
+            self.calls += 1
+            raise LLMError("all models failed for synthesize: primary: timeout; fallback: timeout")
+        return await super().run(output_type, instructions, prompt, label=label)
+
+
+async def test_writer_failure_publishes_degraded_but_valid_guide(github):
+    events = await collect("github", SlowSynthLLM(github))
+    assert events[-1] == "[DONE]" and events[-2] == {"type": "finish"}
+    guide_ev = next(e for e in events if isinstance(e, dict) and e["type"] == "data-guide")
+    guide = Guide.model_validate(guide_ev["data"]["guide"])
+    assert guide.verdict.tier == "unknown" and guide.verdict.confidence == "low"
+    assert "Automatic draft" in guide.verdict.summary and guide.guide_type == "generated"
+    assert guide.limits and guide.limits[0].evidence.found_in == "visible"  # built from the verified claim
+    assert all(e.label != "DOCS" or e.found_in for e in iter_evidence(guide))
+    stages = [e for e in events if isinstance(e, dict) and e["type"] == "data-stage" and e["id"] == "synthesize"]
+    assert stages[-1]["data"]["status"] == "done" and "plain draft" in stages[-1]["data"]["detail"]
+    assert not [e for e in events if isinstance(e, dict) and e["type"] == "error"]
+
+
+def test_trim_claims_dedupes_caps_and_balances_categories():
+    from app.research import VerifiedClaim
+    from app.synthesize import trim_claims
+
+    cats = ["registration", "limits", "review", "other"]
+    claims = [VerifiedClaim(f"c{i}", "s1", Claim(category=cats[i % 4], text="t" * 300, quote=f"quote number {i}" if i % 8 else "duplicated quote text"),
+                            "visible") for i in range(120)]
+    claims.append(VerifiedClaim("cx", "s1", Claim(text="long", quote="q" * 300), "visible"))
+    out = trim_claims(claims)
+    assert len(out) <= 40 and len({c.claim.quote for c in out}) == len(out)
+    assert all(len(c.claim.text) <= 220 and len(c.claim.quote) <= 260 for c in out)
+    assert {c.claim.category for c in out} == set(cats)
+
+
+def test_degraded_content_with_no_registration_claims_still_valid():
+    from app.synthesize import degraded_content
+
+    content = degraded_content([])
+    assert content.steps[0].evidence.label == "UNCERTAIN" and content.verdict.tier == "unknown"

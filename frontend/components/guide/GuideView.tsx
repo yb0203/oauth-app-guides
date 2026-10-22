@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BadgeCheck, Check, FileText, Link2, Printer, Sparkles } from "lucide-react";
+import { BadgeCheck, Check, FileText, FlaskConical, Link2, Printer, Sparkles } from "lucide-react";
 import { cn } from "cn";
 import { markdownUrl } from "@/lib/api";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -74,7 +74,7 @@ const COMPOSIO = {
   not_in_catalog: { label: "Composio: not in catalog", title: "Composio has no toolkit for this app yet" },
 } as const;
 
-function Header({ guide, isPage }: { guide: Guide; isPage: boolean }) {
+function Header({ guide, isPage, replay = false }: { guide: Guide; isPage: boolean; replay?: boolean }) {
   const curated = guide.guide_type === "curated";
   const composio = COMPOSIO[guide.composio?.status] ?? COMPOSIO.managed;
   return (
@@ -85,10 +85,16 @@ function Header({ guide, isPage }: { guide: Guide; isPage: boolean }) {
         <h2 className="order-1 text-lg font-semibold tracking-tight">{guide.app_name} OAuth app guide</h2>
       )}
       <div className="order-3 flex basis-full flex-wrap items-center gap-x-3 gap-y-1.5 sm:order-2 sm:basis-auto">
-        <Chip className={curated ? "border-brand/30 bg-brand-soft text-brand" : "border-dashed border-muted-foreground/60 text-muted-foreground"}>
-          {curated ? <BadgeCheck className="size-3" aria-hidden /> : <Sparkles className="size-3" aria-hidden />}
-          {curated ? "Curated" : "Agent-generated"}
-        </Chip>
+        {replay ? (
+          <Chip className="border-warning-border bg-warning-soft text-warning" title="Recorded GitHub run shown in demo mode; not research for the app you typed">
+            <FlaskConical className="size-3" aria-hidden /> Demo replay
+          </Chip>
+        ) : (
+          <Chip className={curated ? "border-brand/30 bg-brand-soft text-brand" : "border-dashed border-muted-foreground/60 text-muted-foreground"}>
+            {curated ? <BadgeCheck className="size-3" aria-hidden /> : <Sparkles className="size-3" aria-hidden />}
+            {curated ? "Curated" : "Agent-generated"}
+          </Chip>
+        )}
         <span className="text-sm text-muted-foreground">Last verified {fmtDate(guide.last_verified)}</span>
         <Chip className="border-border text-muted-foreground" title={composio.title}>
           {composio.label}
@@ -133,12 +139,12 @@ function SectionNav({ guide }: { guide: Guide }) {
   );
 }
 
-function GuideBody({ guide, variant }: { guide: Guide; variant: "page" | "inline" }) {
+function GuideBody({ guide, variant, replay }: { guide: Guide; variant: "page" | "inline"; replay: boolean }) {
   const isPage = variant === "page";
   return (
     <article className="min-w-0 space-y-8" data-guide-slug={guide.slug}>
       <header className="space-y-4">
-        <Header guide={guide} isPage={isPage} />
+        <Header guide={guide} isPage={isPage} replay={replay} />
         <SituationPills />
         <VerdictCard guide={guide} />
         <StartHere guide={guide} />
@@ -161,9 +167,18 @@ function GuideBody({ guide, variant }: { guide: Guide; variant: "page" | "inline
 }
 
 /** The whole guide. Works inside a SituationProvider (shared with the Ask panel) or on its own. No outer <main>. */
-export function GuideView({ guide, variant = "page" }: { guide: Guide; variant?: "page" | "inline" }) {
+export function GuideView({
+  guide,
+  variant = "page",
+  replay = false,
+}: {
+  guide: Guide;
+  variant?: "page" | "inline";
+  /** the guide is a recorded demo replay, not research for the app that was asked about */
+  replay?: boolean;
+}) {
   const shared = useSituationOptional();
-  const body = <GuideBody guide={guide} variant={variant} />;
+  const body = <GuideBody guide={guide} variant={variant} replay={replay} />;
   if (shared) return body;
   return <SituationProvider key={guide.slug} guide={guide}>{body}</SituationProvider>;
 }

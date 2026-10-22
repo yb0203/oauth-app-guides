@@ -138,7 +138,8 @@ class FakeLLM:
     def __init__(self, result=None, error=None):
         self.result, self.error, self.prompts = result, error, []
 
-    async def run(self, output_type, instructions, prompt, *, label=""):
+    async def run(self, output_type, instructions, prompt, *, label="", **kw):
+        self.kw = kw
         self.prompts.append(prompt)
         if self.error:
             raise self.error
@@ -352,3 +353,63 @@ def test_no_answer_leaks_raw_enum_names():
 def test_step_facts_use_plain_words():
     facts = {f.ref: f.text for f in ask.build_facts(guide("google-gmail"))}
     assert facts["steps.2"].startswith("Step 3 (you do this, needs your own account): Choose the Audience")
+
+
+# --- markers the model forgot, and the live /ask model choice --------------------------------------
+
+async def test_live_answer_without_markers_gets_them_attached_to_the_matching_sentences():
+    g = guide("google-gmail")
+    text = ("Choosing Internal means there is no Google review. "
+            "Sending with gmail.send needs sensitive scope verification, which takes about 3 to 5 business days.")
+    llm_out = ask.LLMAnswer(covered=True, answer_text=text, citations=[
+        ask.LLMCitation(marker="1", ref="steps.11"), ask.LLMCitation(marker="2", ref="customer_gates.2")])
+    a = await ask.answer_question(g, "how long will review take?", {}, [], mode="live", llm=FakeLLM(llm_out))
+    assert len(a.citations) == 2
+    pieces = re.findall(r"(.*?)\s\[(\d+)\]", a.text)  # (sentence, marker) pairs
+    assert len(pieces) == 2
+    by_marker = {c["marker"]: c["fact"] for c in a.citations}
+    # the Internal-app fact lands on the Internal sentence, the 3-5 days step on the gmail.send sentence
+    assert "Internal" in pieces[0][0] and by_marker[pieces[0][1]].startswith("An Internal app")
+    assert "gmail.send" in pieces[1][0] and by_marker[pieces[1][1]].startswith("Step 12")
+
+
+async def test_markers_fall_back_to_end_of_answer_when_no_sentence_matches():
+    g = guide("github")
+    llm_out = ask.LLMAnswer(covered=True, answer_text="Zzz qqq.", citations=[ask.LLMCitation(marker="1", ref="limits.0")])
+    a = await ask.answer_question(g, "q", {}, [], mode="live", llm=FakeLLM(llm_out))
+    assert a.text == "Zzz qqq. [1]" and len(a.citations) == 1
+
+
+async def test_ask_uses_its_own_fast_model_with_a_20s_timeout(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-not-real")
+    monkeypatch.delenv("LLM_MODEL_ASK", raising=False)
+    seen = {}
+
+    class Spy(ask.LLM):
+        async def run(self, output_type, instructions, prompt, *, label="", **kw):
+            seen.update(models=self.model_names, **kw)
+            raise LLMError("timeout")
+
+    monkeypatch.setattr(ask, "LLM", Spy)
+    a = await ask.answer_question(guide("xero"), "how many organisations can connect?", {}, [], mode="live")
+    assert seen["models"] == ["nvidia/nemotron-3-ultra-550b-a55b:free"] and seen["timeout"] == 20.0
+    assert a.covered and a.citations  # fell back to deterministic retrieval
+    monkeypatch.setenv("LLM_MODEL_ASK", "minimax/minimax-m3.1-flash:free")
+    await ask.answer_question(guide("xero"), "how many organisations can connect?", {}, [], mode="live")
+    assert seen["models"] == ["minimax/minimax-m3.1-flash:free"]
+
+
+async def test_ask_endpoint_sends_heartbeats(client, monkeypatch):
+    import asyncio
+
+    monkeypatch.setenv("HEARTBEAT_SECONDS", "0.05")
+
+    async def slow(g, question, situation, history, *, mode, llm=None):
+        await asyncio.sleep(0.3)
+        return ask.Answer(text="Done.", covered=True)
+
+    monkeypatch.setattr(ask, "answer_question", slow)
+    r = client.post("/api/guides/github/ask", json={"question": "anything"})
+    assert r.text.count(": ping") >= 2
+    ev = stream.parse_sse(r.text)
+    assert ev[-1] == "[DONE]" and any(isinstance(e, dict) and e["type"] == "data-answer-meta" for e in ev)
