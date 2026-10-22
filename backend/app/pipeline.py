@@ -18,8 +18,6 @@ from urllib.parse import urlparse
 
 from . import catalog, config, consoles, docsearch, domains, evidence, probe, research, store, stream, synthesize
 from .fetch import Page, fetch_page
-from pydantic import ValidationError
-
 from .llm import LLM, LLMError, has_key
 from .models import Composio, Evidence, Fact, Guide, Source, WallProbe, iter_evidence
 from .research import VerifiedClaim
@@ -29,6 +27,10 @@ log = logging.getLogger("pipeline")
 RUN_TIMEOUT_S = float(os.getenv("RUN_TIMEOUT_S", "285"))
 LLM_BUDGET_S = float(os.getenv("LLM_BUDGET_S", "240"))
 RESEARCH_BUDGET_S = float(os.getenv("RESEARCH_BUDGET_S", "110"))
+
+
+PART_NAMES = {"synthesize-a": "the verdict, limits and review", "synthesize-b": "the steps and gotchas"}
+PART_SHORT = {"synthesize-a": "verdict and limits", "synthesize-b": "steps and gotchas"}
 
 
 class PipelineError(Exception):
@@ -170,9 +172,10 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
 
     # 4. probe the sign-in wall ---------------------------------------------------------------------
     yield ("stage", "probe")
-    known = probe.KNOWN_CONSOLES.get(slug) or probe.KNOWN_CONSOLES.get(slug.split("_")[0])
+    known = probe.KNOWN_CONSOLES.get(slug) or probe.KNOWN_CONSOLES.get(slug.split("_")[0]) or store.curated_console(slug)
     from_pages = [u for sid in sorted(used) for u in consoles.console_candidates(page_by_id[sid], slug, name, official or None)]
-    from_model = [u for u in console_urls if u.startswith("https://") and domains.is_official(u, slug, name, official or None)]
+    from_model = [u for u in console_urls if consoles.looks_like_console(u)
+                  and domains.is_official(u, slug, name, official or None)]
     console_url = known or next(iter(from_pages + from_model), None)
     wall: WallProbe | None = None
     if console_url:
@@ -190,15 +193,18 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
     yield stream.stage("synthesize", "running")
     src_titles = {s.id: f"{s.title} [{s.kind}]" for s in sources}
     deadline = started + LLM_BUDGET_S
-    try:
-        if deadline - time.monotonic() < 20:
-            raise LLMError("not enough time left for the writer model")
-        content = await synthesize.synthesize(llm, name, res.status, claims, src_titles, wall, deadline=deadline)
-    except (LLMError, ValidationError) as exc:  # the writer failed or timed out: publish a plain, honest draft
-        log.warning("synthesize failed (%s); publishing a degraded guide", exc)
-        yield stream.text("The guide writer didn't finish in time, so this is a plain draft built only from the "
-                          "quotes verified on the docs pages. Tier and timeline are marked as not assessed.")
-        content = synthesize.degraded_content(claims, reason=str(exc)[:160])
+    degraded: list[str] = []
+    official_ids = {s.id for s in sources if s.kind in ("official_docs", "composio_docs")}
+    if deadline - time.monotonic() < 20:  # no time for the writer: plain draft of everything
+        log.warning("not enough time left for the writer model; publishing a degraded guide")
+        content, degraded = synthesize.degraded_content(claims, reason="out of time"), ["synthesize-a", "synthesize-b"]
+        synthesize.apply_tier_rule(content, claims, official_ids)
+    else:
+        content, degraded = await synthesize.synthesize(llm, name, res.status, claims, src_titles, wall,
+                                                        deadline=deadline, official_sources=official_ids)
+    if degraded:
+        yield stream.text("The guide writer didn't finish " + " and ".join(PART_NAMES[d] for d in degraded) +
+                          "; those parts are a plain draft built only from the quotes verified on the docs pages.")
     if wall:
         sid = f"s{len(sources) + 1}"
         sources.append(Source(id=sid, url=wall.console_url, title="Developer console sign-in wall probe",
@@ -209,7 +215,7 @@ async def _run(app, llm, searcher, fetcher, prober) -> AsyncIterator[str | tuple
                 f"Our read-only probe on {wall.observed_at} loaded {wall.console_url} and ended at {wall.final_url} "
                 f"({wall.outcome.replace('_', ' ')})."))))
     yield stream.stage("synthesize", "done", counts={"llm_calls": llm.calls},
-                       detail="plain draft (writer unavailable)" if content.verdict.tier == "unknown" else None)
+                       detail=("plain draft for " + " and ".join(PART_SHORT[d] for d in degraded)) if degraded else None)
 
     # 6. verify (independent re-check of every DOCS quote against the live page text) ---------------
     yield ("stage", "verify")

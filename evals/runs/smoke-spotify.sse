@@ -1,0 +1,122 @@
+data: {"type":"start","messageId":"c70c5a42-c797-4163-b112-759945f8e572"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"2a67dd3c23174d7587990a241006dd7c"}
+
+data: {"type":"text-delta","id":"2a67dd3c23174d7587990a241006dd7c","delta":"Resolved Spotify to Composio toolkit spotify (BYO)."}
+
+data: {"type":"text-end","id":"2a67dd3c23174d7587990a241006dd7c"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"Spotify -> spotify","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+data: {"type":"text-start","id":"27acdee660704358bdb6f9c7f5857a7e"}
+
+data: {"type":"text-delta","id":"27acdee660704358bdb6f9c7f5857a7e","delta":"Found 5 docs pages (developer.spotify.com); rejected 3 that don't cover the topic."}
+
+data: {"type":"text-end","id":"27acdee660704358bdb6f9c7f5857a7e"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":3}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"8f5ebc7d348f48dda094b292bc470e20"}
+
+data: {"type":"text-delta","id":"8f5ebc7d348f48dda094b292bc470e20","delta":"developer.spotify.com: 9 of 9 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"8f5ebc7d348f48dda094b292bc470e20"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://developer.spotify.com/documentation/android/tutorials/authorization","title":"Authorization | Spotify for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":9}}}
+
+data: {"type":"text-start","id":"66af2bff907442e79bb977f165d8e116"}
+
+data: {"type":"text-delta","id":"66af2bff907442e79bb977f165d8e116","delta":"developer.spotify.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"66af2bff907442e79bb977f165d8e116"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://developer.spotify.com/documentation/web-api/tutorials/getting-started?ut_source=dashboard","title":"Getting started with Web API | Spotify for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":23}}}
+
+data: {"type":"text-start","id":"5ef2a21da7ea4b73bc34f66b7911ab20"}
+
+data: {"type":"text-delta","id":"5ef2a21da7ea4b73bc34f66b7911ab20","delta":"developer.spotify.com: 13 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"5ef2a21da7ea4b73bc34f66b7911ab20"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://developer.spotify.com/documentation/web-api/concepts/apps","title":"Apps | Spotify for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":36}}}
+
+data: {"type":"text-start","id":"b5edd9dc8e1641749b18e3f449da0e98"}
+
+data: {"type":"text-delta","id":"b5edd9dc8e1641749b18e3f449da0e98","delta":"developer.spotify.com: 5 of 5 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"b5edd9dc8e1641749b18e3f449da0e98"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://developer.spotify.com/documentation/web-api","title":"Web API | Spotify for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":41}}}
+
+data: {"type":"text-start","id":"bae0fdc4700942cd86dfa197e46ccbe0"}
+
+data: {"type":"text-delta","id":"bae0fdc4700942cd86dfa197e46ccbe0","delta":"developer.spotify.com: 9 of 10 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"bae0fdc4700942cd86dfa197e46ccbe0"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://developer.spotify.com/documentation/web-api/concepts/authorization","title":"Authorization | Spotify for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":50}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":5,"claims":50}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://developer.spotify.com/dashboard"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://developer.spotify.com/dashboard","final_url":"https://developer.spotify.com/dashboard","redirect_chain":["https://developer.spotify.com/dashboard"],"outcome":"console_reachable","wall_host":null,"asks_for":"Page at developer.spotify.com loaded but shows no readable content over plain HTTP (a JavaScript app), so a sign-in prompt could not be observed","bot_check":false,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"8046be4f322646b08a609d9a0abfe1ab"}
+
+data: {"type":"text-delta","id":"8046be4f322646b08a609d9a0abfe1ab","delta":"Developer console probe: console reachable. Page at developer.spotify.com loaded but shows no readable content over plain HTTP (a JavaScript app), so a sign-in prompt could not be observed"}
+
+data: {"type":"text-end","id":"8046be4f322646b08a609d9a0abfe1ab"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"console_reachable"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+: ping
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","counts":{"llm_calls":6}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":23}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":20,"docs_verified":20,"hidden":0,"downgraded":0,"total":23}}
+
+data: {"type":"text-start","id":"df63d10e76474423a23ae93f943513c1"}
+
+data: {"type":"text-delta","id":"df63d10e76474423a23ae93f943513c1","delta":"Verified 20 of 20 quotes on the live pages; downgraded 0 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"df63d10e76474423a23ae93f943513c1"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":20,"downgraded":0}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/spotify","counts":{"llm_calls":6}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"spotify","permalink":"/guides/spotify","guide":{"verdict":{"tier":"review_required","summary":"Register your own Spotify app, configure Composio's callback, and obtain any quota extension needed before serving users at the intended scale.","effort_hours":{"min":1.0,"max":3.0},"calendar":{"min_days":1.0,"max_days":null,"label":"About 1 day of active work; approval duration is not documented"},"calendar_basis":"estimate","confidence":"medium"},"situations":{"questions":[{"id":"audience","text":"Who will connect their Spotify accounts?","options":[{"id":"own_org","label":"Only my organization"},{"id":"outside_users","label":"Outside users"}]},{"id":"access","text":"What must the agent do with each account?","options":[{"id":"read","label":"Read account data"},{"id":"write_send","label":"Write data or control playback"}]}],"variants":[{"when":{"audience":"own_org","access":"read"},"tier":"review_required","summary":"Create a user-authorized app for organization accounts; development-mode quota may still require an extension.","calendar_label":"Initial setup about 1 day; review duration unknown","notes":[]},{"when":{"audience":"own_org","access":"write_send"},"tier":"review_required","summary":"Create a user-authorized app with the smallest scope set covering the required write or playback actions.","calendar_label":"Initial setup about 1 day; review duration unknown","notes":[]},{"when":{"audience":"outside_users","access":"read"},"tier":"review_required","summary":"Prepare the app for outside-user adoption and request any development-mode user or request quota extension required.","calendar_label":"Initial setup about 1 day; review duration unknown","notes":[]},{"when":{"audience":"outside_users","access":"write_send"},"tier":"review_required","summary":"Prepare a user-authorized app for outside users and request the quota extension needed for the intended write or playback use.","calendar_label":"Initial setup about 1 day; review duration unknown","notes":[]}]},"byo_advice":"Composio's managed app may be enough for a quick internal prototype. Bring your own app when you need your own OAuth client, controlled credentials, a provider-specific approval process, or a product that must connect real users through your own registration.","before_you_start":[{"text":"The developer console needs a signed-in account: Page at developer.spotify.com loaded but shows no readable content over plain HTTP (a JavaScript app), so a sign-in prompt could not be observed.","evidence":{"label":"TESTED","source_id":"s6","quote":null,"found_in":null,"note":"Our read-only probe on 2026-10-22 loaded https://developer.spotify.com/dashboard and ended at https://developer.spotify.com/dashboard (console reachable)."}},{"text":"Create a Spotify developer account and sign in to the Spotify Developer Dashboard.","evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The dashboard was reachable, but the supplied observation could not read the sign-in interface."}},{"text":"Have a Spotify Premium account available for Web API testing.","evidence":{"label":"DOCS","source_id":"s4","quote":"You need a Spotify Premium account to use the Web API.","found_in":"visible","note":null}}],"limits":[{"what":"Applications per developer account","value":25.0,"unit":"apps","scope":"per developer account","evidence":{"label":"DOCS","source_id":"s3","quote":"You can create up to 25 apps per developer account.","found_in":"visible","note":null}},{"what":"Users who can install the app in Development Mode","value":null,"unit":"users","scope":"development-mode apps","evidence":{"label":"DOCS","source_id":"s3","quote":"By default, your app will be in Development Mode with limits on the number of users who can install it, and the number of API requests it can make.","found_in":"visible","note":null}},{"what":"API requests allowed in Development Mode","value":null,"unit":"requests","scope":"development-mode apps","evidence":{"label":"DOCS","source_id":"s3","quote":"By default, your app will be in Development Mode with limits on the number of users who can install it, and the number of API requests it can make.","found_in":"visible","note":null}},{"what":"Client-credentials access-token validity","value":1.0,"unit":"hour","scope":"client credentials flow","evidence":{"label":"DOCS","source_id":"s5","quote":"The response will return an access token valid for 1 hour:","found_in":"visible","note":null}}],"steps":[{"n":1,"title":"Sign in and open the dashboard","detail":"Sign in to the Spotify Developer Dashboard and open the app-management area.","actor":"human","human_reason":"credential","irreversible":false,"values":[],"evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"The supplied observation confirms that the dashboard URL is reachable, but its JavaScript interface was not readable over plain HTTP."}},{"n":2,"title":"Prepare the app fields","detail":"Prepare a unique app name, a concise description of the AI agent's Spotify use, and the smallest intended access set.","actor":"agent","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s5","quote":"To create an app, go to your Dashboard, click on the Create an app button and enter the following information","found_in":"visible","note":null}},{"n":3,"title":"Register the app","detail":"Create the app in the Spotify Developer Dashboard, accept the Developer Terms of Service, and finish creating it.","actor":"human","human_reason":"legal_acceptance","irreversible":true,"values":[],"evidence":{"label":"DOCS","source_id":"s5","quote":"Finally, check the Developer Terms of Service checkbox and tap on the Create button.","found_in":"visible","note":null}},{"n":4,"title":"Allowlist the Composio callback","detail":"Add Composio's callback as an allowed redirect URI. The registered URI must exactly match the value used by Composio.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Redirect URI","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s3","quote":"In Redirect URIs enter one or more addresses that you want to allowlist with Spotify.","found_in":"visible","note":null}},{"n":5,"title":"Retrieve the app credentials","detail":"Open the app settings and reveal the client secret; store both values securely.","actor":"human","human_reason":"credential","irreversible":false,"values":[{"label":"Client ID","value":"Copy the Client ID from Spotify app settings"},{"label":"Client Secret","value":"Reveal and copy the Client Secret from Spotify app settings"}],"evidence":{"label":"DOCS","source_id":"s5","quote":"The Client ID can be found here. The Client Secret can be found behind the View client secret link.","found_in":"visible","note":null}},{"n":6,"title":"Configure the Composio auth connection","detail":"Create or edit the Spotify auth config in Composio, select the authorization-code user flow, and paste the app's client ID and client secret.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Client ID","value":"<Spotify app Client ID>"},{"label":"Client Secret","value":"<Spotify app Client Secret>"},{"label":"Redirect URI","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s5","quote":"An app provides the Client ID and Client Secret needed to request an\naccess token by implementing any of the\nauthorization flows.","found_in":"visible","note":null}},{"n":7,"title":"Test access and request quota if needed","detail":"Connect a Premium test account, approve the requested scopes, and request a Development Mode quota extension if the intended user count or request volume exceeds the defaults.","actor":"human","human_reason":"submit","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s3","quote":"you can request an extension of this quota if needed by clicking on the Request Extension link.","found_in":"visible","note":null}}],"review":{"required":"conditional","trigger":"Request a quota extension when Development Mode limits block the intended user count or API request volume.","submit":["Open the app's Development Mode quota controls.","Select Request Extension and describe the intended users and API request volume."],"reviewer":null,"wait_official":null,"wait_community":null,"cost":null,"evidence":[{"label":"DOCS","source_id":"s3","quote":"By default, your app will be in Development Mode with limits on the number of users who can install it, and the number of API requests it can make.","found_in":"visible","note":null},{"label":"DOCS","source_id":"s3","quote":"you can request an extension of this quota if needed by clicking on the Request Extension link.","found_in":"visible","note":null}]},"customer_gates":[{"text":"A user must accept requested scopes that have not previously been approved.","evidence":{"label":"DOCS","source_id":"s2","quote":"If the application requests scopes that have not been approved before, the user will see a list of scopes and will need to accept them.","found_in":"visible","note":null}},{"text":"The client-credentials flow cannot access user-specific information or act for a particular user.","evidence":{"label":"DOCS","source_id":"s1","quote":"This flow does not include user authorization, so only\nendpoints that do not request user information (e.g. user profile data) can be accessed.","found_in":"visible","note":null}}],"gotchas":[{"text":"Do not use the client-credentials flow for private playlists, user profile data, or other actions on behalf of a specific user.","evidence":{"label":"DOCS","source_id":"s5","quote":"It will not work in cases where your app will connect on behalf of a specific user, for example when getting private playlist or profile data.","found_in":"visible","note":null}},{"text":"Store the client secret securely; it authorizes Web API or SDK calls.","evidence":{"label":"DOCS","source_id":"s3","quote":"Client Secret, the key you will use to authorize your Web API or SDK calls.","found_in":"visible","note":null}},{"text":"Do not assume the default Development Mode user and request limits are sufficient for outside-user adoption.","evidence":{"label":"DOCS","source_id":"s3","quote":"By default, your app will be in Development Mode with limits on the number of users who can install it, and the number of API requests it can make.","found_in":"visible","note":null}}],"blockers":[{"symptom":"The app cannot support the intended number of users or request volume.","cause":"The app remains under default Development Mode limits.","fix":"Request a quota extension and wait for Spotify's decision before broad rollout.","evidence":{"label":"DOCS","source_id":"s3","quote":"you can request an extension of this quota if needed by clicking on the Request Extension link.","found_in":"visible","note":null}},{"symptom":"The flow cannot retrieve a connected user's private playlists or profile data.","cause":"Client credentials does not include user authorization.","fix":"Use an authorization-code user flow with the required user scopes.","evidence":{"label":"DOCS","source_id":"s5","quote":"It will not work in cases where your app will connect on behalf of a specific user, for example when getting private playlist or profile data.","found_in":"visible","note":null}}],"prepared":{"scopes":[{"scope":"Exact scope names: not verified from the supplied claims","why":"Choose the smallest user-authorized scope set that covers the intended read, write, or playback actions.","review_class":"unknown"}],"privacy_policy_outline":["State which Spotify account data the agent reads or changes.","Explain the purpose, retention, deletion, and user authorization process.","Identify the app owner and provide a support or privacy contact."],"consent_screen":{"app_name":"Your product name","purpose":"Explain why the agent needs Spotify access","requested_access":"List the minimum Spotify data and actions","user_control":"Allow users to review access and revoke it","privacy_policy":"Link to the app's privacy policy"},"review_text":null},"open_questions":["Which exact Spotify scopes and Composio auth fields are required for the intended read, write, or playback actions?","What are Spotify's current Development Mode user and API-request limits?","Who reviews quota-extension requests, and what is the approval wait time?","Does Spotify impose an app-access review beyond the quota-extension process for the intended distribution channel?","Which Composio auth-config fields and OAuth flow should be selected for a confidential server-side connection?"],"schema_version":"1","slug":"spotify","app_name":"Spotify","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"spotify","status":"byo","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":{"console_url":"https://developer.spotify.com/dashboard","final_url":"https://developer.spotify.com/dashboard","redirect_chain":["https://developer.spotify.com/dashboard"],"outcome":"console_reachable","wall_host":null,"asks_for":"Page at developer.spotify.com loaded but shows no readable content over plain HTTP (a JavaScript app), so a sign-in prompt could not be observed","bot_check":false,"method":"http","observed_at":"2026-10-22"},"conflicts":[],"sources":[{"id":"s1","url":"https://developer.spotify.com/documentation/web-api/concepts/authorization","title":"Authorization | Spotify for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s2","url":"https://developer.spotify.com/documentation/android/tutorials/authorization","title":"Authorization | Spotify for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s3","url":"https://developer.spotify.com/documentation/web-api/concepts/apps","title":"Apps | Spotify for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s4","url":"https://developer.spotify.com/documentation/web-api","title":"Web API | Spotify for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s5","url":"https://developer.spotify.com/documentation/web-api/tutorials/getting-started?ut_source=dashboard","title":"Getting started with Web API | Spotify for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s6","url":"https://developer.spotify.com/dashboard","title":"Developer console sign-in wall probe","accessed":"2026-10-22","kind":"observation"}],"verification_summary":{"total":23,"tested":1,"docs_verified":20,"docs_hidden":0,"community":0,"uncertain":2}}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+

@@ -10,9 +10,18 @@ from app.llm import LLMError
 from app.models import Guide, GuideContent, WallProbe, iter_evidence
 from app.pipeline import run_pipeline
 from app.research import Claim, PageClaims
+from app.synthesize import ContentA, ContentB
 
 REAL = "You can enter up to 10 callback URLs for your OAuth app."
 PAGE_TEXT = ("Creating an OAuth app. " + REAL + " Register a new application with the OAuth client ID. " + "x " * 400)
+
+
+def part_of(output_type, content: GuideContent):
+    """The ContentA / ContentB slice (what the writer calls return) of a full GuideContent."""
+    if output_type is GuideContent:
+        return content
+    dumped = content.model_dump()
+    return output_type.model_validate({k: dumped[k] for k in output_type.model_fields})
 
 
 class FakeLLM:
@@ -30,7 +39,7 @@ class FakeLLM:
         for i, ev in enumerate(iter_evidence(content)):
             if ev.label == "DOCS":
                 ev.source_id, ev.quote = "s1", REAL if i % 2 == 0 else "this sentence is nowhere on the page"
-        return content
+        return part_of(output_type, content)
 
 
 def fake_page(url="https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"):
@@ -131,8 +140,10 @@ def test_default_llm_targets_free_openrouter_models(monkeypatch):
 class SlowSynthLLM(FakeLLM):
     """Extraction works; the guide writer fails the way a timed-out model does."""
 
+    fail = (ContentA, ContentB)
+
     async def run(self, output_type, instructions, prompt, *, label="", **kw):
-        if output_type is GuideContent:
+        if output_type in self.fail:
             self.calls += 1
             raise LLMError("all models failed for synthesize: primary: timeout; fallback: timeout")
         return await super().run(output_type, instructions, prompt, label=label)
@@ -171,3 +182,33 @@ def test_degraded_content_with_no_registration_claims_still_valid():
 
     content = degraded_content([])
     assert content.steps[0].evidence.label == "UNCERTAIN" and content.verdict.tier == "unknown"
+
+
+async def test_only_the_failed_writer_part_is_degraded(github):
+    llm = SlowSynthLLM(github)
+    llm.fail = (ContentA,)  # verdict/limits/review writer fails; steps/gates/gotchas writer succeeds
+    events = await collect("github", llm)
+    guide = Guide.model_validate(next(e for e in events if isinstance(e, dict) and e["type"] == "data-guide")["data"]["guide"])
+    assert "Automatic draft" in guide.verdict.summary                      # part A: plain draft
+    assert [s.title for s in guide.steps][0] == github["steps"][0]["title"]  # part B: the model's own steps survived
+    stages = [e["data"] for e in events if isinstance(e, dict) and e["type"] == "data-stage" and e["id"] == "synthesize"]
+    assert stages[-1]["detail"] == "plain draft for verdict and limits"
+    narration = "".join(e["delta"] for e in events if isinstance(e, dict) and e["type"] == "text-delta")
+    assert "verdict, limits and review" in narration and "steps and gotchas" not in narration
+
+
+def test_tier_rule_overrides_a_looser_model_tier_with_a_note(github_guide_dict):
+    from app.research import VerifiedClaim
+    from app.synthesize import apply_tier_rule
+
+    content = GuideContent.model_validate({k: github_guide_dict[k] for k in GuideContent.model_fields})
+    content.verdict.tier, content.verdict.confidence = "review_required", "high"
+    quote = "Spotify only accepts applications from organizations (not individuals)"
+    claims = [VerifiedClaim("c1", "s1", Claim(category="review", text="Orgs only", quote=quote), "visible"),
+              VerifiedClaim("c2", "s9", Claim(category="review", text="x", quote="Access is by invitation only."), "visible")]
+    apply_tier_rule(content, claims, {"s1"})
+    assert content.verdict.tier == "partner_only" and content.verdict.confidence == "medium"
+    assert any("by rule" in q and "organizations" in q for q in content.open_questions)
+    content.verdict.tier = "instant"  # a looser claim from a non-official source alone does not count
+    apply_tier_rule(content, [claims[1]], {"s1"})
+    assert content.verdict.tier == "instant"

@@ -34,3 +34,29 @@ async def test_find_docs_filters_and_dedupes():
     good, rejected = await find_docs("TikTok", "tiktok", search=lambda q, n: [{"href": u} for u in urls], fetch=fetch)
     assert [p.final_url for p in good] == ["https://developers.tiktok.com/docs/a", "https://developers.tiktok.com/docs/b"]
     assert rejected == ["https://developers.tiktok.com/docs/c"]
+
+
+def test_official_pages_need_not_name_the_app():
+    consent = Page("https://developers.google.com/workspace/guides/configure-oauth-consent", "https://developers.google.com/workspace/guides/configure-oauth-consent",
+                   [], 200, "t", "Configure the OAuth consent screen and choose scopes. " + "word " * 200, "", "http", None)
+    assert not covers_topic(consent, "Gmail")  # third-party rule: must mention the app
+    assert covers_topic(consent, "Gmail", need_name=False)
+
+
+async def test_gmail_gets_three_official_google_pages_before_any_third_party():
+    official = [f"https://developers.google.com/gmail/{i}" for i in range(3)] + ["https://support.google.com/cloud/answer/1"]
+    third = ["https://nylas.com/gmail-oauth"]
+    text = "Set up the OAuth consent screen, scopes and a client id for your app. " + "word " * 200
+
+    def searcher(q, n):
+        return [{"href": u} for u in (official if "site:" in q else third)]
+
+    seen: list[str] = []
+
+    async def fetch(url):
+        seen.append(url)
+        return Page(url, url, [], 200, "t", text, "", "http", None)
+
+    good, _ = await find_docs("Gmail", "gmail", search=searcher, fetch=fetch)
+    assert len(good) >= 3 and all("google.com" in p.final_url for p in good)
+    assert "https://nylas.com/gmail-oauth" not in seen

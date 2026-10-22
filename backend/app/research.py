@@ -36,7 +36,9 @@ wait_time (how long review takes), other.
 keys or has no third-party OAuth, null if unclear.
 - console_url: the https URL of the provider's developer console or app-management page where developers create \
 and manage their OAuth app, only if this page names or links it; otherwise null.
-- Return at most 14 claims, the most useful for someone setting this up."""
+- Return at most 14 claims, the most useful for someone setting this up. Always include, when the page states \
+them: any cap on users, connections, installs or test users (with value and unit), any review, verification or \
+approval requirement, who is eligible (individuals vs organizations), and how long approval takes."""
 
 EXTRACT_TIMEOUT_S = 45.0
 KEYWORDS = re.compile(

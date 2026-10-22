@@ -9,11 +9,12 @@ from app.fetch import Page
 from app.models import Guide, GuideContent, Step, WallProbe, iter_evidence
 from app.research import Claim, PageClaims, VerifiedClaim
 from app.synthesize import ensure_byo_path, postprocess
-from tests.unit.test_pipeline import FakeLLM, collect
+from tests.unit.test_pipeline import FakeLLM, collect, part_of
 
 FIX = pathlib.Path(__file__).resolve().parents[1] / "fixtures" / "pages" / "todoist_api_excerpt.html"
 QUOTE = "developers need to create their applications in the App Management Console"
-OFFICIAL = ["https://developer.todoist.com/api/v1/", "https://doist.github.io/todoist-sdk-typescript/authorization/"]
+OFFICIAL = ["https://developer.todoist.com/api/v1/", "https://doist.github.io/todoist-sdk-typescript/authorization/",
+            "https://developer.todoist.com/guides/"]
 THIRD = ["https://automatisch.io/docs/apps/todoist/connection", "https://developer.transmitsecurity.com/todoist"]
 
 
@@ -65,11 +66,11 @@ class CitingLLM(FakeLLM):
     """Cites the verified quote from source s1 (official) on half the evidence and from s3 (third party) on the rest."""
 
     async def run(self, output_type, instructions, prompt, *, label="", **kw):
-        if output_type is GuideContent:
+        if output_type is not PageClaims:
             c = managed_framing_content(self.github)
             for i, ev in enumerate(iter_evidence(c)):
                 ev.label, ev.source_id, ev.quote, ev.found_in = "DOCS", "s1" if i % 2 == 0 else "s3", QUOTE, None
-            return c
+            return part_of(output_type, c)
         return PageClaims(console_url=None, claims=[Claim(category="registration", text="Create apps in the console", quote=QUOTE)])
 
 
@@ -101,7 +102,7 @@ async def test_todoist_run_labels_third_party_as_community_and_probes_the_consol
         "todoist.com", llm=CitingLLM(run_env), searcher=searcher, fetcher=fetcher, prober=prober)]))
     guide = Guide.model_validate(next(e for e in events if isinstance(e, dict) and e["type"] == "data-guide")["data"]["guide"])
 
-    assert not any(u in fetched for u in THIRD)  # two official pages were enough: no third-party top-up
+    assert not any(u in fetched for u in THIRD)  # three official pages were enough: no third-party top-up
     assert all(s.kind == "official_docs" for s in guide.sources if s.kind != "observation")
     assert probed == ["https://app.todoist.com/app/settings/integrations/app-management"]
     assert guide.wall_probe and guide.wall_probe.outcome == "login_wall"
@@ -127,7 +128,7 @@ async def test_third_party_pages_only_top_up_when_fewer_than_two_official(run_en
 
     kinds = [source_kind(p.final_url, "todoist", "Todoist") for p in good]
     assert kinds[0] == "official_docs" and kinds.count("official_docs") == 1
-    assert 1 <= kinds.count("community") <= 3 and len(good) <= 5
+    assert 1 <= kinds.count("community") <= 3 and len(good) <= 5  # fewer than 3 official: top up, never beyond 3
 
 
 async def test_console_skipped_only_when_nothing_found_and_says_so(run_env):

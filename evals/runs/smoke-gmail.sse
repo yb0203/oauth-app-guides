@@ -1,0 +1,142 @@
+data: {"type":"start","messageId":"36ddf875-07c9-41ba-b861-885344ce2ab2"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"27cba3ca97ca4afe9201f402af8c7d3b"}
+
+data: {"type":"text-delta","id":"27cba3ca97ca4afe9201f402af8c7d3b","delta":"Resolved Gmail to Composio toolkit gmail (MANAGED)."}
+
+data: {"type":"text-end","id":"27cba3ca97ca4afe9201f402af8c7d3b"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"Gmail -> gmail","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+data: {"type":"text-start","id":"cdc972302f514b80a33d2444a1d16899"}
+
+data: {"type":"text-delta","id":"cdc972302f514b80a33d2444a1d16899","delta":"Found 4 docs pages (developer.nylas.com, developers.google.com, emailarchitect.net, singhamandeep.com); rejected 12 that don't cover the topic."}
+
+data: {"type":"text-end","id":"cdc972302f514b80a33d2444a1d16899"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":4,"rejected":12}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":4,"claims":0}}}
+
+data: {"type":"text-start","id":"c46f3ad9bb9b484fa5561457fb4db3f6"}
+
+data: {"type":"text-delta","id":"c46f3ad9bb9b484fa5561457fb4db3f6","delta":"developers.google.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"c46f3ad9bb9b484fa5561457fb4db3f6"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://developers.google.com/workspace/gmail/api/auth/web-server","title":"Implement server-side authorization | Gmail | Google for Developers"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":4,"claims":14}}}
+
+data: {"type":"text-start","id":"b65ddaaf68fa449b8940fec9ef0f7b46"}
+
+data: {"type":"text-delta","id":"b65ddaaf68fa449b8940fec9ef0f7b46","delta":"emailarchitect.net: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"b65ddaaf68fa449b8940fec9ef0f7b46"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://www.emailarchitect.net/eaoauth/kb/create_project_gmail","title":"Create project and OAUTH client for Gmail or Google Workspace"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":4,"claims":28}}}
+
+data: {"type":"text-start","id":"b6c7b051c2bc4e228967f9951ac74da3"}
+
+data: {"type":"text-delta","id":"b6c7b051c2bc4e228967f9951ac74da3","delta":"developer.nylas.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"b6c7b051c2bc4e228967f9951ac74da3"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://developer.nylas.com/docs/provider-guides/google/google-verification-security-assessment-guide/","title":"Gmail restricted scopes: verification and CASA | Docs"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":4,"claims":42}}}
+
+data: {"type":"text-start","id":"0687e9878623447b8a00fe1f9ae2b37e"}
+
+data: {"type":"text-delta","id":"0687e9878623447b8a00fe1f9ae2b37e","delta":"singhamandeep.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"0687e9878623447b8a00fe1f9ae2b37e"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://singhamandeep.com/google-oauth-verification-guide/","title":"Google OAuth Verification: The Powerful 2026 Guide To Pass App Review"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":4,"claims":56}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":4,"claims":56}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://developers.google.com/apps-script"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://developers.google.com/apps-script","final_url":"https://developers.google.com/apps-script","redirect_chain":["https://developers.google.com/apps-script"],"outcome":"console_reachable","wall_host":null,"asks_for":"Console page at developers.google.com loaded without a sign-in prompt","bot_check":false,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"c82a908dbaef442fa6b7fd142ed1ab27"}
+
+data: {"type":"text-delta","id":"c82a908dbaef442fa6b7fd142ed1ab27","delta":"Developer console probe: console reachable. Console page at developers.google.com loaded without a sign-in prompt"}
+
+data: {"type":"text-end","id":"c82a908dbaef442fa6b7fd142ed1ab27"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"console_reachable"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+: ping
+
+data: {"type":"text-start","id":"cb9a8403748641f2bea6ab03a5c909ba"}
+
+data: {"type":"text-delta","id":"cb9a8403748641f2bea6ab03a5c909ba","delta":"The guide writer didn't finish in time, so this is a plain draft built only from the quotes verified on the docs pages. Tier and timeline are marked as not assessed."}
+
+data: {"type":"text-end","id":"cb9a8403748641f2bea6ab03a5c909ba"}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","detail":"plain draft (writer unavailable)","counts":{"llm_calls":6}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":30}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":10,"docs_verified":10,"hidden":0,"downgraded":0,"total":30}}
+
+data: {"type":"text-start","id":"77573715504b4d7abe5a47661b5141b4"}
+
+data: {"type":"text-delta","id":"77573715504b4d7abe5a47661b5141b4","delta":"Verified 10 of 10 quotes on the live pages; downgraded 0 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"77573715504b4d7abe5a47661b5141b4"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":10,"downgraded":0}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/gmail","counts":{"llm_calls":6}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"gmail","permalink":"/guides/gmail","guide":{"verdict":{"tier":"unknown","summary":"Automatic draft: the guide writer didn't finish, so this page only lists facts whose quotes were verified on the provider's docs. Tier, effort and timeline were not assessed.","effort_hours":{"min":0.0,"max":0.0},"calendar":{"min_days":0.0,"max_days":null,"label":"Not assessed"},"calendar_basis":"estimate","confidence":"low"},"situations":{"questions":[],"variants":[]},"byo_advice":null,"before_you_start":[{"text":"The developer console needs a signed-in account: Console page at developers.google.com loaded without a sign-in prompt.","evidence":{"label":"TESTED","source_id":"s5","quote":null,"found_in":null,"note":"Our read-only probe on 2026-10-22 loaded https://developers.google.com/apps-script and ended at https://developers.google.com/apps-script (console reachable)."}},{"text":"The internal user type is available only to users within the organization.","evidence":{"label":"COMMUNITY","source_id":"s2","quote":"Internal: Only available to users within your organization.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"The external user type is available to any user with a Google Account, including personal Gmail and Google Workspace accounts.","evidence":{"label":"COMMUNITY","source_id":"s2","quote":"External: Available to any user with a Google Account (Any Gmail personal account or Google Workspace account).","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"The Nylas Google Shared App is available with the Accelerator add-on on the annual Pro plan and as an add-on for the Enterprise plan.","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"The Google Shared App is available on the annual Pro plan with the Accelerator add-on (available through self-service) and as an add-on for the Enterprise plan","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"Personal-use apps with fewer than 100 users are exempt from verification under the exceptions described on the page.","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"Apps for personal use with fewer than 100 users skip verification, along with the other exceptions.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"Apps requesting only basic non-sensitive profile and email scopes generally do not require verification.","evidence":{"label":"COMMUNITY","source_id":"s3","quote":"Apps that only request basic, non-sensitive profile and email scopes generally do not need verification.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}}],"limits":[{"what":"Google classifies eight Gmail API scopes as restricted.","value":8.0,"unit":"scopes","scope":"Gmail API restricted scopes","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"Google classifies 8 Gmail API scopes as restricted","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"what":"The Nylas scope set includes three restricted scopes: gmail.readonly, gmail.modify, and gmail.compose.","value":3.0,"unit":"scopes","scope":"Nylas scope set","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"The set also includes 3 of the restricted scopes (gmail.readonly, gmail.modify, and gmail.compose)","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"what":"Unverified apps requesting sensitive or restricted scopes are subject to user caps and an unverified-app warning screen.","value":null,"unit":"","scope":"unverified apps requesting sensitive or restricted scopes","evidence":{"label":"COMMUNITY","source_id":"s3","quote":"Unverified apps face user caps and the warning screen, which hurts trust and sign-up rates until verification is complete.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}}],"steps":[{"n":1,"title":"From the docs: Create a Google Cloud project and enable the Gmail API using the setup tool.","detail":"Create a Google Cloud project and enable the Gmail API using the setup tool.","actor":"either","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s1","quote":"use\nthe setup tool, which guides you through creating a project in the\nGoogle API Console and enabling the API.","found_in":"visible","note":null}},{"n":2,"title":"From the docs: Create OAuth 2.0 credentials by selecting Create credentials > OAuth client ID.","detail":"Create OAuth 2.0 credentials by selecting Create credentials > OAuth client ID.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Composio callback URL","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s1","quote":"From the Credentials page, click Create credentials > OAuth client\nID to create your OAuth 2.0 credentials","found_in":"visible","note":null}},{"n":3,"title":"From the docs: Select the application type, complete the form, and click Create to create the OAuth clien","detail":"Select the application type, complete the form, and click Create to create the OAuth client.","actor":"either","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s1","quote":"If you created an OAuth client ID, then select your application type.\nFill in the form and click Create.","found_in":"visible","note":null}},{"n":4,"title":"From the docs: OAuth client details may include an email address, client secret, JavaScript origins, and ","detail":"OAuth client details may include an email address, client secret, JavaScript origins, and redirect URIs.","actor":"either","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s1","quote":"parameters vary\ndepending on the ID type, but might include email address, client secret,\nJavaScript origins, or redirect URIs.","found_in":"visible","note":null}},{"n":5,"title":"From the docs: Create a project in the Google Cloud Console before configuring Gmail OAuth.","detail":"Create a project in the Google Cloud Console before configuring Gmail OAuth.","actor":"either","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"COMMUNITY","source_id":"s2","quote":"To use Gmail OAuth in your application, you should create a project\nin the Google Cloud Console","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"n":6,"title":"From the docs: Configure the OAuth consent screen by providing the app name, user support email, user typ","detail":"Configure the OAuth consent screen by providing the app name, user support email, user type, and contact information.","actor":"either","human_reason":null,"irreversible":false,"values":[],"evidence":{"label":"COMMUNITY","source_id":"s2","quote":"Input your app name, user support email, click Next:","found_in":"visible","note":"Third-party page, not the provider's own docs. "}}],"review":{"required":"conditional","trigger":"An internal OAuth app does not need to be submitted for verification.","submit":[],"reviewer":null,"wait_official":"Google verification and the security assessment can take several weeks or longer.","wait_community":null,"cost":null,"evidence":[{"label":"COMMUNITY","source_id":"s2","quote":"For internal type project, you don’t need to submit your app for verification.","found_in":"visible","note":"Third-party page, not the provider's own docs. "},{"label":"COMMUNITY","source_id":"s4","quote":"The Google verification and security assessment processes can take several weeks or longer.","found_in":"visible","note":"Third-party page, not the provider's own docs. "},{"label":"COMMUNITY","source_id":"s2","quote":"By default, your app is in test mode,\nyou should add the user email address to the test users, then the user can test your app.","found_in":"visible","note":"Third-party page, not the provider's own docs. "},{"label":"COMMUNITY","source_id":"s3","quote":"Google notes that sensitive scope verification can take up to around 10 days once a complete submission is received, though timelines vary with back-and-forth.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}]},"customer_gates":[{"text":"The user sees the permission dialog again if the application's client ID or requested scopes change.","evidence":{"label":"DOCS","source_id":"s1","quote":"After this\ninitial authorization, the user only sees the permission dialog if your app's\nclient ID changes or the requested scopes change.","found_in":"visible","note":null}},{"text":"Apps configured for use only with internal Google accounts within an organization are listed as an exception to verification and security assessment.","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"Apps that are configured to work only with internal Google accounts within your organization","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"Apps allowed by Google Workspace administrators are listed as an exception to verification and security assessment.","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"Apps that have been allowed by Google Workspace admins","found_in":"visible","note":"Third-party page, not the provider's own docs. "}}],"gotchas":[{"text":"Register the redirect URI used by the server-side OAuth flow.","evidence":{"label":"DOCS","source_id":"s1","quote":"REDIRECT_URI = '<YOUR_REGISTERED_REDIRECT_URI>'","found_in":"visible","note":null}},{"text":"A successful initial sign-in returns an authorization code that the server can exchange for an access token.","evidence":{"label":"DOCS","source_id":"s1","quote":"This initial sign-in returns an authorization result object that contains an\nauthorization code if successful.","found_in":"visible","note":null}},{"text":"Users grant the requested permission scopes when they first authorize the application for their Gmail account.","evidence":{"label":"DOCS","source_id":"s1","quote":"they see a dialog to grant permission for your application to access their Gmail account with the requested permission scopes.","found_in":"visible","note":null}},{"text":"Handle an HTTP 401 response by redirecting the user to the authorization URL.","evidence":{"label":"DOCS","source_id":"s1","quote":"the code checks for an HTTP 401 status code, which you\nshould handle by redirecting the user to the authorization URL.","found_in":"visible","note":null}},{"text":"Google APIs use OAuth 2.0 to request user permissions and consent.","evidence":{"label":"COMMUNITY","source_id":"s4","quote":"Google APIs use the OAuth 2.0 protocol for user permissions and consent.","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"Add the web application's page or controller route as an authorized redirect URI when using OAuth in a web application.","evidence":{"label":"COMMUNITY","source_id":"s2","quote":"you need to add your page or web application routing path to Authorized Redirect URIs","found_in":"visible","note":"Third-party page, not the provider's own docs. "}},{"text":"The authorization code is one-time and can be exchanged by the server for an access token.","evidence":{"label":"DOCS","source_id":"s1","quote":"The authorization code is a one-time code that your server can exchange for an\naccess token.","found_in":"visible","note":null}},{"text":"Add the userinfo.email, userinfo.profile, openid, and Gmail API scopes to the project's OAuth Data Access configuration.","evidence":{"label":"COMMUNITY","source_id":"s2","quote":"Add .../auth/userinfo.email, .../auth/userinfo.profile, openid and https://mail.google.com/ scopes in OAuth consent screen","found_in":"visible","note":"Third-party page, not the provider's own docs. "}}],"blockers":[],"prepared":{"scopes":[],"privacy_policy_outline":[],"consent_screen":{},"review_text":null},"open_questions":["Tier, effort and calendar time were not assessed. Treat this as a list of verified facts, not a plan.","Regenerate this guide to get the full version. (Reason: all models failed for synthesize: minimax/minimax-m3.1-flash:free: invalid output (UnexpectedModelBehavior); nvidia/nemotron-3-ultra-550b-a55b:free: timeout)"],"schema_version":"1","slug":"gmail","app_name":"Gmail","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"gmail","status":"managed","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":{"console_url":"https://developers.google.com/apps-script","final_url":"https://developers.google.com/apps-script","redirect_chain":["https://developers.google.com/apps-script"],"outcome":"console_reachable","wall_host":null,"asks_for":"Console page at developers.google.com loaded without a sign-in prompt","bot_check":false,"method":"http","observed_at":"2026-10-22"},"conflicts":[],"sources":[{"id":"s1","url":"https://developers.google.com/workspace/gmail/api/auth/web-server","title":"Implement server-side authorization | Gmail | Google for Developers","accessed":"2026-10-22","kind":"official_docs"},{"id":"s2","url":"https://www.emailarchitect.net/eaoauth/kb/create_project_gmail","title":"Create project and OAUTH client for Gmail or Google Workspace","accessed":"2026-10-22","kind":"community"},{"id":"s3","url":"https://singhamandeep.com/google-oauth-verification-guide/","title":"Google OAuth Verification: The Powerful 2026 Guide To Pass App Review","accessed":"2026-10-22","kind":"community"},{"id":"s4","url":"https://developer.nylas.com/docs/provider-guides/google/google-verification-security-assessment-guide/","title":"Gmail restricted scopes: verification and CASA | Docs","accessed":"2026-10-22","kind":"community"},{"id":"s5","url":"https://developers.google.com/apps-script","title":"Developer console sign-in wall probe","accessed":"2026-10-22","kind":"observation"}],"verification_summary":{"total":30,"tested":1,"docs_verified":10,"docs_hidden":0,"community":19,"uncertain":0}}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+

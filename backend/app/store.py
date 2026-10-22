@@ -85,3 +85,13 @@ def find_by_toolkit(toolkit_slug: str) -> dict | None:
                 if g and (g.get("composio") or {}).get("toolkit_slug") == toolkit_slug:
                     return g
     return None
+
+
+def curated_console(slug: str) -> str | None:
+    """The developer console URL recorded in a curated guide for this app (matched by guide or toolkit slug)."""
+    if config.CURATED_DIR.exists():
+        for path in sorted(config.CURATED_DIR.glob("*.json")):
+            g = _read(path)
+            if g and slug in (g.get("slug"), (g.get("composio") or {}).get("toolkit_slug")):
+                return ((g.get("wall_probe") or {}).get("console_url")) or None
+    return None

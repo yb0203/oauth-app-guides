@@ -31,10 +31,26 @@ def console_candidates(page: Page, slug: str, name: str, domains: list[str] | No
         if not url.startswith("https://") or not is_official(url, slug, name, domains):
             continue
         s = _score(a.get_text(" ", strip=True), urlsplit(url).path)
-        if s:
+        if s and looks_like_console(url):
             scored[url] = max(scored.get(url, 0), s)
     for m in re.finditer(r"https://[^\s\"'<>)\],]+", page.visible_text or ""):
         url = m.group(0).rstrip(".").split("?")[0]
-        if is_official(url, slug, name, domains) and _score("", urlsplit(url).path):
+        if is_official(url, slug, name, domains) and _score("", urlsplit(url).path) and looks_like_console(url):
             scored[url] = max(scored.get(url, 0), 2)
     return [u for u, _ in sorted(scored.items(), key=lambda kv: -kv[1])]
+
+
+CONSOLE_PATH = re.compile(r"console|dashboard|portal|app-?management|appconsole|my-?apps|/apps?(/|$)|apps/new|new-?app|app/manage|"
+                          r"create-?app|register|/develop(/|$)", re.I)
+DOCS_PATH = re.compile(r"^/(docs?|documentation|guides?|reference|api|blog|help|support)(/|$)", re.I)
+CONSOLE_HOST = ("console.", "dashboard.", "portal.")
+
+
+def looks_like_console(url: str) -> bool:
+    """A page where an app is created or managed: console-ish path, or a console-ish host with a non-docs path."""
+    parts = urlsplit(url)
+    if parts.scheme != "https" or NOT_A_CONSOLE.search(parts.path) or DOCS_PATH.search(parts.path):
+        return False  # documentation pages describe the console; they are not it
+    if CONSOLE_PATH.search(parts.path):
+        return True
+    return (parts.hostname or "").startswith(CONSOLE_HOST)

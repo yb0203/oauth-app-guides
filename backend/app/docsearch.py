@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import re
+import time
 from collections.abc import Awaitable, Callable
 from urllib.parse import urlparse
 
@@ -13,8 +14,8 @@ from .fetch import Page, fetch_page
 # Docs domains for the apps researched by hand; everything else is found by search and ranked.
 DOC_DOMAINS: dict[str, list[str]] = {
     "github": ["docs.github.com"],
-    "gmail": ["developers.google.com", "support.google.com"],
-    "google": ["developers.google.com", "support.google.com"],
+    "gmail": ["developers.google.com", "support.google.com", "cloud.google.com"],
+    "google": ["developers.google.com", "support.google.com", "cloud.google.com"],
     "spotify": ["developer.spotify.com"],
     "xero": ["developer.xero.com"],
     "shopify": ["shopify.dev"],
@@ -29,12 +30,19 @@ Searcher = Callable[[str, int], list[dict]]
 
 
 def ddgs_search(query: str, max_results: int = 8) -> list[dict]:
+    """DuckDuckGo via ddgs. It rate-limits quietly (empty results or an exception), so retry once after a pause."""
     from ddgs import DDGS
 
-    try:
-        return [r for r in DDGS().text(query, max_results=max_results) if r.get("href")]
-    except Exception:  # rate limits and network errors: the caller handles "no results"
-        return []
+    for attempt in range(2):
+        try:
+            results = [r for r in DDGS().text(query, max_results=max_results) if r.get("href")]
+            if results:
+                return results
+        except Exception:  # rate limits and network errors
+            pass
+        if attempt == 0:
+            time.sleep(2.0)
+    return []
 
 
 def queries_for(name: str, domains: list[str]) -> list[str]:
@@ -72,32 +80,43 @@ def score_url(url: str, slug: str, name: str, domains: list[str]) -> int:
     return score
 
 
-def covers_topic(page: Page, name: str) -> bool:
+SNIPPET_WORDS = re.compile(r"verif|review|approv|limit|quota|\bcaps?\b|test users|unverified|restricted|sensitive|"
+                           r"register|client id|redirect|consent|extended|development mode", re.I)
+
+
+def snippet_score(result: dict) -> int:
+    """Search-result title and snippet that talk about approval, caps and registration point at the right page."""
+    text = f"{result.get('title', '')} {result.get('body', '')}"
+    return min(3, len({m.group(0).lower() for m in SNIPPET_WORDS.finditer(text)}))
+
+
+def covers_topic(page: Page, name: str, need_name: bool = True) -> bool:
+    """Official pages need not say the app's name (Google's consent-screen pages never say "Gmail")."""
     text = page.visible_text or page.hidden_text
-    first = re.sub(r"[^a-z0-9]", "", name.lower().split()[0]) if name.split() else ""
+    first = re.sub(r"[^a-z0-9]", "", name.lower().split()[0]) if need_name and name.split() else ""
     return (
         page.status is not None and page.status < 400 and len(text) >= 500 and bool(TOPIC_WORDS.search(text))
         and (not first or first in re.sub(r"[^a-z0-9]", "", (text[:20000] + page.final_url).lower()))
     )
 
 
-MIN_OFFICIAL = 2
+MIN_OFFICIAL = 3
 
 
 def official_queries(name: str, domains: list[str]) -> list[str]:
     """Queries restricted to the provider's own domains: registration, the app console, authorization, review."""
     sites = " OR ".join(f"site:{d}" for d in domains[:4])
     return [f"{name} {topic} ({sites})" for topic in (
-        "OAuth app register client id redirect URI", "developer app console", "API authorization",
-        "app review approval limits")]
+        "OAuth app register client id redirect URI", "OAuth consent screen app verification scopes",
+        "developer app console create app", "API authorization scopes", "app review approval limits users quota",
+        "unverified app user cap test users development mode")]
 
 
 async def _collect(search: Searcher, queries: list[str], found: dict[str, dict], enough: int = 14) -> None:
-    for q in queries:
-        for r in await asyncio.to_thread(search, q, 8):
+    results = await asyncio.gather(*(asyncio.to_thread(search, q, 8) for q in queries))  # queries run in parallel
+    for rs in results:  # merged in query order so the first query's hits rank first
+        for r in rs:
             found.setdefault(r["href"].split("#")[0], r)
-        if len(found) >= enough:
-            return
 
 
 async def discover_official(name: str, slug: str, search: Searcher) -> list[str]:
@@ -132,7 +151,7 @@ async def find_docs(
 
     def ranked(found: dict[str, dict], keep) -> list[str]:
         urls = [u for u in found if not VERSIONED.search(u) and keep(u)]
-        return sorted(urls, key=lambda u: -score_url(u, slug, name, official))[: max_pages + 3]
+        return sorted(urls, key=lambda u: -(score_url(u, slug, name, official) + snippet_score(found[u])))[: max_pages + 4]
 
     good: list[Page] = []
     rejected: list[str] = []
@@ -144,7 +163,8 @@ async def find_docs(
             if key in seen:
                 continue
             seen.add(key)
-            ok = covers_topic(page, name) and is_official(page.final_url, slug, name, official) == want_official
+            is_off = is_official(page.final_url, slug, name, official)
+            ok = covers_topic(page, name, need_name=not is_off) and is_off == want_official
             if ok and limit > 0:
                 good.append(page)
                 limit -= 1
