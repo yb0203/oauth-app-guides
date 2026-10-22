@@ -5,6 +5,7 @@ import { ArrowUpIcon, Loader2Icon, MessageSquareTextIcon, RotateCcwIcon, SquareI
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Button } from "@/components/ui/button";
 import { messageText } from "@/lib/ask-types";
+import { ApiError, useCountdown } from "@/lib/http-error";
 import { cn } from "@/lib/utils";
 import { AnswerBody } from "./AnswerBody";
 import { starterQuestions } from "./starters";
@@ -76,6 +77,8 @@ function EmptyState({ ask }: { ask: AskState }) {
 }
 
 function ErrorNotice({ ask }: { ask: AskState }) {
+  const api = ask.error instanceof ApiError ? ask.error : null;
+  const wait = useCountdown(api?.rateLimited ? api.retryAfter : null);
   return (
     <div role="alert" className="rounded-lg border border-danger-border bg-danger-soft px-3 py-2.5 text-sm text-danger">
       <div className="flex items-start gap-2">
@@ -83,10 +86,12 @@ function ErrorNotice({ ask }: { ask: AskState }) {
         <div className="min-w-0">
           <p className="font-medium">Couldn&apos;t get an answer</p>
           <p className="mt-0.5 text-xs break-words opacity-80">
-            The guide service didn&apos;t respond{ask.error?.message ? ` (${ask.error.message.slice(0, 120)})` : ""}.
+            {api
+              ? api.message
+              : `The guide service didn't respond${ask.error?.message ? ` (${ask.error.message.slice(0, 120)})` : ""}.`}
           </p>
-          <Button variant="outline" size="xs" className="mt-2 bg-background" onClick={ask.retry}>
-            <RotateCcwIcon /> Retry
+          <Button variant="outline" size="xs" className="mt-2 bg-background" onClick={ask.retry} disabled={wait > 0}>
+            <RotateCcwIcon /> {wait > 0 ? `Retry in ${wait}s` : "Retry"}
           </Button>
         </div>
       </div>

@@ -25,4 +25,5 @@ set_var LLM_MODE live
 set_var BROWSER_FALLBACK off
 set_var GENERATED_DIR /tmp/generated
 set_var CORS_ORIGINS "$FRONTEND_ORIGINS"
+set_var GENERATE_RATE_LIMIT 30   # generations per IP per 10 min; demos run several apps back to back
 unset key

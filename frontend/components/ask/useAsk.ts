@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useSituation } from "@/components/guide/situation";
 import { ASK_URL } from "@/lib/api";
+import { apiFetch } from "@/lib/http-error";
 import { messageText, type AskMessage } from "@/lib/ask-types";
 import type { Guide } from "@/types/guide";
 
@@ -25,6 +26,7 @@ export function useAsk(guide: Guide) {
     () =>
       new DefaultChatTransport<AskMessage>({
         api: ASK_URL(guide.slug),
+        fetch: apiFetch("questions"),
         prepareSendMessagesRequest: ({ messages, body }) => {
           const last = messages[messages.length - 1];
           const question = last && last.role === "user" ? messageText(last).trim() : "";

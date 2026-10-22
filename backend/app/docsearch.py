@@ -23,8 +23,15 @@ DOC_DOMAINS: dict[str, list[str]] = {
 COMMUNITY_HOSTS = ("reddit.com", "stackoverflow.com", "stackexchange.com", "medium.com", "dev.to", "quora.com")
 NOISE_HOSTS = ("github.com", "gist.github.com", "youtube.com", "linkedin.com", "facebook.com", "x.com", "twitter.com")
 TOPIC_PATH = re.compile(r"creat|regist|review|verif|approv|limit|quota|oauth|authori[sz]|app-?(setup|config)", re.I)
+# Pages about another product's connector or integration of this app (not about registering an OAuth app for the
+# app's own API): Google Integration Connectors, Contact Center AI, Apps Script, third-party "integrations" docs.
+OFF_TOPIC_PATH = re.compile(r"integration-connectors|/connectors?/|ccai|contact-center|apps-?script|dialogflow|"
+                            r"bigquery|looker|/marketplace/listing", re.I)
+# Which vendor family the app belongs to, for family-wide queries ("Google OAuth consent screen user cap").
+VENDOR_FAMILIES = {"gmail": "Google", "outlook": "Microsoft", "onedrive": "Microsoft", "teams": "Microsoft"}
 VERSIONED = re.compile(r"enterprise-(server|cloud)@")
-TOPIC_WORDS = re.compile(r"oauth|client[ _-]?id|redirect uri|redirect url|authoriz|access token|scopes?\b", re.I)
+TOPIC_WORDS = re.compile(r"oauth|client[ _-]?id|client secret|redirect uri|redirect url|consent screen|authoriz|"
+                         r"access token|scopes?\b|app verification|app review|api key", re.I)
 
 Searcher = Callable[[str, int], list[dict]]
 
@@ -95,7 +102,8 @@ def covers_topic(page: Page, name: str, need_name: bool = True) -> bool:
     text = page.visible_text or page.hidden_text
     first = re.sub(r"[^a-z0-9]", "", name.lower().split()[0]) if need_name and name.split() else ""
     return (
-        page.status is not None and page.status < 400 and len(text) >= 500 and bool(TOPIC_WORDS.search(text))
+        page.status is not None and page.status < 400 and len(text) >= 500
+        and len({m.group(0).lower() for m in TOPIC_WORDS.finditer(text)}) >= 2
         and (not first or first in re.sub(r"[^a-z0-9]", "", (text[:20000] + page.final_url).lower()))
     )
 
@@ -103,10 +111,21 @@ def covers_topic(page: Page, name: str, need_name: bool = True) -> bool:
 MIN_OFFICIAL = 3
 
 
-def official_queries(name: str, domains: list[str]) -> list[str]:
-    """Queries restricted to the provider's own domains: registration, the app console, authorization, review."""
+def vendor_for(slug: str, name: str) -> str:
+    base = slug.split("_")[0]
+    if base.startswith("google"):
+        return "Google"
+    return VENDOR_FAMILIES.get(base, name)
+
+
+def official_queries(name: str, domains: list[str], vendor: str | None = None) -> list[str]:
+    """Queries restricted to the provider's own domains: registration, the app console, authorization, review,
+    plus vendor-family ones (the user caps and verification rules live on the vendor's pages, not the product's)."""
     sites = " OR ".join(f"site:{d}" for d in domains[:4])
-    return [f"{name} {topic} ({sites})" for topic in (
+    family = [] if not vendor or vendor == name else [
+        f"{vendor} {t} ({sites})" for t in ("OAuth consent screen user cap", "restricted scope verification",
+                                            "OAuth app verification")]
+    return family + [f"{name} {topic} ({sites})" for topic in (
         "OAuth app register client id redirect URI", "OAuth consent screen app verification scopes",
         "developer app console create app", "API authorization scopes", "app review approval limits users quota",
         "unverified app user cap test users development mode")]
@@ -150,7 +169,7 @@ async def find_docs(
         return list(await asyncio.gather(*(one(u) for u in urls)))
 
     def ranked(found: dict[str, dict], keep) -> list[str]:
-        urls = [u for u in found if not VERSIONED.search(u) and keep(u)]
+        urls = [u for u in found if not VERSIONED.search(u) and not OFF_TOPIC_PATH.search(u) and keep(u)]
         return sorted(urls, key=lambda u: -(score_url(u, slug, name, official) + snippet_score(found[u])))[: max_pages + 4]
 
     good: list[Page] = []
@@ -164,7 +183,8 @@ async def find_docs(
                 continue
             seen.add(key)
             is_off = is_official(page.final_url, slug, name, official)
-            ok = covers_topic(page, name, need_name=not is_off) and is_off == want_official
+            ok = (covers_topic(page, name, need_name=not is_off) and is_off == want_official
+                  and not OFF_TOPIC_PATH.search(page.final_url))
             if ok and limit > 0:
                 good.append(page)
                 limit -= 1
@@ -173,7 +193,7 @@ async def find_docs(
 
     if official:
         found: dict[str, dict] = {}
-        await _collect(search, official_queries(name, DOC_DOMAINS.get(slug) or official), found)
+        await _collect(search, official_queries(name, DOC_DOMAINS.get(slug) or official, vendor_for(slug, name)), found)
         triage(await fetch_all(ranked(found, lambda u: True)), True, max_pages)
     n_official = len(good)
     if n_official < MIN_OFFICIAL:  # top up with third-party pages, but never more than three of them

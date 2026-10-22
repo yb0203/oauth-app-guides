@@ -13,7 +13,7 @@ from pydantic import Field, ValidationError
 from .llm import LLM, LLMError
 from .models import (Base, Blocker, Calendar, EffortHours, Evidence, Fact, GuideContent, Limit, Prepared, Review,
                      Situations, Step, Value, Verdict, WallProbe, iter_evidence)
-from .tier import RUBRIC, reconcile, tier_from_texts
+from .tier import NO_REVIEW_NOTE, RUBRIC, infer_instant, reconcile, tier_from_texts
 from .research import VerifiedClaim
 
 PART_TIMEOUT_S = 75.0
@@ -157,19 +157,27 @@ async def synthesize(
     (a, bad_a), (b, bad_b) = await asyncio.gather(
         part(ContentA, PART_A, "synthesize-a", degraded_a), part(ContentB, PART_B, "synthesize-b", degraded_b))
     content = GuideContent.model_validate({**a.model_dump(), **b.model_dump()})
-    apply_tier_rule(content, claims, official_sources)
+    apply_tier_rule(content, claims, official_sources, infer_instant_ok=bad_a is None)
     return postprocess(content, claims), [x for x in (bad_a, bad_b) if x]
 
 
-def apply_tier_rule(content: GuideContent, claims: list[VerifiedClaim], official_sources: set[str] | None = None) -> None:
-    """A strong signal in the official docs (organizations only, review required) beats a looser model tier."""
-    texts = [t for vc in claims if official_sources is None or vc.source_id in official_sources
-             for t in (vc.claim.quote, vc.claim.text)]
-    tier, note = reconcile(content.verdict.tier, tier_from_texts(texts))
+def apply_tier_rule(content: GuideContent, claims: list[VerifiedClaim], official_sources: set[str] | None = None,
+                    infer_instant_ok: bool = False) -> None:
+    """A strong signal in the official docs (organizations only, review required) beats a looser model tier. When the
+    writer said "unknown" but 2+ official pages document self-serve registration and nothing restricts it, the tier is
+    instant at medium confidence (only when the verdict is the model's own, not a degraded draft)."""
+    official = [vc for vc in claims if official_sources is None or vc.source_id in official_sources]
+    signal = tier_from_texts([t for vc in official for t in (vc.claim.quote, vc.claim.text)])
+    tier, note = reconcile(content.verdict.tier, signal)
+    if (not note and infer_instant_ok and infer_instant(
+            content.verdict.tier, signal, {vc.source_id for vc in official},
+            {vc.source_id for vc in official if vc.claim.category == "registration"})):
+        tier, note = "instant", NO_REVIEW_NOTE
+        content.verdict.confidence = "medium"
     if note:
         content.verdict.tier = tier  # type: ignore[assignment]
         content.open_questions.append(note)
-        if content.verdict.confidence == "high":
+        if content.verdict.confidence == "high" and note != NO_REVIEW_NOTE:
             content.verdict.confidence = "medium"
 
 
@@ -261,11 +269,17 @@ def ensure_byo_path(content: GuideContent, claims: list[VerifiedClaim]) -> None:
         reg.values.append(callback)
 
 
+# A limit is about OAuth app usage (users, connections, installs, tokens, rate limits), never about infrastructure.
+INFRA_LIMIT = re.compile(r"\b(nodes?|throughput|processing|transactions?|latency|memory|cpu|instances?|replicas?|vpc|region|"
+                         r"billing|disk|storage quota)\b", re.I)
+
+
 def postprocess(content: GuideContent, claims: list[VerifiedClaim] | None = None) -> GuideContent:
     """Deterministic fix-ups the prompt can't guarantee."""
     for ev in iter_evidence(content):
         if ev.label == "TESTED":  # only our own tooling may claim TESTED
             ev.label, ev.note = "UNCERTAIN", f"Model claimed TESTED without a probe. {ev.note or ''}".strip()
+    content.limits = [lim for lim in content.limits if not INFRA_LIMIT.search(f"{lim.what} {lim.unit} {lim.scope}")]
     ensure_byo_path(content, claims or [])
     for i, step in enumerate(content.steps, start=1):
         step.n = i

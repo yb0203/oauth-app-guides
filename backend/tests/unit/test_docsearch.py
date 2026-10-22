@@ -60,3 +60,48 @@ async def test_gmail_gets_three_official_google_pages_before_any_third_party():
     good, _ = await find_docs("Gmail", "gmail", search=searcher, fetch=fetch)
     assert len(good) >= 3 and all("google.com" in p.final_url for p in good)
     assert "https://nylas.com/gmail-oauth" not in seen
+
+
+# --- Gmail relevance (round 2): off-topic Google products and junk limits ------------------------------------------
+
+from app.docsearch import OFF_TOPIC_PATH, official_queries, vendor_for  # noqa: E402
+
+OFF_TOPIC = ["https://docs.cloud.google.com/integration-connectors/docs/connectors/gsc_gmail/configure",
+             "https://docs.cloud.google.com/contact-center/ccai-platform/docs/oauth-email-google",
+             "https://developers.google.com/apps-script/guides/services"]
+ON_TOPIC = ["https://support.google.com/cloud/answer/15549945", "https://support.google.com/cloud/answer/13464325",
+            "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification",
+            "https://developers.google.com/workspace/guides/configure-oauth-consent"]
+
+
+def test_off_topic_google_products_are_recognised_by_url():
+    assert all(OFF_TOPIC_PATH.search(u) for u in OFF_TOPIC)
+    assert not any(OFF_TOPIC_PATH.search(u) for u in ON_TOPIC)
+
+
+async def test_find_docs_drops_off_topic_urls_even_when_search_returns_them_first():
+    text = "Configure OAuth: create a client id, set the redirect URI and choose scopes. " + "word " * 200
+    fetched: list[str] = []
+
+    async def fetch(url):
+        fetched.append(url)
+        return Page(url, url, [], 200, "t", text, "", "http", None)
+
+    good, _ = await find_docs("Gmail", "gmail", search=lambda q, n: [{"href": u} for u in OFF_TOPIC + ON_TOPIC], fetch=fetch)
+    assert not any(OFF_TOPIC_PATH.search(p.final_url) for p in good) and not any(OFF_TOPIC_PATH.search(u) for u in fetched)
+    assert {p.final_url for p in good} == set(ON_TOPIC)
+
+
+def test_vendor_family_queries_are_added_for_gmail_but_not_for_a_standalone_app():
+    assert vendor_for("gmail", "Gmail") == "Google" and vendor_for("googlecalendar", "Google Calendar") == "Google"
+    qs = official_queries("Gmail", ["support.google.com"], "Google")
+    assert any(q.startswith("Google OAuth consent screen user cap") for q in qs)
+    assert any(q.startswith("Google restricted scope verification") for q in qs)
+    assert any(q.startswith("Google OAuth app verification") for q in qs)
+    assert not any(q.startswith("Todoist restricted scope") for q in official_queries("Todoist", ["todoist.com"], "Todoist"))
+    assert len(official_queries("Todoist", ["todoist.com"], "Todoist")) == len(qs) - 3
+
+
+def test_a_page_about_only_one_setup_word_does_not_cover_the_topic():
+    thin = Page("https://x.com/a", "https://x.com/a", [], 200, "t", "Pasta with OAuth sauce. " + "word " * 200, "", "http", None)
+    assert not covers_topic(thin, "Pasta")

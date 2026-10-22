@@ -6,6 +6,7 @@ import { DefaultChatTransport } from "ai";
 import { ChevronDownIcon } from "lucide-react";
 import { GuideView } from "@/components/guide/GuideView";
 import { GENERATE_URL } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/http-error";
 import { deriveRun, type GenerateMessage } from "@/lib/chat-types";
 import { cn } from "@/lib/utils";
 import { STAGE_ORDER, type StageData, type StageId, type VerificationProgress } from "@/types/guide";
@@ -48,6 +49,7 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
     () =>
       new DefaultChatTransport<GenerateMessage>({
         api: GENERATE_URL,
+        fetch: apiFetch("guides"),
         prepareSendMessagesRequest: () => ({ body: { app } }),
       }),
     [app],
@@ -202,6 +204,8 @@ function GenerateRun({ app, onRestart }: { app: string; onRestart: () => void })
             hasWall={Boolean(run.wall)}
             hasVerification={Boolean(run.verification)}
             onRetry={onRestart}
+            rateLimited={error instanceof ApiError && error.rateLimited}
+            retryAfter={error instanceof ApiError ? error.retryAfter : null}
           />
         </div>
       )}

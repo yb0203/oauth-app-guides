@@ -212,3 +212,17 @@ def test_tier_rule_overrides_a_looser_model_tier_with_a_note(github_guide_dict):
     content.verdict.tier = "instant"  # a looser claim from a non-official source alone does not count
     apply_tier_rule(content, [claims[1]], {"s1"})
     assert content.verdict.tier == "instant"
+
+
+def test_infrastructure_limits_are_dropped_from_the_guide(github_guide_dict):
+    from app.models import Limit
+    from app.synthesize import postprocess
+
+    content = GuideContent.model_validate({k: github_guide_dict[k] for k in GuideContent.model_fields})
+    ev = content.limits[0].evidence
+    junk = [Limit(what="Gmail connector processing throughput", value=1, unit="transaction per second per node", scope="", evidence=ev),
+            Limit(what="Default minimum node count", value=2, unit="nodes", scope="", evidence=ev)]
+    keep = Limit(what="Test users in Testing mode", value=100, unit="users", scope="per project", evidence=ev)
+    content.limits = [*junk, keep]
+    postprocess(content, [])
+    assert [lim.what for lim in content.limits] == ["Test users in Testing mode"]

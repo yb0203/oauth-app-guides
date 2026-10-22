@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRightIcon, CheckIcon, RotateCcwIcon, SearchIcon, TriangleAlertIcon, XIcon } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { API_URL } from "@/lib/api";
+import { useCountdown } from "@/lib/http-error";
 import { STAGE_DEFAULT_LABEL } from "@/lib/chat-types";
 import { cn } from "@/lib/utils";
 import { STAGE_ORDER, type GuideListEntry, type StageData, type StageId } from "@/types/guide";
@@ -42,6 +43,8 @@ export function RunErrorPanel({
   hasWall,
   hasVerification,
   onRetry,
+  rateLimited = false,
+  retryAfter = null,
 }: {
   app: string;
   message: string;
@@ -51,8 +54,12 @@ export function RunErrorPanel({
   hasWall: boolean;
   hasVerification: boolean;
   onRetry: () => void;
+  /** HTTP 429: say so, and hold Retry for the Retry-After countdown when the server gave one */
+  rateLimited?: boolean;
+  retryAfter?: number | null;
 }) {
   const curated = useCuratedGuides();
+  const wait = useCountdown(rateLimited ? retryAfter : null);
   const completed = STAGE_ORDER.filter((id) => stages[id]?.status === "done");
   const failedId =
     STAGE_ORDER.find((id) => stages[id]?.status === "error") ?? STAGE_ORDER.find((id) => stages[id]?.status === "running") ?? null;
@@ -89,7 +96,7 @@ export function RunErrorPanel({
             <XIcon className="size-3 text-danger" strokeWidth={3} aria-hidden /> {stopped ? "Stopped at" : "Failed at"}
           </dt>
           <dd className="mt-1 text-foreground">
-            {failedId ? label(failedId) : "The request, before the first step started."}
+            {failedId ? label(failedId) : rateLimited ? "The request, which was turned away before any work started." : "The request, before the first step started."}
             {failedId && stages[failedId]?.detail && stages[failedId]?.status === "error" && (
               <span className="mt-1 block text-muted-foreground">{stages[failedId]?.detail}</span>
             )}
@@ -100,14 +107,16 @@ export function RunErrorPanel({
             <SearchIcon className="size-3" aria-hidden /> Try next
           </dt>
           <dd className="mt-1 text-foreground">
-            {(failedId && TRY_NEXT[failedId]) || "Retrying is safe. Nothing partial was published."}
+            {rateLimited
+              ? "Wait a minute, then retry. Curated guides below are ready to read right now."
+              : (failedId && TRY_NEXT[failedId]) || "Retrying is safe. Nothing partial was published."}
           </dd>
         </div>
       </dl>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-danger-border pt-4">
-        <Button size="sm" onClick={onRetry}>
-          <RotateCcwIcon aria-hidden /> Retry
+        <Button size="sm" onClick={onRetry} disabled={wait > 0}>
+          <RotateCcwIcon aria-hidden /> {wait > 0 ? `Retry in ${wait}s` : "Retry"}
         </Button>
         <Link href="/generate" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "bg-background")}>
           Try a different app

@@ -17,7 +17,9 @@ listing review).
 - verify_to_scale: the app works at once but usage is capped (users, connections, installs) until a plan upgrade, \\
 certification or verification, with no review queue in the way of the first users.
 - instant: no review and no meaningful cap; register the app and it works.
-- unknown: the claims do not say."""
+- unknown: only when fewer than 2 official pages were read or the claims do not describe registering an app. If the \
+docs describe self-serve app registration and NO review, cap, partner or verification requirement appears anywhere, \
+the tier is instant (confidence medium), not unknown."""
 
 PARTNER = re.compile(
     r"(only|exclusively)\s+(accepts?|available|open)\b.{0,60}\b(organi[sz]ations?|companies|businesses)\b|"
@@ -64,3 +66,12 @@ def reconcile(model_tier: str, signal: TierSignal) -> tuple[str, str | None]:
         return signal.tier, (f"Tier set to verify_to_scale by rule (model said {model_tier}) because the docs say: "
                              f'"{signal.quote}"')
     return model_tier, None
+
+
+NO_REVIEW_NOTE = "No review step found in the provider's docs."
+
+
+def infer_instant(model_tier: str, signal: TierSignal, official_sources: set[str], registration_sources: set[str]) -> bool:
+    """Self-serve registration documented on 2+ official pages and no restricting signal: tier instant, not unknown."""
+    return (model_tier == "unknown" and signal.tier == "instant" and len(official_sources) >= 2
+            and bool(registration_sources & official_sources))
