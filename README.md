@@ -40,8 +40,8 @@ Every fact carries one of four labels:
 | Research quotes re-opened by an independent pass | about 75 checked across 10 providers; 1 wrong source fixed; the rest held |
 | Setup proof of concept (5 apps) | 68 of 68 quotes verified; 8 of 8 in an independent re-check; 1 false negative found (hidden text) and fixed |
 | Curated guides (5) | Every DOCS quote re-checked live (`data/guides/_quote_checks.md`); all validate against `data/schema/guide.schema.json` |
-| Backend tests | 302 offline tests and 13 live-network tests pass |
-| Live smoke run on production (scored against our answer key, `evals/score.py`) | _see `evals/RESULTS.md`_ |
+| Backend tests | 346 offline tests pass; 13 live-network tests pass |
+| Live runs on production, scored against our answer key (`evals/score.py`, `evals/RESULTS.md`) | Tier 3 of 3 (round 1: 1.5 of 3); key-fact recall 0.72 on average; 0 inflated evidence labels in every round; 4 of 4 unseen apps (Todoist, Zoom, Dropbox, Asana) produced bring-your-own guides from official docs in 49 to 90 s |
 
 **Couldn't verify:** anything behind a console login (real form fields, logo limits, where secrets are generated), community-reported wait times (anecdotal), and costs with no official figure (Google CASA). Those show as UNCERTAIN or "check on first sign-in".
 

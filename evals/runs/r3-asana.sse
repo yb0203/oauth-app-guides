@@ -1,0 +1,124 @@
+data: {"type":"start","messageId":"80867a1a-14ce-4986-962c-5a4436e93e88"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"running","label":"Resolve the app"}}
+
+data: {"type":"text-start","id":"01f054c67b3a4a9aa424d668c284fa12"}
+
+data: {"type":"text-delta","id":"01f054c67b3a4a9aa424d668c284fa12","delta":"Resolved Asana to Composio toolkit asana (MANAGED)."}
+
+data: {"type":"text-end","id":"01f054c67b3a4a9aa424d668c284fa12"}
+
+data: {"type":"data-stage","id":"resolve","data":{"stage":"resolve","status":"done","label":"Resolve the app","detail":"Asana -> asana","counts":{"alternatives":0}}}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"running","label":"Find the developer docs"}}
+
+: ping
+
+data: {"type":"text-start","id":"baa8836f69424b0693536450cca77132"}
+
+data: {"type":"text-delta","id":"baa8836f69424b0693536450cca77132","delta":"Found 5 docs pages (developers.asana.com, forum.asana.com); rejected 4 that don't cover the topic."}
+
+data: {"type":"text-end","id":"baa8836f69424b0693536450cca77132"}
+
+data: {"type":"data-stage","id":"find_docs","data":{"stage":"find_docs","status":"done","label":"Find the developer docs","counts":{"pages":5,"rejected":4}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":0}}}
+
+data: {"type":"text-start","id":"83592721bb8646f8b5e3212db8f09a53"}
+
+data: {"type":"text-delta","id":"83592721bb8646f8b5e3212db8f09a53","delta":"developers.asana.com: 5 of 5 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"83592721bb8646f8b5e3212db8f09a53"}
+
+data: {"type":"source-url","sourceId":"s4","url":"https://developers.asana.com/docs/manage-and-share-your-app","title":"Manage your app"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":5}}}
+
+data: {"type":"text-start","id":"7d7f2ce404e74a8f803973cabc5dd681"}
+
+data: {"type":"text-delta","id":"7d7f2ce404e74a8f803973cabc5dd681","delta":"developers.asana.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"7d7f2ce404e74a8f803973cabc5dd681"}
+
+data: {"type":"source-url","sourceId":"s1","url":"https://developers.asana.com/docs/oauth","title":"OAuth"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":19}}}
+
+data: {"type":"text-start","id":"c2ad8472e9934ab789a6b8e30e5b5327"}
+
+data: {"type":"text-delta","id":"c2ad8472e9934ab789a6b8e30e5b5327","delta":"developers.asana.com: 11 of 11 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"c2ad8472e9934ab789a6b8e30e5b5327"}
+
+data: {"type":"source-url","sourceId":"s5","url":"https://developers.asana.com/docs/overview","title":"Build an app with Asana"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":30}}}
+
+data: {"type":"text-start","id":"8a4cf97339c7483ca1c3a33cd4945cfc"}
+
+data: {"type":"text-delta","id":"8a4cf97339c7483ca1c3a33cd4945cfc","delta":"developers.asana.com: 12 of 12 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"8a4cf97339c7483ca1c3a33cd4945cfc"}
+
+data: {"type":"source-url","sourceId":"s2","url":"https://developers.asana.com/docs/oauth-scopes","title":"OAuth scopes"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":42}}}
+
+data: {"type":"text-start","id":"bace4e08f473437693143803ab6009c2"}
+
+data: {"type":"text-delta","id":"bace4e08f473437693143803ab6009c2","delta":"forum.asana.com: 14 of 14 claims have a quote found on the page."}
+
+data: {"type":"text-end","id":"bace4e08f473437693143803ab6009c2"}
+
+data: {"type":"source-url","sourceId":"s3","url":"https://forum.asana.com/t/new-oauth-permission-scopes/1048556","title":"[ New ] OAuth permission scopes - Changelog - Asana Community"}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"running","label":"Read the docs","counts":{"pages":5,"claims":56}}}
+
+data: {"type":"data-stage","id":"research","data":{"stage":"research","status":"done","label":"Read the docs","counts":{"pages":5,"claims":56}}}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"running","label":"Probe the developer console","detail":"https://app.asana.com/0/my-apps"}}
+
+data: {"type":"data-wall","id":"wall","data":{"console_url":"https://app.asana.com/0/my-apps","final_url":"https://app.asana.com/-/login?u=%2F0%2Fmy-apps","redirect_chain":["https://app.asana.com/0/my-apps","https://app.asana.com/-/login?u=%2F0%2Fmy-apps"],"outcome":"login_wall","wall_host":"app.asana.com","asks_for":"Sign-in page at app.asana.com (reCAPTCHA mentioned)","bot_check":true,"method":"http","observed_at":"2026-10-22"}}
+
+data: {"type":"text-start","id":"0edc32855f9c4fdbbedb59f2c4b8182b"}
+
+data: {"type":"text-delta","id":"0edc32855f9c4fdbbedb59f2c4b8182b","delta":"Developer console probe: login wall at app.asana.com. Sign-in page at app.asana.com (reCAPTCHA mentioned)"}
+
+data: {"type":"text-end","id":"0edc32855f9c4fdbbedb59f2c4b8182b"}
+
+data: {"type":"data-stage","id":"probe","data":{"stage":"probe","status":"done","label":"Probe the developer console","detail":"login_wall"}}
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"running","label":"Write the guide"}}
+
+: ping
+
+: ping
+
+: ping
+
+data: {"type":"data-stage","id":"synthesize","data":{"stage":"synthesize","status":"done","label":"Write the guide","counts":{"llm_calls":7}}}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"running","label":"Verify every quote"}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":0,"docs_verified":0,"hidden":0,"downgraded":0,"total":27}}
+
+data: {"type":"data-verification","id":"verification","data":{"checked":24,"docs_verified":24,"hidden":3,"downgraded":0,"total":27}}
+
+data: {"type":"text-start","id":"64d43c94312b4798a5c158c0350467f4"}
+
+data: {"type":"text-delta","id":"64d43c94312b4798a5c158c0350467f4","delta":"Verified 24 of 24 quotes on the live pages; downgraded 0 to UNCERTAIN; 0 conflicts."}
+
+data: {"type":"text-end","id":"64d43c94312b4798a5c158c0350467f4"}
+
+data: {"type":"data-stage","id":"verify","data":{"stage":"verify","status":"done","label":"Verify every quote","counts":{"checked":24,"downgraded":0}}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"running","label":"Publish"}}
+
+data: {"type":"data-stage","id":"publish","data":{"stage":"publish","status":"done","label":"Publish","detail":"/guides/asana","counts":{"llm_calls":7}}}
+
+data: {"type":"data-guide","id":"guide","data":{"slug":"asana","permalink":"/guides/asana","guide":{"verdict":{"tier":"review_required","summary":"Register a private OAuth app in the Asana developer console, configure an HTTPS Composio callback and registered scopes, then use the resulting client credentials in Composio. App Directory publication is the conditional exception because it requires review.","effort_hours":{"min":0.5,"max":1.5},"calendar":{"min_days":0.0,"max_days":1.0,"label":"Same day for initial registration and testing; directory review is separate"},"calendar_basis":"estimate","confidence":"medium"},"situations":{"questions":[{"id":"audience","text":"Who will connect the app?","options":[{"id":"own_org","label":"Only my organization"},{"id":"outside_users","label":"Outside users in shared workspaces"},{"id":"directory","label":"Public App Directory users"}]},{"id":"access","text":"What must the agent do?","options":[{"id":"read","label":"Read data"},{"id":"write","label":"Write or modify data"},{"id":"send","label":"Send messages or perform external actions"}]}],"variants":[{"when":{"audience":"own_org","access":"read"},"tier":"instant","summary":"Create and test a private OAuth app for one organization using registered read scopes.","calendar_label":"Same-day setup estimate","notes":["Use the developer console and share the app with the required organization or workspace.","Evidence: c1, c2, c6, c11, c20, c27."]},{"when":{"audience":"own_org","access":"write"},"tier":"instant","summary":"Create and test a private OAuth app with the registered task write or delete scopes required by the agent.","calendar_label":"Same-day setup estimate","notes":["Request only the scopes the app needs and ensure required write scopes are registered.","Evidence: c7, c11, c12, c35."]},{"when":{"audience":"outside_users","access":"read"},"tier":"instant","summary":"Share the app with the relevant workspace, then let users authorize it using OAuth; no directory submission is needed for this path.","calendar_label":"Same-day setup estimate","notes":["The app must be available in the user's workspace before authorization.","Evidence: c13, c28."]},{"when":{"audience":"directory","access":"send"},"tier":"review_required","summary":"Public discovery through the Asana App Directory requires changing distribution and submitting the app for review.","calendar_label":"Review wait not stated","notes":["Directory review is conditional on publishing for broad discovery.","Evidence: c21, c29."]}]},"byo_advice":"Composio's managed Asana app may be enough for a standard connection; bring your own app when you need your own Asana client registration, registered scopes, or controlled OAuth distribution. In the developer console, create the app, set the Composio callback as an HTTPS redirect URL, register the needed scopes, obtain the client ID and secret, and paste them into the Composio auth config; confirm Composio's current exact callback URL before saving it.","before_you_start":[{"text":"The developer console needs a signed-in account: Sign-in page at app.asana.com (reCAPTCHA mentioned).","evidence":{"label":"TESTED","source_id":"s6","quote":null,"found_in":null,"note":"Our read-only probe on 2026-10-22 loaded https://app.asana.com/0/my-apps and ended at https://app.asana.com/-/login?u=%2F0%2Fmy-apps (login wall)."}},{"text":"Use an Asana account and workspace that can host the app; OAuth apps are created privately by default and their distribution must be changed before sharing.","evidence":{"label":"DOCS","source_id":"s5","quote":"All OAuth apps are created privately by default. You will need to change the app distribution setting to either share the app with just a specific organization or to anyone with the OAuth redirect URL.","found_in":"visible","note":null}},{"text":"Decide whether the integration serves individual users or organization-level processes.","evidence":{"label":"DOCS","source_id":"s5","quote":"Apps can be built for individual users, for example Google Drive which attaches Google files to tasks. Apps can also be built to run org-level processes.","found_in":"visible","note":null}},{"text":"Plan a test workspace; Asana supports testing in an existing workspace, a free account, or a developer sandbox.","evidence":{"label":"DOCS","source_id":"s5","quote":"Choose your test workspace. You can test in any of your existing workspaces, create a free account, or request a developer sandbox.","found_in":"visible","note":null}},{"text":"Use the standard OAuth callback rather than the native or command-line out-of-band redirect.","evidence":{"label":"DOCS","source_id":"s1","quote":"Native or command line applications should use the special redirect URL urn:ietf:wg:oauth:2.0:oob.","found_in":"visible","note":null}}],"limits":[{"what":"Granular OAuth scopes available for new apps during the developer preview","value":14.0,"unit":"scopes","scope":"New apps during the developer preview","evidence":{"label":"DOCS","source_id":"s3","quote":"This preview release includes 14 granular scopes that can be registered for new apps.","found_in":"hidden_section","note":null}},{"what":"OAuth access-token lifetime","value":1.0,"unit":"hour","scope":"OAuth access token","evidence":{"label":"DOCS","source_id":"s1","quote":"An access token (i.e., a bearer token, which lasts an hour)","found_in":"visible","note":null}},{"what":"HTTP status returned when assignee email is requested without users:read","value":403.0,"unit":"HTTP status code","scope":"GET /tasks/{task_gid}?opt_fields=assignee.email","evidence":{"label":"DOCS","source_id":"s3","quote":"Will fail with a 403 unless you include the users:read scope.","found_in":"hidden_section","note":null}}],"steps":[{"n":1,"title":"Sign in to Asana's developer console","detail":"Open https://app.asana.com/0/my-apps and sign in with the developer or organization account that will own the app.","actor":"human","human_reason":"credential","irreversible":false,"values":[{"label":"Developer console URL","value":"https://app.asana.com/0/my-apps"}],"evidence":{"label":"DOCS","source_id":"s4","quote":"You can always access the developer console directly with the following link: https://app.asana.com/0/my-apps.","found_in":"visible","note":null}},{"n":2,"title":"Register your own app","detail":"In the developer console, select Create new app and enter the app name and other required registration fields.","actor":"either","human_reason":null,"irreversible":false,"values":[{"label":"Developer console action","value":"Create new app"}],"evidence":{"label":"DOCS","source_id":"s1","quote":"To do so, first visit the developer console and select Create new app, as shown below:","found_in":"visible","note":null}},{"n":3,"title":"Configure the OAuth callback URL","detail":"Set the app's redirect URL to Composio's HTTPS callback exactly. A non-native app must use an HTTPS redirect URL.","actor":"agent","human_reason":null,"irreversible":false,"values":[{"label":"OAuth redirect URL","value":"https://backend.composio.dev/api/v3/toolkits/auth/callback"}],"evidence":{"label":"DOCS","source_id":"s1","quote":"For security reasons, non-native applications must supply a \"https\" URL","found_in":"visible","note":null}},{"n":4,"title":"Register the minimum OAuth scopes","detail":"Choose only the API access the agent needs and enter those scopes during registration. Asana accepts only pre-approved registered scopes, so later authorization requests cannot add unregistered scopes.","actor":"agent","human_reason":null,"irreversible":true,"values":[{"label":"Scope format","value":"<resource>:<action>"},{"label":"Example read scope","value":"tasks:read"},{"label":"Example email scope","value":"users:read"}],"evidence":{"label":"DOCS","source_id":"s1","quote":"You'll need to specify which OAuth scopes your app can request during this registration step. Only these pre-approved scopes will be accepted later during user authorization.","found_in":"visible","note":null}},{"n":5,"title":"Secure and configure the client credentials","detail":"Retrieve the client ID and client secret, keep the secret server-side, and paste both into the Composio Asana auth configuration for your own app. Never expose the client secret to browser or client-side code.","actor":"human","human_reason":"credential","irreversible":false,"values":[{"label":"Client ID","value":"Paste the client ID issued by Asana"},{"label":"Client secret","value":"Paste the client secret issued by Asana"}],"evidence":{"label":"DOCS","source_id":"s1","quote":"You must first register your application with Asana to receive a client ID and client secret.","found_in":"visible","note":null}},{"n":6,"title":"Set distribution and submit for review","detail":"In Manage distribution, change the private app's sharing setting, set distribution to any workspace, and follow the Developer Console > Submit for Review instructions.","actor":"human","human_reason":"submit","irreversible":true,"values":[{"label":"Developer console path","value":"Developer Console > Submit for Review"},{"label":"Distribution setting","value":"any workspace"}],"evidence":{"label":"DOCS","source_id":"s5","quote":"Set your distribution to “any workspace”, then follow the instructions on the Developer Console > Submit for Review page.","found_in":"visible","note":null}},{"n":7,"title":"Wait for review and test authorization","detail":"Wait for Asana's review result, then test the Composio connection in a workspace where the app is available. Record any changes Asana requests before testing again.","actor":"human","human_reason":"wait","irreversible":false,"values":[],"evidence":{"label":"DOCS","source_id":"s5","quote":"Choose your test workspace. You can test in any of your existing workspaces, create a free account, or request a developer sandbox.","found_in":"visible","note":null}}],"review":{"required":"conditional","trigger":"Publishing the app in the Asana App Directory for public discovery","submit":["Set distribution to \"any workspace\"","Follow the Developer Console > Submit for Review instructions"],"reviewer":null,"wait_official":null,"wait_community":null,"cost":null,"evidence":[{"label":"DOCS","source_id":"s5","quote":"Set your distribution to “any workspace”, then follow the instructions on the Developer Console > Submit for Review page.","found_in":"visible","note":"Directory publication requires review; OAuth use after sharing with a workspace or organization is not shown as requiring this submission."},{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Check the current Developer Console > Submit for Review page for reviewer identity, processing time, and fees; the supplied claims do not state them."}]},"customer_gates":[{"text":"The app must be available in the user's workspace before that user can authorize it.","evidence":{"label":"DOCS","source_id":"s1","quote":"In order for a user to be able to authorize the OAuth application via this user authorization endpoint, the application must be available in the user's workspace.","found_in":"visible","note":null}},{"text":"Sharing with any workspace lets any user who has the OAuth redirect URL authorize the app; organization administrators may impose separate access restrictions.","evidence":{"label":"DOCS","source_id":"s5","quote":"There you can share your app with more workspaces or choose to share your app with “any workspace”, meaning any user with the OAuth Redirect URL can authorize the app.","found_in":"visible","note":null}},{"text":"Whether a customer's workspace administrator must approve the individual authorization was not verified.","evidence":{"label":"UNCERTAIN","source_id":null,"quote":null,"found_in":null,"note":"Check the target workspace's administrator and OAuth application policies."}}],"gotchas":[{"text":"An access token lasts one hour; exchange the refresh token at POST https://app.asana.com/-/oauth_token to obtain another access token without user intervention.","evidence":{"label":"DOCS","source_id":"s1","quote":"Once the access token expires, the application can use the token exchange endpoint again (i.e., without user intervention) to exchange the refresh token for a new access token.","found_in":"visible","note":null}},{"text":"Only scopes registered for the app are accepted during authorization.","evidence":{"label":"DOCS","source_id":"s1","quote":"Only these pre-approved scopes will be accepted later during user authorization.","found_in":"visible","note":null}},{"text":"An authorization request may use only a subset of the registered scopes, and later scope requests are not additive.","evidence":{"label":"DOCS","source_id":"s1","quote":"You may request a subset of the scopes you registered for.","found_in":"visible","note":null}},{"text":"The OAuth state parameter must be an unguessable value tied to the user's session to prevent CSRF attacks.","evidence":{"label":"DOCS","source_id":"s1","quote":"the state parameter must contain an unguessable value tied to the user's session","found_in":"visible","note":null}},{"text":"Do not place the client secret in browser or client-side code; send secret-bearing requests from a secure server.","evidence":{"label":"DOCS","source_id":"s1","quote":"If you have a client_secret, this request should be sent from your secure server. The browser should not see your client_secret","found_in":"visible","note":null}}],"blockers":[{"symptom":"Authorization shows a forbidden_scopes error.","cause":"The app requested an OAuth scope that was not registered.","fix":"Register the required scope during app configuration or remove it from the authorization request.","evidence":{"label":"DOCS","source_id":"s1","quote":"the user will see a forbidden_scopes error on the authorization page.","found_in":"visible","note":null}},{"symptom":"GET /tasks/{task_gid}?opt_fields=assignee.email returns HTTP 403.","cause":"The users:read scope is missing.","fix":"Register and request users:read before retrieving assignee email.","evidence":{"label":"DOCS","source_id":"s3","quote":"Will fail with a 403 unless you include the users:read scope.","found_in":"hidden_section","note":null}}],"prepared":{"scopes":[{"scope":"tasks:read","why":"Read tasks when the agent's core workflow requires task access.","review_class":"unknown"},{"scope":"users:read","why":"Required when retrieving assignee email for a task.","review_class":"unknown"}],"privacy_policy_outline":["State what Asana data the app reads and writes.","Explain why each registered OAuth scope is needed.","Describe how user credentials and access tokens are protected.","Provide a support or contact method."],"consent_screen":{"title":"Connect your Asana account","description":"Explain what the agent will do with the user's Asana data.","scopes":"List every requested Asana OAuth scope and its purpose.","authorization_button":"Connect Asana account","cancel_action":"Cancel"},"review_text":"Request access only for the documented task-reading and user-reading operations required by the integration. Explain that the app is created as a private OAuth app, uses Composio's HTTPS callback, and requests the minimum scopes needed."},"open_questions":["The exact Asana App Directory review criteria and approval timeline were not provided.","Whether every customer's workspace administrator must approve the app was not verified.","The current availability of granular scoped OAuth beyond the new-app developer preview was not verified; the supplied changelog says general availability was expected in July 2025.","The exact scopes required by the intended agent workflow are not yet known.","Tier set to review_required by rule (model said instant) because the docs say: \"Set your distribution to “any workspace”, then follow the instructions on the Developer Console > Submit for Review page.\""],"schema_version":"1","slug":"asana","app_name":"Asana","guide_type":"generated","last_verified":"2026-10-22","composio":{"toolkit_slug":"asana","status":"managed","callback_url":"https://backend.composio.dev/api/v3/toolkits/auth/callback","callback_note":"Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."},"wall_probe":{"console_url":"https://app.asana.com/0/my-apps","final_url":"https://app.asana.com/-/login?u=%2F0%2Fmy-apps","redirect_chain":["https://app.asana.com/0/my-apps","https://app.asana.com/-/login?u=%2F0%2Fmy-apps"],"outcome":"login_wall","wall_host":"app.asana.com","asks_for":"Sign-in page at app.asana.com (reCAPTCHA mentioned)","bot_check":true,"method":"http","observed_at":"2026-10-22"},"conflicts":[],"sources":[{"id":"s1","url":"https://developers.asana.com/docs/oauth","title":"OAuth","accessed":"2026-10-22","kind":"official_docs"},{"id":"s3","url":"https://forum.asana.com/t/new-oauth-permission-scopes/1048556","title":"[ New ] OAuth permission scopes - Changelog - Asana Community","accessed":"2026-10-22","kind":"official_docs"},{"id":"s4","url":"https://developers.asana.com/docs/manage-and-share-your-app","title":"Manage your app","accessed":"2026-10-22","kind":"official_docs"},{"id":"s5","url":"https://developers.asana.com/docs/overview","title":"Build an app with Asana","accessed":"2026-10-22","kind":"official_docs"},{"id":"s6","url":"https://app.asana.com/0/my-apps","title":"Developer console sign-in wall probe","accessed":"2026-10-22","kind":"observation"}],"verification_summary":{"total":27,"tested":1,"docs_verified":24,"docs_hidden":3,"community":0,"uncertain":2}}}}
+
+data: {"type":"finish"}
+
+data: [DONE]
+
