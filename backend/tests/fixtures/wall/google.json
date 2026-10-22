@@ -1,0 +1,18 @@
+{
+  "slug": "google",
+  "source": "experiments/oauth-capture-poc/runs/google/steps.json (blocked_at, findings.md)",
+  "console_url": "https://console.cloud.google.com/auth/overview",
+  "final_url": "https://accounts.google.com/v3/signin/identifier?continue=https://console.cloud.google.com/auth/overview",
+  "status": 200,
+  "redirect_chain": [
+    "https://console.cloud.google.com/auth/overview",
+    "https://accounts.google.com/v3/signin/identifier?continue=https://console.cloud.google.com/auth/overview"
+  ],
+  "visible_text": "Sign in. Use your Google Account. Email or phone. Forgot email? Create account. Guest mode. Next.",
+  "what_it_asks_for_poc": "A Google account: email or phone, then password. Create account and Guest mode are also offered.",
+  "expect": {
+    "outcome": "login_wall",
+    "wall_host": "accounts.google.com",
+    "bot_check": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "shopify",
+  "source": "experiments/oauth-capture-poc/runs/shopify/steps.json (blocked_at, findings.md)",
+  "console_url": "https://dev.shopify.com/dashboard",
+  "final_url": "https://accounts.shopify.com/lookup",
+  "status": 200,
+  "redirect_chain": [
+    "https://dev.shopify.com/dashboard",
+    "https://accounts.shopify.com/lookup"
+  ],
+  "visible_text": "Log in. Continue to Shopify. Email. Continue with email. Sign in with passkey, Google, Apple, Facebook or WhatsApp.",
+  "what_it_asks_for_poc": "A Shopify account: email, then password, or passkey, Google, Apple, Facebook or WhatsApp sign-in.",
+  "expect": {
+    "outcome": "login_wall",
+    "wall_host": "accounts.shopify.com",
+    "bot_check": false
+  }
+}

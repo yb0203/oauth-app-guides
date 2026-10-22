@@ -144,6 +144,8 @@ Target: an average of 2.3 or more, and no app scoring 1 on criterion 4.
 
 ### 4.4 Budget and approval
 
+**Decided 2026-10-21: no live OpenRouter calls while building and testing.** L1 and L2 run against a stubbed LLM layer and fake mode. Claude Code in-session does all building, reviewing and scoring. The OpenRouter key (already in `backend/.env`, with `LLM_MODE=fake`) is used only at the final step: first the 3-app smoke run, then as much of the L3 suite as time and quota allow.
+
 Runtime models are free OpenRouter models, so model cost is $0. The limit is the request quota: the full L3 suite is about 20 runs × about 15 calls = **about 300 requests**. That needs the 1,000-requests-per-day tier (at least 10 OpenRouter credits bought once); on the 50-per-day tier, only the 3-app smoke subset fits in a day. Runs go in sequence, or 2 in parallel, to stay under 20 requests per minute. Scoring and the manual rubric are done by Claude Code in-session, not by the runtime models. While iterating, use a 3-app smoke subset (GitHub, Google, Spotify: one easy, one scope-dependent, one partner-only).
 
 ## 5. L4: acceptance and demo rehearsal

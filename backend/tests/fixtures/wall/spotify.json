@@ -1,0 +1,18 @@
+{
+  "slug": "spotify",
+  "source": "experiments/oauth-capture-poc/runs/spotify/steps.json (blocked_at, findings.md)",
+  "console_url": "https://developer.spotify.com/dashboard",
+  "final_url": "https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fdeveloper.spotify.com%2Fdashboard",
+  "status": 200,
+  "redirect_chain": [
+    "https://developer.spotify.com/dashboard",
+    "https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fdeveloper.spotify.com%2Fdashboard"
+  ],
+  "visible_text": "Log in to Spotify. Email or username. Continue with Google. Continue with Facebook. Continue with Apple. Continue with phone number. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
+  "what_it_asks_for_poc": "A Spotify account: email, phone, or Google / Facebook / Apple sign-in. Page notes reCAPTCHA protection.",
+  "expect": {
+    "outcome": "login_wall",
+    "wall_host": "accounts.spotify.com",
+    "bot_check": true
+  }
+}

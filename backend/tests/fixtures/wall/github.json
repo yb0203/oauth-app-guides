@@ -1,0 +1,18 @@
+{
+  "slug": "github",
+  "source": "experiments/oauth-capture-poc/runs/github/steps.json (blocked_at, findings.md)",
+  "console_url": "https://github.com/settings/applications/new",
+  "final_url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew",
+  "status": 200,
+  "redirect_chain": [
+    "https://github.com/settings/applications/new",
+    "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"
+  ],
+  "visible_text": "Sign in to GitHub. Username or email address. Password. Sign in. Sign in with a passkey. Continue with Google. Continue with Apple. New to GitHub? Create an account.",
+  "what_it_asks_for_poc": "A GitHub account (username or email + password, or Google/Apple/passkey sign-in).",
+  "expect": {
+    "outcome": "login_wall",
+    "wall_host": "github.com",
+    "bot_check": false
+  }
+}

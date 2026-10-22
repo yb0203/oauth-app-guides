@@ -29,6 +29,7 @@ The format is defined by `data/schema/guide.schema.json` (draft 2020-12). The ca
 - **Evidence object** (on every fact): `{label: TESTED|DOCS|COMMUNITY|UNCERTAIN, source_id, quote, found_in: visible|hidden_section|null, note}`.
   - `DOCS` requires `source_id` and `quote`, and `found_in` must not be null, because the quote was checked on the live page.
   - `TESTED` requires `note` describing what our tooling observed.
+- **verification_summary** counts every evidence object in the guide (including those in `conflicts`). `docs_verified` = all DOCS items (visible and hidden); `docs_hidden` = the subset with `found_in: hidden_section`; so `total = tested + docs_verified + community + uncertain`.
 - **Step**: `{n, title, detail, actor: agent|human|either, human_reason: credential|legal_acceptance|payment|identity|real_account|submit|wait|null, irreversible, values[{label,value}], evidence}`. `human_reason` is required when `actor` is `human`.
 
 ## 3. Backend HTTP API (FastAPI)
@@ -38,11 +39,27 @@ Base URL comes from env: the frontend reads `NEXT_PUBLIC_API_URL` (default `http
 | Method | Path | Response |
 |---|---|---|
 | GET | `/api/health` | `{"ok": true}` |
-| GET | `/api/catalog` | `[{slug, name, composio_status, tier_guess, has_guide}]`, from `research/composio/catalog.csv` (the 100 proposed apps) joined with the guides that exist |
+| GET | `/api/catalog` | `[{slug, name, composio_status, tier_guess, has_guide, tier, guide_slug}]` (`tier` and `guide_slug` are null unless a guide exists; when one does, `tier` is the guide's verified tier and the UI shows it instead of the guess), from `research/composio/catalog.csv` (the 100 proposed apps) joined with the guides that exist |
 | GET | `/api/guides` | `[{slug, app_name, guide_type, tier, last_verified}]` |
 | GET | `/api/guides/{slug}` | Guide JSON (curated from `data/guides/`, or generated and stored by the backend); 404 if none |
 | GET | `/api/guides/{slug}/markdown` | `text/markdown` export of the guide |
 | POST | `/api/generate` | AI SDK UI message stream (§4). Request body: `{"app": "<name or URL>"}`, or a `useChat` body (`{"messages": [...]}`), in which case the backend uses the text of the last user message |
+| POST | `/api/guides/{slug}/ask` | AI SDK UI message stream (§4b). Request body: `{"question": "...", "situation": {"<question_id>": "<option_id>"}, "history": [{"role":"user|assistant","text":"..."}]}`, or a `useChat` body (`{"messages": [...], "situation": {...}}`). 404 if the guide doesn't exist |
+
+## 4b. "Ask this guide" stream (added 2026-10-22)
+
+Grounded Q&A over **one guide only**. The answer may use only facts that are in the guide JSON. It never fetches the web.
+
+1. `{"type":"start","messageId":"<id>"}`
+2. The answer as text parts (`text-start` / `text-delta` / `text-end`). Citations are inline markers `[1]`, `[2]`… in the text.
+3. `{"type":"data-citations","id":"citations","data":[{"marker":"1","label":"DOCS|TESTED|COMMUNITY|UNCERTAIN","source_id":"s3","url":"...","title":"...","quote":"...","found_in":"visible|hidden_section|null","fact":"<the guide fact this cites>"}]}`. Every marker in the text must appear here, and every entry must point to an evidence object that exists in the guide. The backend checks both and strips any marker that doesn't resolve.
+4. Optional actions, zero or more: `{"type":"data-action","id":"action-<n>","data":{"kind":"set_situation","question_id":"<id>","option_id":"<id>","label":"Apply: <option label>"}}`. The question and option must exist in `guide.situations`; the backend validates this. The frontend renders them as buttons that set the situation answers.
+5. `{"type":"data-answer-meta","id":"meta","data":{"covered":true|false,"suggest":null|"regenerate"}}`. When the guide doesn't cover the question, `covered` is false, the text says so plainly, there are no citations, and `suggest` is `"regenerate"`.
+6. `{"type":"finish"}`, then `data: [DONE]`.
+
+**Fake mode:** no LLM. Use deterministic retrieval: score the guide's facts and steps by keyword overlap with the question, answer with the top 1 to 3 facts in plain sentences with markers, and add a `set_situation` action when the question matches a situation option's words (for example "internal", "only my company", "read email"). If nothing scores, answer `covered: false`. This is also the **fallback** in live mode when the LLM fails.
+
+**Live mode:** one LLM call (free OpenRouter model through Pydantic AI). The input is the guide JSON trimmed to facts with evidence ids, plus the current situation; the output is validated (`answer_text`, `citations[]` as evidence references, `actions[]`, `covered`). Then post-check citations and actions as above.
 
 ## 4. Generation stream (AI SDK UI message stream protocol, v1)
 

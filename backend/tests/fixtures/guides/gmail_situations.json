@@ -1,0 +1,442 @@
+{
+  "schema_version": "1",
+  "slug": "gmail",
+  "app_name": "Gmail",
+  "guide_type": "curated",
+  "last_verified": "2026-10-21",
+  "composio": {
+    "toolkit_slug": "gmail",
+    "status": "managed",
+    "callback_url": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+    "callback_note": "Copy the exact redirect URI shown in your Composio auth config; some toolkits still show the legacy https://backend.composio.dev/api/v1/auth-apps/add."
+  },
+  "verdict": {
+    "tier": "review_required",
+    "summary": "Base verdict: depends on audience and scopes.",
+    "effort_hours": {
+      "min": 0.1,
+      "max": 0.25
+    },
+    "calendar": {
+      "min_days": 0,
+      "max_days": 0,
+      "label": "Depends on your situation"
+    },
+    "calendar_basis": "estimate",
+    "confidence": "high"
+  },
+  "situations": {
+    "questions": [
+      {
+        "id": "audience",
+        "text": "Who will connect their Gmail?",
+        "options": [
+          {
+            "id": "internal",
+            "label": "Only people in my Google Workspace organisation"
+          },
+          {
+            "id": "external",
+            "label": "Anyone with a Google account"
+          }
+        ]
+      },
+      {
+        "id": "scopes",
+        "text": "What does your app need to do?",
+        "options": [
+          {
+            "id": "send_only",
+            "label": "Only send email"
+          },
+          {
+            "id": "read",
+            "label": "Read email"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "when": {
+          "audience": "internal"
+        },
+        "tier": "instant",
+        "summary": "No Google review: mark the app Internal and it works for your organisation.",
+        "calendar_label": "Same day",
+        "notes": [
+          "Internal apps skip verification."
+        ]
+      },
+      {
+        "when": {
+          "audience": "external",
+          "scopes": "send_only"
+        },
+        "tier": "review_required",
+        "summary": "Sensitive scope review (days) before you can go past 100 users.",
+        "calendar_label": "Days",
+        "notes": [
+          "Sensitive scope verification."
+        ]
+      },
+      {
+        "when": {
+          "audience": "external",
+          "scopes": "read"
+        },
+        "tier": "review_required",
+        "summary": "Restricted scope review + security assessment (weeks).",
+        "calendar_label": "Weeks",
+        "notes": [
+          "Restricted scopes need a third-party security assessment."
+        ]
+      }
+    ]
+  },
+  "byo_advice": "Composio has a managed GitHub app, so you can start without creating your own. Bring your own when you want your product name on the consent screen, your own rate limits, or scopes beyond Composio's defaults.",
+  "before_you_start": [
+    {
+      "text": "A GitHub account (sign in with password, Google, Apple or a passkey). The new-app page redirects straight to sign-in; there is no developer program to join.",
+      "evidence": {
+        "label": "TESTED",
+        "source_id": "s5",
+        "quote": null,
+        "found_in": null,
+        "note": "github.com/settings/applications/new redirected to github.com/login on 2026-10-21; the page offered password, Google, Apple and passkey sign-in."
+      }
+    },
+    {
+      "text": "Only use information you are happy to make public in the app's fields.",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "Only use information in your OAuth app that you consider public",
+        "found_in": "visible",
+        "note": null
+      }
+    }
+  ],
+  "limits": [
+    {
+      "what": "OAuth apps per owner",
+      "value": 100,
+      "unit": "apps",
+      "scope": "per user or organization",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "A user or organization can own up to 100 OAuth apps",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "what": "Callback URLs per app",
+      "value": 10,
+      "unit": "URLs",
+      "scope": "per app",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "You can enter up to 10 callback URLs",
+        "found_in": "visible",
+        "note": null
+      }
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title": "Sign in to GitHub",
+      "detail": "Open https://github.com/settings/applications/new. You'll be sent to GitHub sign-in first.",
+      "actor": "human",
+      "human_reason": "credential",
+      "irreversible": false,
+      "values": [],
+      "evidence": {
+        "label": "TESTED",
+        "source_id": "s5",
+        "quote": null,
+        "found_in": null,
+        "note": "Observed redirect to github.com/login with return_to set."
+      }
+    },
+    {
+      "n": 2,
+      "title": "Open Developer settings > OAuth apps > New OAuth App",
+      "detail": "Profile picture > Settings > Developer settings > OAuth apps > New OAuth App (reads 'Register a new application' if you have none). The URL above opens it directly.",
+      "actor": "human",
+      "human_reason": "real_account",
+      "irreversible": false,
+      "values": [],
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "In the left sidebar, click Developer settings",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "n": 3,
+      "title": "Fill in name, homepage and description",
+      "detail": "Use your product name and public homepage. The description is optional and shown to users.",
+      "actor": "either",
+      "human_reason": null,
+      "irreversible": false,
+      "values": [
+        {
+          "label": "Application name",
+          "value": "<Your product name>"
+        },
+        {
+          "label": "Homepage URL",
+          "value": "https://<your-domain>"
+        }
+      ],
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "Only use information in your OAuth app that you consider public",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "n": 4,
+      "title": "Set the Authorization callback URL to Composio's callback",
+      "detail": "Paste the redirect URI from your Composio auth config.",
+      "actor": "either",
+      "human_reason": null,
+      "irreversible": false,
+      "values": [
+        {
+          "label": "Authorization callback URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+        }
+      ],
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "In \"Authorization callback URL\", type the callback URL of your app",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "n": 5,
+      "title": "Leave 'Expire user access tokens' on",
+      "detail": "It's on by default. Composio refreshes tokens for you.",
+      "actor": "either",
+      "human_reason": null,
+      "irreversible": false,
+      "values": [],
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "Expire user access tokens is enabled by default",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "n": 6,
+      "title": "Click Register application",
+      "detail": "The app works immediately; there is no review.",
+      "actor": "human",
+      "human_reason": "submit",
+      "irreversible": false,
+      "values": [],
+      "evidence": {
+        "label": "UNCERTAIN",
+        "source_id": null,
+        "quote": null,
+        "found_in": null,
+        "note": "That no review follows comes from our research and the absence of any review step in GitHub's docs; not observed in a signed-in run."
+      }
+    },
+    {
+      "n": 7,
+      "title": "Generate a client secret and add both values to Composio",
+      "detail": "Generate a client secret on the app page, then create a Composio auth config for GitHub with the client ID and secret.",
+      "actor": "human",
+      "human_reason": "credential",
+      "irreversible": false,
+      "values": [],
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s4",
+        "quote": "set its authorized redirect URI to Composio's callback, then pass the client ID and secret",
+        "found_in": "visible",
+        "note": "Where to generate the secret on GitHub was not visible without signing in."
+      }
+    }
+  ],
+  "review": {
+    "required": "no",
+    "trigger": null,
+    "submit": [],
+    "reviewer": null,
+    "wait_official": null,
+    "wait_community": null,
+    "cost": "Free",
+    "evidence": [
+      {
+        "label": "UNCERTAIN",
+        "source_id": null,
+        "quote": null,
+        "found_in": null,
+        "note": "No review process appears in GitHub's OAuth app docs; GitHub Marketplace listing (optional) is separate."
+      }
+    ]
+  },
+  "customer_gates": [
+    {
+      "text": "New GitHub organizations restrict OAuth apps by default, so an org owner may need to approve your app before members can grant it access to org resources.",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s3",
+        "quote": "When you create a new organization, OAuth app access restrictions are enabled by default",
+        "found_in": "visible",
+        "note": null
+      }
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "If org approvals are a problem for your users, a GitHub App avoids them.",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s2",
+        "quote": "GitHub Apps aren't subject to organization application policies",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "text": "New OAuth apps issue expiring user tokens by default, so your integration must handle refresh (Composio does).",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s1",
+        "quote": "Expire user access tokens is enabled by default",
+        "found_in": "visible",
+        "note": null
+      }
+    }
+  ],
+  "blockers": [
+    {
+      "symptom": "Users in an organization can connect, but the agent can't see that org's repositories.",
+      "cause": "The organization restricts OAuth apps and hasn't approved yours.",
+      "fix": "Ask an org owner to approve the app under the org's third-party access settings, or switch to a GitHub App.",
+      "evidence": {
+        "label": "DOCS",
+        "source_id": "s3",
+        "quote": "When OAuth app access restrictions are enabled, organization members and outside collaborators cannot authorize OAuth app access to organization resources",
+        "found_in": "visible",
+        "note": null
+      }
+    },
+    {
+      "symptom": "The connect flow fails with a redirect URI mismatch error.",
+      "cause": "The Authorization callback URL doesn't exactly match the redirect URI in your Composio auth config.",
+      "fix": "Copy the redirect URI from the Composio auth config into the GitHub app's callback URL field, character for character.",
+      "evidence": {
+        "label": "UNCERTAIN",
+        "source_id": null,
+        "quote": null,
+        "found_in": null,
+        "note": "Exact GitHub error wording not verified in this run."
+      }
+    }
+  ],
+  "prepared": {
+    "scopes": [
+      {
+        "scope": "read:user",
+        "why": "Identify the connected user.",
+        "review_class": "none"
+      },
+      {
+        "scope": "repo",
+        "why": "Only if your agent must read or write private repositories; it grants broad access, so omit it if public data is enough.",
+        "review_class": "none"
+      }
+    ],
+    "privacy_policy_outline": [
+      "What GitHub data the agent reads and why",
+      "That tokens are stored by Composio on your behalf",
+      "How users revoke access (GitHub Settings > Applications)"
+    ],
+    "consent_screen": {
+      "Application name": "<Your product name>",
+      "Homepage URL": "https://<your-domain>",
+      "Authorization callback URL": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+    },
+    "review_text": null
+  },
+  "open_questions": [
+    "Exact location of 'Generate a new client secret' on the app page (needs a signed-in check).",
+    "Exact wording of GitHub's redirect mismatch error."
+  ],
+  "wall_probe": {
+    "console_url": "https://github.com/settings/applications/new",
+    "final_url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew",
+    "redirect_chain": [
+      "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew"
+    ],
+    "outcome": "login_wall",
+    "wall_host": "github.com",
+    "asks_for": "GitHub account: username or email and password, Google, Apple, or passkey",
+    "bot_check": false,
+    "method": "browser",
+    "observed_at": "2026-10-21"
+  },
+  "conflicts": [],
+  "sources": [
+    {
+      "id": "s1",
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+      "title": "Creating an OAuth app - GitHub Docs",
+      "accessed": "2026-10-21",
+      "kind": "official_docs"
+    },
+    {
+      "id": "s2",
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps",
+      "title": "Differences between GitHub Apps and OAuth apps - GitHub Docs",
+      "accessed": "2026-10-21",
+      "kind": "official_docs"
+    },
+    {
+      "id": "s3",
+      "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions",
+      "title": "About OAuth app access restrictions - GitHub Docs",
+      "accessed": "2026-10-21",
+      "kind": "official_docs"
+    },
+    {
+      "id": "s4",
+      "url": "https://docs.composio.dev/docs/authentication/programmatic-auth-configs.md",
+      "title": "Programmatic auth configs - Composio Docs",
+      "accessed": "2026-10-21",
+      "kind": "composio_docs"
+    },
+    {
+      "id": "s5",
+      "url": "https://github.com/settings/applications/new",
+      "title": "Sign-in wall observation",
+      "accessed": "2026-10-21",
+      "kind": "observation"
+    }
+  ],
+  "verification_summary": {
+    "total": 17,
+    "tested": 2,
+    "docs_verified": 12,
+    "docs_hidden": 0,
+    "community": 0,
+    "uncertain": 3
+  }
+}

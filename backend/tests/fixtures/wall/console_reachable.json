@@ -1,0 +1,14 @@
+{
+  "console_url": "https://dev.example.com/apps/new",
+  "final_url": "https://dev.example.com/apps/new",
+  "status": 200,
+  "redirect_chain": [
+    "https://dev.example.com/apps/new"
+  ],
+  "visible_text": "Create a new application. Application name. Homepage URL. Authorization callback URL. Register application. Cancel.",
+  "expect": {
+    "outcome": "console_reachable",
+    "wall_host": null,
+    "bot_check": false
+  }
+}
